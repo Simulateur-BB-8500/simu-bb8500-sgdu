@@ -1,5 +1,4 @@
-/Debug
-/inc/fmod
-/lib
+/fmod
 /wav
-*.dll
+/Linux
+/Windows

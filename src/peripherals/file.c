@@ -7,6 +7,7 @@
 
 #include "file.h"
 
+#include "stddef.h"
 #include "stdio.h"
 #include "stdlib.h"
 
@@ -17,7 +18,7 @@
  */
 void FILE_Open(FILE** file, const char* file_path) {
 	(*file) = fopen(file_path, "r");
-	if ((*file) != ((void*) 0)) {
+	if ((*file) != NULL) {
 		printf("FILE : Open %s: OK.\n", file_path);
 	}
 	else {
@@ -32,7 +33,7 @@ void FILE_Open(FILE** file, const char* file_path) {
  * @return:				None.
  */
 void FILE_GetLastLine(FILE* file, char* last_line) {
-	if (file != ((void*) 0)) {
+	if (file != NULL) {
 		unsigned int char_idx = 0;
 		// Move the cursor before the last character of the file.
 		fseek(file, -1, SEEK_END);
@@ -64,7 +65,7 @@ void FILE_GetLastLine(FILE* file, char* last_line) {
  * @return:		None.
  */
 void FILE_Close(FILE* file) {
-	if (file != ((void*) 0)) {
+	if (file != NULL) {
 		fclose(file);
 	}
 }

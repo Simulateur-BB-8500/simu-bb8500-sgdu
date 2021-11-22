@@ -8,11 +8,11 @@
 #include "lsmcu.h"
 
 #include "comp.h"
-#include "C:/Users/Ludovic/Documents/Eclipse/LSMCU/inc/applicative/lssgkcu.h"
 #include "fd.h"
 #include "fpb.h"
 #include "kvb.h"
 #include "lights.h"
+#include "lssgkcu.h"
 #include "log.h"
 #include "mp.h"
 #include "mpinv.h"
@@ -31,7 +31,7 @@
 
 /*** LSMCU local global variables ***/
 
-static HANDLE lsmcu_handle;
+static SERIAL_Port_t lsmcu_serial_port;
 
 /*** LSMCU functions ***/
 
@@ -39,9 +39,9 @@ static HANDLE lsmcu_handle;
  * @param port:	LSMCU port number ("COMxx").
  * @return:		None.
  */
-void LSMCU_Init(char port[]) {
+void LSMCU_Init(char* port) {
 	// Open serial port.
-	SERIAL_Open(&lsmcu_handle, port, LSMCU_SERIAL_BAUDRATE);
+	SERIAL_Open(&lsmcu_serial_port, port, LSMCU_SERIAL_BAUDRATE);
 }
 
 /* SEND A COMMAND TO LSMCU.
@@ -49,7 +49,7 @@ void LSMCU_Init(char port[]) {
  * @return:				None.
  */
 void LSMCU_Send(unsigned tx_command) {
-	SERIAL_Write(&lsmcu_handle, tx_command);
+	SERIAL_Write(&lsmcu_serial_port, tx_command);
 #ifdef LSMCU_LOG
 	printf("LSMCU *** TX command = 0x%x.\n", tx_command);
 	fflush(stdout);
@@ -63,7 +63,7 @@ void LSMCU_Send(unsigned tx_command) {
 void LSMCU_Task(void) {
 	// Read serial port.
 	unsigned char rx_command = LSMCU_OUT_NOP;
-	unsigned char rx_success = SERIAL_Read(&lsmcu_handle, &rx_command);
+	unsigned char rx_success = SERIAL_Read(&lsmcu_serial_port, &rx_command);
 	if ((rx_success != 0) && (rx_command != LSMCU_OUT_NOP)) {
 #ifdef LSMCU_LOG
 		printf("LSMCU *** RX command = 0x%x.\n", rx_command);

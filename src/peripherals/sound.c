@@ -8,6 +8,7 @@
 #include "sound.h"
 
 #include "fmod.h"
+#include "stddef.h"
 #include "stdio.h"
 #include "string.h"
 #include "time.h"
@@ -15,8 +16,13 @@
 /*** SOUND local macros ***/
 
 #define SOUND_FMOD_NUMBER_OF_CHANNELS			32
-#define SOUND_AUDIO_FILES_FOLDER_PATH			"C:/Users/Ludovic/Documents/Eclipse/LSSGKCU/wav/"
 #define SOUND_AUDIO_FILE_NAME_MAXIMUM_LENGTH	100
+#ifdef WINDOWS
+#define SOUND_AUDIO_FILES_FOLDER_PATH			"C:/Users/Ludovic/Documents/Eclipse/LSSGKCU/wav/"
+#endif
+#ifdef LINUX
+#define SOUND_AUDIO_FILES_FOLDER_PATH			"/home/ludo/git/lssgiu/wav/"
+#endif
 //#define SOUND_LOG
 
 /*** SOUND local global variables ***/
@@ -34,7 +40,7 @@ unsigned int b = 0;
  * @return:	None.
  */
 void SOUND_FmodSystemInit() {
-	FMOD_System_Create(&sound_fmod_system);
+	FMOD_System_Create(&sound_fmod_system, FMOD_VERSION);
 	FMOD_System_Init(sound_fmod_system, SOUND_FMOD_NUMBER_OF_CHANNELS, FMOD_INIT_NORMAL, (void*) 0);
 }
 
@@ -49,7 +55,7 @@ void SOUND_Init(SOUND_Context* sound_ctx, const char* audio_file_name, float max
 	char audio_file_full_name[SOUND_AUDIO_FILE_NAME_MAXIMUM_LENGTH] = SOUND_AUDIO_FILES_FOLDER_PATH;
 	strcat(audio_file_full_name, audio_file_name);
 	// Structure initialisation.
-	FMOD_RESULT fmod_result = FMOD_System_CreateSound(sound_fmod_system, audio_file_full_name, FMOD_SOFTWARE | FMOD_2D | FMOD_CREATESTREAM, 0, &(sound_ctx -> sound_fmod_sound));
+	FMOD_RESULT fmod_result = FMOD_System_CreateSound(sound_fmod_system, audio_file_full_name, FMOD_2D | FMOD_CREATESTREAM, NULL, &(sound_ctx -> sound_fmod_sound));
 	FMOD_Sound_GetLength((sound_ctx -> sound_fmod_sound), &(sound_ctx -> sound_length_ms), FMOD_TIMEUNIT_MS);
 	sound_ctx -> sound_current_volume = 0.0;
 	SOUND_SetVolume(sound_ctx, 0.0);
@@ -71,7 +77,7 @@ void SOUND_Init(SOUND_Context* sound_ctx, const char* audio_file_name, float max
  * @return: 			None.
  */
 void SOUND_Play(SOUND_Context* sound_ctx) {
-	FMOD_System_PlaySound(sound_fmod_system, FMOD_CHANNEL_FREE, (sound_ctx -> sound_fmod_sound), 0, &(sound_ctx -> sound_fmod_channel));
+	FMOD_System_PlaySound(sound_fmod_system, (sound_ctx -> sound_fmod_sound), NULL, 0, &(sound_ctx -> sound_fmod_channel));
 }
 
 /* STOP A SOUND.

@@ -9,7 +9,9 @@
 
 #include "stdio.h"
 #include "time.h"
+#ifdef WINDOWS
 #include "windows.h"
+#endif
 
 /*** KEYBOARD local macros ***/
 
@@ -44,8 +46,10 @@ static KEYBOARD_Context keyboard_ctx;
  * @param key:	Key to press.
  * @return:		None.
  */
-void KEYBOARD_Press(const KEYBOARD_Key* key) {
+static void KEYBOARD_Press(const KEYBOARD_Key* key) {
+#ifdef WINDOWS
 	keybd_event((key -> keyboard_key_code), (key -> keyboard_key_scan), 0, 0);
+#endif
 #ifdef KEYBOARD_LOG
 	printf("KEYBOARD *** Press key 0x%x\n", (key -> keyboard_key_code));
 	fflush(stdout);
@@ -56,8 +60,10 @@ void KEYBOARD_Press(const KEYBOARD_Key* key) {
  * @param key:	Key to release.
  * @return:		None.
  */
-void KEYBOARD_Release(const KEYBOARD_Key* key) {
+static void KEYBOARD_Release(const KEYBOARD_Key* key) {
+#ifdef WINDOWS
 	keybd_event((key -> keyboard_key_code), (key -> keyboard_key_scan), KEYEVENTF_KEYUP, 0);
+#endif
 #ifdef KEYBOARD_LOG
 	printf("KEYBOARD *** Release key 0x%x\n", (key -> keyboard_key_code));
 	fflush(stdout);

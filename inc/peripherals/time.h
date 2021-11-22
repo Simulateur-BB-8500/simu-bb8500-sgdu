@@ -10,7 +10,7 @@
 
 /*** TIME functions ***/
 
-void TIME_Init();
-unsigned long TIME_GetMs();
+void TIME_Init(void);
+unsigned long TIME_GetMs(void);
 
 #endif /* TIME_H */

@@ -7,9 +7,9 @@
 
 #include "kvb.h"
 
-#include "C:/Users/Ludovic/Documents/Eclipse/LSMCU/inc/applicative/lssgkcu.h"
-#include "mixer.h"
 #include "lsmcu.h"
+#include "lssgkcu.h"
+#include "mixer.h"
 #include "sound.h"
 #include "time.h"
 
