@@ -5,16 +5,32 @@
  *      Author: Ludo
  */
 
-#include "strings.h"
 #include "serial.h"
+
+#include "string.h"
 #include "stdio.h"
+#ifdef WINDOWS
+#include "windows.h"
+#endif
+#ifdef LINUX
+#include <errno.h>
+#include <fcntl.h>
+#include <termios.h>
+#include <unistd.h>
+#endif
 
 /*** SERIAL macros ***/
 
 #ifdef WINDOWS
 #define SERIAL_PORT_TIMEOUT_MS			10
+#define SERIAL_PATH_HEADER				"\\\\.\\"
 #define SERIAL_PORT_NAME_MAX_LENGTH		5 // Maximum length = "COMxx" = 5.
-#define SERIAL_PATH_HEADER_LENGTH 		4 // Length = "\\.\" = 4.
+#define SERIAL_PORT_BAUD_RATE			9600
+#endif
+#ifdef LINUX
+#define SERIAL_PATH_HEADER				"/dev/"
+#define SERIAL_PORT_NAME_MAX_LENGTH		8 // Maximum length = "ttyUSBxx" = 8.
+#define SERIAL_PORT_BAUD_RATE			B9600
 #endif
 //#define SERIAL_LOG
 
@@ -22,67 +38,75 @@
 
 /* OPEN A SERIAL COMMUNICATION THROUGH AN USB PORT AND CHECK THE CONNECTION.
  * @param handle:		Pointer to HANDLE.
- * @param port:			Port number to open ("COMxx").
- * @param baud_rate:	Baud rate in symbol per seconds.
- * @return :			None.
+ * @param port:			Port number to open ("COMxx" or "USBxx").
+ * @return status:		Opening status.
  */
-void SERIAL_Open(SERIAL_Port_t* serial_port, char* port, unsigned int baud_rate) {
+SERIAL_Error_t SERIAL_Open(SERIAL_Port_t* serial_port, char* port) {
+	// Local variables.
+	SERIAL_Error_t status = SERIAL_ERROR_OPEN;
+	char port_name[strlen(SERIAL_PATH_HEADER) + SERIAL_PORT_NAME_MAX_LENGTH + 1]; // +1 for '\0'.
+	// Check parameters.
+	if ((serial_port == NULL) || (port == NULL)) goto errors;
+	// Build port full path.
+	sprintf(port_name, "%s%s", SERIAL_PATH_HEADER, port);
+#ifdef SERIAL_LOG
+	printf("SERIAL *** Opening port %s: ", port_name);
+#endif
 #ifdef WINDOWS
-	if ((serial_port -> handle) != NULL) {
-		(*(serial_port -> handle)) = INVALID_HANDLE_VALUE;
-		// Build COM port path = "\\.\COMxx".
-		char port_name[SERIAL_PATH_HEADER_LENGTH + SERIAL_PORT_NAME_MAX_LENGTH + 1]; // +1 for '\0'.
-		port_name[0] = '\\';
-		port_name[1] = '\\';
-		port_name[2] = '.';
-		port_name[3] = '\\';
-		unsigned char i = 0;
-		for (i=0; i<SERIAL_PORT_NAME_MAX_LENGTH ; i++) {
-			port_name[SERIAL_PATH_HEADER_LENGTH + i] = port[i];
-			if (port[i] == '\0') {
-				break;
-			}
-		}
-		// Fill remaining characters with '\0'.
-		for (; i<(SERIAL_PORT_NAME_MAX_LENGTH + 1) ; i++) {
-			port_name[SERIAL_PATH_HEADER_LENGTH + i] = '\0';
-		}
+	(serial_port -> handle) = INVALID_HANDLE_VALUE;
+	// Create handle.
+	(serial_port -> handle) = CreateFile(port_name, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+	// Configure serial port settings.
+	DCB config;
+	GetCommState((serial_port -> handle), &config);
+	config.DCBlength = sizeof(DCB);
+	config.BaudRate = SERIAL_PORT_BAUD_RATE;
+	config.ByteSize = 8;
+	SetCommState((serial_port -> handle), &config);
+	// Configure timeouts.
+	COMMTIMEOUTS timeouts = {0};
+	timeouts.ReadIntervalTimeout = SERIAL_PORT_TIMEOUT_MS;
+	timeouts.ReadTotalTimeoutConstant = SERIAL_PORT_TIMEOUT_MS;
+	timeouts.ReadTotalTimeoutMultiplier = SERIAL_PORT_TIMEOUT_MS;
+	timeouts.WriteTotalTimeoutConstant = SERIAL_PORT_TIMEOUT_MS;
+	timeouts.WriteTotalTimeoutMultiplier = SERIAL_PORT_TIMEOUT_MS;
+	SetCommTimeouts((serial_port -> handle), &timeouts);
+	if ((serial_port -> handle) == INVALID_HANDLE_VALUE) goto errors;
+#endif
+#ifdef LINUX
+	// Open serial port.
+	(serial_port -> descriptor) = open(port_name, O_RDWR);
+	if ((serial_port -> descriptor) < 0) goto errors;
+	// Configure serial port.
+	if (tcgetattr((serial_port -> descriptor), &(serial_port -> tty)) < 0) goto errors;
+	(serial_port -> tty).c_cflag &= ~PARENB;
+	(serial_port -> tty).c_cflag &= ~CSTOPB;
+	(serial_port -> tty).c_cflag &= ~CSIZE;
+	(serial_port -> tty).c_cflag |= CS8;
+	(serial_port -> tty).c_cflag &= ~CRTSCTS;
+	(serial_port -> tty).c_cflag |= CREAD | CLOCAL;
+	(serial_port -> tty).c_lflag &= ~ICANON;
+	(serial_port -> tty).c_lflag &= ~ECHO;
+	(serial_port -> tty).c_lflag &= ~ISIG;
+	(serial_port -> tty).c_iflag &= ~(IXON | IXOFF | IXANY);
+	(serial_port -> tty).c_iflag &= ~( IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL);
+	(serial_port -> tty).c_oflag &= ~OPOST;
+	(serial_port -> tty).c_oflag &= ~ONLCR;
+	(serial_port -> tty).c_cc[VTIME] = 0;
+	(serial_port -> tty).c_cc[VMIN] = 0;
+	// Baud rate.
+	cfsetispeed(&(serial_port -> tty), SERIAL_PORT_BAUD_RATE);
+	cfsetospeed(&(serial_port -> tty), SERIAL_PORT_BAUD_RATE);
+	// Save settings.
+	if (tcsetattr((serial_port -> descriptor), TCSANOW, &(serial_port -> tty)) != 0) goto errors;
+#endif
+	// Update status.
+	status = SERIAL_SUCCESS;
+errors:
 #ifdef SERIAL_LOG
-		printf("SERIAL *** Opening port %s: ", port);
+	printf("%s\n", ((status == SERIAL_SUCCESS) ? "OK\n" : "Error\n"));
 #endif
-		// Create handle.
-		(*(serial_port -> handle)) = CreateFile(port_name, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
-		// Configure serial port settings.
-		DCB config;
-		GetCommState((*handle), &config);
-		config.DCBlength = sizeof(DCB);
-		config.BaudRate = baud_rate;
-		config.ByteSize = 8;
-		SetCommState((*handle), &config);
-		// Configure timeouts.
-		COMMTIMEOUTS timeouts = {0};
-		timeouts.ReadIntervalTimeout = SERIAL_PORT_TIMEOUT_MS;
-		timeouts.ReadTotalTimeoutConstant = SERIAL_PORT_TIMEOUT_MS;
-		timeouts.ReadTotalTimeoutMultiplier = SERIAL_PORT_TIMEOUT_MS;
-		timeouts.WriteTotalTimeoutConstant = SERIAL_PORT_TIMEOUT_MS;
-		timeouts.WriteTotalTimeoutMultiplier = SERIAL_PORT_TIMEOUT_MS;
-		SetCommTimeouts((*handle), &timeouts);
-#ifdef SERIAL_LOG
-		if ((*(serial_port -> handle)) == INVALID_HANDLE_VALUE) {
-			printf("Error.\n");
-		}
-		else {
-			printf("OK.\n");
-		}
-#endif
-	}
-#ifdef SERIAL_LOG
-	else {
-		printf("Error (null handle pointer).\n");
-	}
-	fflush(stdout);
-#endif
-#endif
+	return status;
 }
 
 /* SEND DATA TO SERIAL PORT.
@@ -90,24 +114,29 @@ void SERIAL_Open(SERIAL_Port_t* serial_port, char* port, unsigned int baud_rate)
  * @param tx_byte:	Byte to send.
  * @return result: 	0 if function failed, non-zero value otherwise.
  */
-unsigned char SERIAL_Write(SERIAL_Port_t* serial_port, unsigned char tx_byte) {
+SERIAL_Error_t SERIAL_Write(SERIAL_Port_t* serial_port, unsigned char tx_byte) {
 	// Local variables.
-	unsigned char result = 0;
-#ifdef WINDOWS
-	if (((serial_port -> handle) != NULL) && ((*(serial_port -> handle)) != INVALID_HANDLE_VALUE)) {
-		result = WriteFile((*(serial_port -> handle)), &tx_byte, 1, NULL, NULL);
-	}
+	SERIAL_Error_t status = SERIAL_ERROR_WRITE;
+	// Check parameters.
+	if (serial_port == NULL) goto errors;
 #ifdef SERIAL_LOG
-	if (result == 0) {
-		printf("SERIAL *** Write byte %d error.\n", tx_byte);
-	}
-	else {
-		printf("SERIAL *** Write byte %d success.\n", tx_byte);
-	}
-	fflush(stdout);
+	printf("SERIAL *** Writing byte %d: ", tx_byte);
 #endif
+#ifdef WINDOWS
+	if ((serial_port -> handle) != INVALID_HANDLE_VALUE) {
+		if (WriteFile((serial_port -> handle), &tx_byte, 1, NULL, NULL) == 0) goto errors;
+	}
 #endif
-	return result;
+#ifdef LINUX
+	if (write((serial_port -> descriptor), &tx_byte, 1) == 0) goto errors;
+#endif
+	// Update status.
+	status = SERIAL_SUCCESS;
+errors:
+#ifdef SERIAL_LOG
+	printf("%s\n", ((status == SERIAL_SUCCESS) ? "OK\n" : "Error\n"));
+#endif
+	return status;
 }
 
 /* READ DATA FROM SERIAL PORT.
@@ -115,18 +144,31 @@ unsigned char SERIAL_Write(SERIAL_Port_t* serial_port, unsigned char tx_byte) {
  * @param rx_byte:	Pointer to byte that will contain received data.
  * @return result:	0 if function failed, non-zero value otherwise.
  */
-unsigned char SERIAL_Read(SERIAL_Port_t* serial_port, unsigned char* rx_byte) {
-	unsigned char result = 0;
+SERIAL_Error_t SERIAL_Read(SERIAL_Port_t* serial_port, unsigned char* rx_byte) {
+	// Local variables.
+	SERIAL_Error_t status = SERIAL_ERROR_READ;
+	// Check parameters.
+	if (serial_port == NULL) goto errors;
 #ifdef WINDOWS
-	if (((serial_port -> handle) != NULL) && ((*(serial_port -> handle)) != INVALID_HANDLE_VALUE)) {
-		result = ReadFile((*(serial_port -> handle)), rx_byte, 1, NULL, NULL);
-#ifdef SERIAL_LOG
-		printf("SERIAL *** Read byte 0x%x.\n", rx_byte);
-		fflush(stdout);
-#endif
+	if ((serial_port -> handle) != INVALID_HANDLE_VALUE) {
+		if (ReadFile((serial_port -> handle), rx_byte, 1, NULL, NULL) == 0) goto errors;
 	}
 #endif
-	return result;
+#ifdef LINUX
+	if (read((serial_port -> descriptor), rx_byte, 1) == 0) goto errors;
+#endif
+	// Update status.
+	status = SERIAL_SUCCESS;
+errors:
+#ifdef SERIAL_LOG
+	if (status == SERIAL_SUCCESS) {
+		printf("SERIAL *** Read byte 0x%x.\n", (*rx_byte));
+	}
+	else {
+		printf("SERIAL *** Reading failed.\n");
+	}
+#endif
+	return status;
 }
 
 /* CLEAN SERIAL PORT.
@@ -135,8 +177,8 @@ unsigned char SERIAL_Read(SERIAL_Port_t* serial_port, unsigned char* rx_byte) {
  */
 void SERIAL_Flush(SERIAL_Port_t* serial_port) {
 #ifdef WINDOWS
-	if (((serial_port -> handle) != NULL) && ((*(serial_port -> handle)) != INVALID_HANDLE_VALUE)) {
-		PurgeComm((*(serial_port -> handle)), PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
+	if ((serial_port != NULL) && ((serial_port -> handle) != INVALID_HANDLE_VALUE)) {
+		PurgeComm((serial_port -> handle), PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
 	}
 #endif
 }
@@ -146,9 +188,16 @@ void SERIAL_Flush(SERIAL_Port_t* serial_port) {
  * @return:			None.
  */
 void SERIAL_Close(SERIAL_Port_t* serial_port) {
+	// Check parameter.
+	if (serial_port == NULL) goto errors;
 #ifdef WINDOWS
-	if (((serial_port -> handle) != NULL) && ((*(serial_port -> handle)) != INVALID_HANDLE_VALUE)) {
-		CloseHandle((*(serial_port -> handle)));
+	if ((serial_port -> handle) != INVALID_HANDLE_VALUE) {
+		CloseHandle(serial_port -> handle);
 	}
 #endif
+#ifdef LINUX
+	close((serial_port -> descriptor));
+#endif
+errors:
+	return;
 }

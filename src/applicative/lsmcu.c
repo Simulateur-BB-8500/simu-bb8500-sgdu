@@ -26,7 +26,6 @@
 
 /*** LSMCU local macros ***/
 
-#define LSMCU_SERIAL_BAUDRATE	9600
 #define LSMCU_LOG
 
 /*** LSMCU local global variables ***/
@@ -41,7 +40,7 @@ static SERIAL_Port_t lsmcu_serial_port;
  */
 void LSMCU_Init(char* port) {
 	// Open serial port.
-	SERIAL_Open(&lsmcu_serial_port, port, LSMCU_SERIAL_BAUDRATE);
+	SERIAL_Open(&lsmcu_serial_port, port);
 }
 
 /* SEND A COMMAND TO LSMCU.
