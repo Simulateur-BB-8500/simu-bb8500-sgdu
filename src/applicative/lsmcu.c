@@ -62,8 +62,8 @@ void LSMCU_Send(unsigned tx_command) {
 void LSMCU_Task(void) {
 	// Read serial port.
 	unsigned char rx_command = LSMCU_OUT_NOP;
-	unsigned char rx_success = SERIAL_Read(&lsmcu_serial_port, &rx_command);
-	if ((rx_success != 0) && (rx_command != LSMCU_OUT_NOP)) {
+	SERIAL_Error_t rx_success = SERIAL_Read(&lsmcu_serial_port, &rx_command);
+	if ((rx_success == SERIAL_SUCCESS) && (rx_command != LSMCU_OUT_NOP)) {
 #ifdef LSMCU_LOG
 		printf("LSMCU *** RX command = 0x%x.\n", rx_command);
 		fflush(stdout);

@@ -28,8 +28,8 @@
 #define SERIAL_PORT_BAUD_RATE			9600
 #endif
 #ifdef LINUX
-#define SERIAL_PATH_HEADER				"/dev/"
-#define SERIAL_PORT_NAME_MAX_LENGTH		8 // Maximum length = "ttyUSBxx" = 8.
+#define SERIAL_PATH_HEADER				"/dev/tty"
+#define SERIAL_PORT_NAME_MAX_LENGTH		5 // Maximum length = "USBxx" or "ACMxx" = 5.
 #define SERIAL_PORT_BAUD_RATE			B9600
 #endif
 //#define SERIAL_LOG
@@ -104,7 +104,7 @@ SERIAL_Error_t SERIAL_Open(SERIAL_Port_t* serial_port, char* port) {
 	status = SERIAL_SUCCESS;
 errors:
 #ifdef SERIAL_LOG
-	printf("%s\n", ((status == SERIAL_SUCCESS) ? "OK\n" : "Error\n"));
+	printf("%s\n", ((status == SERIAL_SUCCESS) ? "OK" : "Error"));
 #endif
 	return status;
 }
@@ -120,21 +120,21 @@ SERIAL_Error_t SERIAL_Write(SERIAL_Port_t* serial_port, unsigned char tx_byte) {
 	// Check parameters.
 	if (serial_port == NULL) goto errors;
 #ifdef SERIAL_LOG
-	printf("SERIAL *** Writing byte %d: ", tx_byte);
+	printf("SERIAL *** TX byte 0x%x: ", tx_byte);
 #endif
 #ifdef WINDOWS
-	if ((serial_port -> handle) != INVALID_HANDLE_VALUE) {
-		if (WriteFile((serial_port -> handle), &tx_byte, 1, NULL, NULL) == 0) goto errors;
-	}
+	if ((serial_port -> handle) != INVALID_HANDLE_VALUE) goto errors;
+	if (WriteFile((serial_port -> handle), &tx_byte, 1, NULL, NULL) == 0) goto errors;
 #endif
 #ifdef LINUX
+	if ((serial_port -> descriptor) < 0) goto errors;
 	if (write((serial_port -> descriptor), &tx_byte, 1) == 0) goto errors;
 #endif
 	// Update status.
 	status = SERIAL_SUCCESS;
 errors:
 #ifdef SERIAL_LOG
-	printf("%s\n", ((status == SERIAL_SUCCESS) ? "OK\n" : "Error\n"));
+	printf("%s\n", ((status == SERIAL_SUCCESS) ? "OK" : "Error"));
 #endif
 	return status;
 }
@@ -155,6 +155,7 @@ SERIAL_Error_t SERIAL_Read(SERIAL_Port_t* serial_port, unsigned char* rx_byte) {
 	}
 #endif
 #ifdef LINUX
+	if ((serial_port -> descriptor) < 0) goto errors;
 	if (read((serial_port -> descriptor), rx_byte, 1) == 0) goto errors;
 #endif
 	// Update status.
@@ -162,10 +163,7 @@ SERIAL_Error_t SERIAL_Read(SERIAL_Port_t* serial_port, unsigned char* rx_byte) {
 errors:
 #ifdef SERIAL_LOG
 	if (status == SERIAL_SUCCESS) {
-		printf("SERIAL *** Read byte 0x%x.\n", (*rx_byte));
-	}
-	else {
-		printf("SERIAL *** Reading failed.\n");
+		printf("SERIAL *** RX byte 0x%x.\n", (*rx_byte));
 	}
 #endif
 	return status;

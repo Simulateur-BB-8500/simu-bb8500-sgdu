@@ -30,9 +30,9 @@
  */
 int main (void) {
 	// Start print.
-	printf("**********************************************************************\n");
-	printf("*** Locomotive Simulator Sound Game and KVB Control Unit (LSSGKCU) ***\n");
-	printf("**********************************************************************\n\n");
+	printf("*******************************************************************\n");
+	printf("*** Locomotive Simulator Sound and Game Interface Unit (LSSGIU) ***\n");
+	printf("*******************************************************************\n\n");
 	fflush(stdout);
 	// Init time.
 	TIME_Init();
@@ -54,7 +54,12 @@ int main (void) {
 	ZPT_Init();
 	ZVM_Init();
 	// Init serial link.
+#ifdef WINDOWS
 	LSMCU_Init("COM5");
+#endif
+#ifdef LINUX
+	LSMCU_Init("USB1");
+#endif
 	// Main loop.
 	while (1) {
 		COMP_Task();
