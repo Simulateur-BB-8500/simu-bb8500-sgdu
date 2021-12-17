@@ -39,11 +39,10 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.linker.712595912" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.link.option.libs.1474953461" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="&quot;${workspace_loc:/LSSGIU/fmod/api/core/lib/x86_64/libfmod.so}&quot;"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="fmod"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="fmod_vc"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.link.option.paths.1547684059" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LSSGIU/fmod/api/core/lib/x86_64}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LSSGIU/fmod/api/core/lib/x64}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.574272203" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -169,6 +168,9 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.exe.release.345188536;cdt.managedbuild.config.gnu.mingw.exe.release.345188536.;cdt.managedbuild.tool.gnu.cross.c.compiler.933380611;cdt.managedbuild.tool.gnu.c.compiler.input.1104788404">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.exe.release.345188536.1456188351;cdt.managedbuild.config.gnu.mingw.exe.release.345188536.1456188351.;cdt.managedbuild.tool.gnu.cross.c.compiler.2052489859;cdt.managedbuild.tool.gnu.c.compiler.input.373976412">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.exe.release.345188536.1456188351;cdt.managedbuild.config.gnu.mingw.exe.release.345188536.1456188351.;cdt.managedbuild.tool.gnu.cross.c.compiler.427127611;cdt.managedbuild.tool.gnu.c.compiler.input.513522215">
