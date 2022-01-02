@@ -33,7 +33,6 @@ int main (void) {
 	printf("*******************************************************************\n");
 	printf("*** Locomotive Simulator Sound and Game Interface Unit (LSSGIU) ***\n");
 	printf("*******************************************************************\n\n");
-	fflush(stdout);
 	// Init time.
 	TIME_Init();
 	// Init log.
@@ -69,7 +68,6 @@ int main (void) {
 		LOG_Task();
 		LSMCU_Task();
 		KEYBOARD_Task();
-		KVB_Task();
 		ZVM_Task();
 	}
 	return 0;

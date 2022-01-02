@@ -123,7 +123,7 @@ SERIAL_Error_t SERIAL_Write(SERIAL_Port_t* serial_port, unsigned char tx_byte) {
 	printf("SERIAL *** TX byte 0x%x: ", tx_byte);
 #endif
 #ifdef WINDOWS
-	if ((serial_port -> handle) != INVALID_HANDLE_VALUE) goto errors;
+	if ((serial_port -> handle) == INVALID_HANDLE_VALUE) goto errors;
 	if (WriteFile((serial_port -> handle), &tx_byte, 1, NULL, NULL) == 0) goto errors;
 #endif
 #ifdef LINUX
@@ -147,12 +147,13 @@ errors:
 SERIAL_Error_t SERIAL_Read(SERIAL_Port_t* serial_port, unsigned char* rx_byte) {
 	// Local variables.
 	SERIAL_Error_t status = SERIAL_ERROR_READ;
+	unsigned long number_of_read_bytes = 0;
 	// Check parameters.
 	if (serial_port == NULL) goto errors;
 #ifdef WINDOWS
-	if ((serial_port -> handle) != INVALID_HANDLE_VALUE) {
-		if (ReadFile((serial_port -> handle), rx_byte, 1, NULL, NULL) == 0) goto errors;
-	}
+	if ((serial_port -> handle) == INVALID_HANDLE_VALUE) goto errors;
+	if (ReadFile((serial_port -> handle), rx_byte, 1, &number_of_read_bytes, NULL) == 0) goto errors;
+	if (number_of_read_bytes == 0) goto errors;
 #endif
 #ifdef LINUX
 	if ((serial_port -> descriptor) < 0) goto errors;

@@ -12,7 +12,7 @@
 #include "fpb.h"
 #include "kvb.h"
 #include "lights.h"
-#include "lssgkcu.h"
+#include "lssgiu.h"
 #include "log.h"
 #include "mp.h"
 #include "mpinv.h"
@@ -39,8 +39,16 @@ static SERIAL_Port_t lsmcu_serial_port;
  * @return:		None.
  */
 void LSMCU_Init(char* port) {
+	// Local variables.
+	SERIAL_Error_t status = SERIAL_ERROR_OPEN;
+#ifdef LSMCU_LOG
+	printf("LSMCU *** Opening port %s: ", port);
+#endif
 	// Open serial port.
-	SERIAL_Open(&lsmcu_serial_port, port);
+	status = SERIAL_Open(&lsmcu_serial_port, port);
+#ifdef LSMCU_LOG
+	printf("%s\n", ((status == SERIAL_SUCCESS) ? "OK" : "Error"));
+#endif
 }
 
 /* SEND A COMMAND TO LSMCU.
@@ -48,11 +56,10 @@ void LSMCU_Init(char* port) {
  * @return:				None.
  */
 void LSMCU_Send(unsigned tx_command) {
-	SERIAL_Write(&lsmcu_serial_port, tx_command);
 #ifdef LSMCU_LOG
-	printf("LSMCU *** TX command = 0x%x.\n", tx_command);
-	fflush(stdout);
+	printf("LSMCU *** TX command = 0x%02X.\n", tx_command);
 #endif
+	SERIAL_Write(&lsmcu_serial_port, tx_command);
 }
 
 /* MAIN TASK OF LSMCU MANAGER.
@@ -65,8 +72,7 @@ void LSMCU_Task(void) {
 	SERIAL_Error_t rx_success = SERIAL_Read(&lsmcu_serial_port, &rx_command);
 	if ((rx_success == SERIAL_SUCCESS) && (rx_command != LSMCU_OUT_NOP)) {
 #ifdef LSMCU_LOG
-		printf("LSMCU *** RX command = 0x%x.\n", rx_command);
-		fflush(stdout);
+		printf("LSMCU *** RX command = 0x%02X.\n", rx_command);
 #endif
 		// Decode incoming command.
 		switch (rx_command) {
@@ -102,16 +108,16 @@ void LSMCU_Task(void) {
 		case LSMCU_OUT_ZEN_ON:
 			ZDJ_Lock();
 			break;
-		case LSMCU_OUT_COMP_AUTO_REG_MIN_ON:
+		case LSMCU_OUT_COMPRESSOR_AUTO_REG_MIN_ON:
 			COMP_PlayAutoRegulationMin();
 			break;
-		case LSMCU_OUT_COMP_AUTO_REG_MAX_ON:
+		case LSMCU_OUT_COMPRESSOR_AUTO_REG_MAX_ON:
 			COMP_PlayAutoRegulationMax();
 			break;
-		case LSMCU_OUT_COMP_DIRECT_ON:
+		case LSMCU_OUT_COMPRESSOR_DIRECT_ON:
 			COMP_PlayDirect();
 			break;
-		case LSMCU_OUT_COMP_OFF:
+		case LSMCU_OUT_COMPRESSOR_OFF:
 			COMP_TurnOff();
 			break;
 		case LSMCU_OUT_FPB_ON:
@@ -162,13 +168,13 @@ void LSMCU_Task(void) {
 		case LSMCU_OUT_FD_RELEASE:
 			FD_Release();
 			break;
-		case LSMCU_OUT_S_HIGH_TONE:
+		case LSMCU_OUT_WHISTLE_HIGH_TONE:
 			S_HighTone();
 			break;
-		case LSMCU_OUT_S_NEUTRAL:
+		case LSMCU_OUT_WHISTLE_NEUTRAL:
 			S_Neutral();
 			break;
-		case LSMCU_OUT_S_LOW_TONE:
+		case LSMCU_OUT_WHISTLE_LOW_TONE:
 			S_LowTone();
 			break;
 		case LSMCU_OUT_ZFG_ON:

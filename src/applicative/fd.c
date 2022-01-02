@@ -64,7 +64,6 @@ void FD_Apply(void) {
 	fd_ctx.fd_state = FD_STATE_APPLY;
 #ifdef FD_LOG
 	printf("FD *** Apply.\n");
-	fflush(stdout);
 #endif
 }
 
@@ -92,7 +91,6 @@ void FD_Neutral(void) {
 	fd_ctx.fd_state = FD_STATE_NEUTRAL;
 #ifdef FD_LOG
 	printf("FD *** Neutral.\n");
-	fflush(stdout);
 #endif
 }
 
@@ -111,7 +109,6 @@ void FD_Release(void) {
 	fd_ctx.fd_state = FD_STATE_RELEASE;
 #ifdef FD_LOG
 	printf("FD *** Release.\n");
-	fflush(stdout);
 #endif
 }
 

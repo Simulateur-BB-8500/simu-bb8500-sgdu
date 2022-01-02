@@ -13,6 +13,5 @@
 void KVB_Init(void);
 void KVB_TurnOn(void);
 void KVB_TurnOff(void);
-void KVB_Task(void);
 
 #endif /* KVB_H */

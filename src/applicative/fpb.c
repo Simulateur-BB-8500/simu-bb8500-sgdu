@@ -94,7 +94,6 @@ void FPB_Apply(void) {
 	fpb_ctx.fpb_request = FPB_REQUEST_APPLY;
 #ifdef FPB_LOG
 	printf("FPB *** Apply.\n");
-	fflush(stdout);
 #endif
 }
 
@@ -107,7 +106,6 @@ void FPB_Neutral(void) {
 	fpb_ctx.fpb_request = FPB_REQUEST_NEUTRAL;
 #ifdef FPB_LOG
 	printf("FPB *** Neutral.\n");
-	fflush(stdout);
 #endif
 }
 
@@ -120,7 +118,6 @@ void FPB_Release(void) {
 	fpb_ctx.fpb_request = FPB_REQUEST_RELEASE;
 #ifdef FPB_LOG
 	printf("FPB *** Release.\n");
-	fflush(stdout);
 #endif
 }
 
