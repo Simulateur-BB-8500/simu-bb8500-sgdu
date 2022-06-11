@@ -5,7 +5,7 @@
  *      Author: Ludo
  */
 
-#include "comp.h"
+#include "compressor.h"
 #include "fd.h"
 #include "fpb.h"
 #include "keyboard.h"
@@ -15,10 +15,10 @@
 #include "lsmcu.h"
 #include "mp.h"
 #include "mpinv.h"
-#include "s.h"
 #include "sound.h"
 #include "stdio.h"
 #include "time.h"
+#include "whistle.h"
 #include "zba.h"
 #include "zdj.h"
 #include "zpt.h"
@@ -34,41 +34,41 @@ int main (void) {
 	printf("*** Locomotive Simulator Sound and Game Interface Unit (LSSGIU) ***\n");
 	printf("*******************************************************************\n\n");
 	// Init time.
-	TIME_Init();
+	TIME_init();
 	// Init log.
-	LOG_Init();
+	LOG_init();
 	// Init modules.
-	SOUND_FmodSystemInit();
-	COMP_Init();
-	FD_Init();
-	FPB_Init();
-	KEYBOARD_Init();
-	KVB_Init();
-	LIGHTS_Init();
-	MP_Init();
-	MPINV_Init();
-	S_Init();
-	ZBA_Init();
-	ZDJ_Init();
-	ZPT_Init();
-	ZVM_Init();
+	SOUND_fmod_system_init();
+	COMPRESSOR_init();
+	FD_init();
+	FPB_init();
+	KEYBOARD_init();
+	KVB_init();
+	LIGHTS_init();
+	MP_init();
+	MPINV_init();
+	WHISTLE_init();
+	ZBA_init();
+	ZDJ_init();
+	ZPT_init();
+	ZVM_init();
 	// Init serial link.
 #ifdef WINDOWS
-	LSMCU_Init("COM5");
+	LSMCU_init("COM5");
 #endif
 #ifdef LINUX
-	LSMCU_Init("USB1");
+	LSMCU_init("USB1");
 #endif
 	// Main loop.
 	while (1) {
-		COMP_Task();
-		FPB_Task();
-		FD_Task();
-		LIGHTS_Task();
-		LOG_Task();
-		LSMCU_Task();
-		KEYBOARD_Task();
-		ZVM_Task();
+		COMPRESSOR_task();
+		FPB_task();
+		FD_task();
+		LIGHTS_task();
+		LOG_task();
+		LSMCU_task();
+		KEYBOARD_task();
+		ZVM_task();
 	}
 	return 0;
 }

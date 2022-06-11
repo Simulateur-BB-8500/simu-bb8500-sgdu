@@ -14,15 +14,15 @@
 /*** TIME local structures ***/
 
 typedef struct {
-	unsigned long time_start_ms;
+	unsigned long start_ms;
 #ifdef WINDOWS
-	SYSTEMTIME time_structure;
+	SYSTEMTIME system_time;
 #endif
-} TIME_Context;
+} TIME_context_t;
 
 /*** TIME local global variables ***/
 
-static TIME_Context time_ctx;
+static TIME_context_t time_ctx;
 
 /*** TIME functions ***/
 
@@ -30,13 +30,13 @@ static TIME_Context time_ctx;
  * @param:	None.
  * @return: None.
  */
-void TIME_Init(void) {
+void TIME_init(void) {
 #ifdef WINDOWS
-	GetSystemTime(&(time_ctx.time_structure));
-	time_ctx.time_start_ms = (time_ctx.time_structure.wHour * 3600000) +
-							 (time_ctx.time_structure.wMinute * 60000) +
-							 (time_ctx.time_structure.wSecond * 1000) +
-							 (time_ctx.time_structure.wMilliseconds);
+	GetSystemTime(&(time_ctx.system_time));
+	time_ctx.start_ms = (time_ctx.system_time.wHour * 3600000) +
+							 (time_ctx.system_time.wMinute * 60000) +
+							 (time_ctx.system_time.wSecond * 1000) +
+							 (time_ctx.system_time.wMilliseconds);
 #endif
 }
 
@@ -44,15 +44,15 @@ void TIME_Init(void) {
  * @param:	None.
  * @return:	Number of milliseconds ellapsed since the program started.
  */
-unsigned long TIME_GetMs(void) {
+unsigned long TIME_get_ms(void) {
 	// Local variables.
 	unsigned long now = 0;
 #ifdef WINDOWS
-	GetSystemTime(&(time_ctx.time_structure));
-	now = (time_ctx.time_structure.wHour * 3600000) +
-		  (time_ctx.time_structure.wMinute * 60000) +
-		  (time_ctx.time_structure.wSecond * 1000) +
-		  (time_ctx.time_structure.wMilliseconds);
+	GetSystemTime(&(time_ctx.system_time));
+	now = (time_ctx.system_time.wHour * 3600000) +
+		  (time_ctx.system_time.wMinute * 60000) +
+		  (time_ctx.system_time.wSecond * 1000) +
+		  (time_ctx.system_time.wMilliseconds);
 #endif
-	return (now - time_ctx.time_start_ms);
+	return (now - time_ctx.start_ms);
 }

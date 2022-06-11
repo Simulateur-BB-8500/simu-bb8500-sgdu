@@ -25,20 +25,20 @@ typedef enum {
 	KEYBOARD_STATE_READY,
 	KEYBOARD_STATE_KEY_PRESSED,
 	KEYBOARD_STATE_IDLE
-} KEYBOARD_State;
+} KEYBOARD_state_t;
 
 typedef struct {
-	KEYBOARD_Key keyboard_key_buf[KEYBOARD_BUFFER_SIZE];
-	unsigned int keyboard_press_duration_buf[KEYBOARD_BUFFER_SIZE];
-	unsigned char keyboard_buf_write_idx;
-	unsigned char keyboard_buf_read_idx;
-	KEYBOARD_State keyboard_state;
-	unsigned long keyboard_state_switch_time;
-} KEYBOARD_Context;
+	KEYBOARD_Key key_buf[KEYBOARD_BUFFER_SIZE];
+	unsigned int press_duration_buf[KEYBOARD_BUFFER_SIZE];
+	unsigned char write_idx;
+	unsigned char read_idx;
+	KEYBOARD_state_t state;
+	unsigned long state_switch_time;
+} KEYBOARD_context_t;
 
 /*** KEYBOARD local global variables ***/
 
-static KEYBOARD_Context keyboard_ctx;
+static KEYBOARD_context_t keyboard_ctx;
 
 /*** KEYBOARD local functions ***/
 
@@ -46,7 +46,7 @@ static KEYBOARD_Context keyboard_ctx;
  * @param key:	Key to press.
  * @return:		None.
  */
-static void KEYBOARD_Press(const KEYBOARD_Key* key) {
+static void KEYBOARD_press(const KEYBOARD_Key* key) {
 #ifdef WINDOWS
 	keybd_event((key -> keyboard_key_code), (key -> keyboard_key_scan), 0, 0);
 #endif
@@ -60,7 +60,7 @@ static void KEYBOARD_Press(const KEYBOARD_Key* key) {
  * @param key:	Key to release.
  * @return:		None.
  */
-static void KEYBOARD_Release(const KEYBOARD_Key* key) {
+static void KEYBOARD_release(const KEYBOARD_Key* key) {
 #ifdef WINDOWS
 	keybd_event((key -> keyboard_key_code), (key -> keyboard_key_scan), KEYEVENTF_KEYUP, 0);
 #endif
@@ -76,12 +76,12 @@ static void KEYBOARD_Release(const KEYBOARD_Key* key) {
  * @param:	None.
  * @return:	None.
  */
-void KEYBOARD_Init(void) {
+void KEYBOARD_init(void) {
 	// Init context.
-	keyboard_ctx.keyboard_buf_read_idx = 0;
-	keyboard_ctx.keyboard_buf_write_idx = 0;
-	keyboard_ctx.keyboard_state = KEYBOARD_STATE_READY;
-	keyboard_ctx.keyboard_state_switch_time = 0;
+	keyboard_ctx.read_idx = 0;
+	keyboard_ctx.write_idx = 0;
+	keyboard_ctx.state = KEYBOARD_STATE_READY;
+	keyboard_ctx.state_switch_time = 0;
 }
 
 /* APPEND A NEW KEY TO THE KEYBOARD BUFFER.
@@ -89,15 +89,15 @@ void KEYBOARD_Init(void) {
  * @param press_duration_ms:	Key press duration in ms.
  * @return:						None.
  */
-void KEYBOARD_Send(const KEYBOARD_Key* key, unsigned int press_duration_ms) {
+void KEYBOARD_send(const KEYBOARD_Key* key, unsigned int press_duration_ms) {
 	// Fill buffers.
-	keyboard_ctx.keyboard_key_buf[keyboard_ctx.keyboard_buf_write_idx].keyboard_key_code = (key -> keyboard_key_code);
-	keyboard_ctx.keyboard_key_buf[keyboard_ctx.keyboard_buf_write_idx].keyboard_key_scan = (key -> keyboard_key_scan);
-	keyboard_ctx.keyboard_press_duration_buf[keyboard_ctx.keyboard_buf_write_idx] = press_duration_ms;
+	keyboard_ctx.key_buf[keyboard_ctx.write_idx].keyboard_key_code = (key -> keyboard_key_code);
+	keyboard_ctx.key_buf[keyboard_ctx.write_idx].keyboard_key_scan = (key -> keyboard_key_scan);
+	keyboard_ctx.press_duration_buf[keyboard_ctx.write_idx] = press_duration_ms;
 	// Increment index and manage rollover.
-	keyboard_ctx.keyboard_buf_write_idx++;
-	if (keyboard_ctx.keyboard_buf_write_idx >= KEYBOARD_BUFFER_SIZE) {
-		keyboard_ctx.keyboard_buf_write_idx = 0;
+	keyboard_ctx.write_idx++;
+	if (keyboard_ctx.write_idx >= KEYBOARD_BUFFER_SIZE) {
+		keyboard_ctx.write_idx = 0;
 	}
 }
 
@@ -105,44 +105,44 @@ void KEYBOARD_Send(const KEYBOARD_Key* key, unsigned int press_duration_ms) {
  * @param:	None.
  * @return:	None.
  */
-void KEYBOARD_Task(void) {
+void KEYBOARD_task(void) {
 	// Perform state machine.
-	switch (keyboard_ctx.keyboard_state) {
+	switch (keyboard_ctx.state) {
 	case KEYBOARD_STATE_READY:
 		// Check indexes.
-		if (keyboard_ctx.keyboard_buf_read_idx != keyboard_ctx.keyboard_buf_write_idx) {
+		if (keyboard_ctx.read_idx != keyboard_ctx.write_idx) {
 			// Press key.
-			KEYBOARD_Press(&keyboard_ctx.keyboard_key_buf[keyboard_ctx.keyboard_buf_read_idx]);
+			KEYBOARD_press(&keyboard_ctx.key_buf[keyboard_ctx.read_idx]);
 			// Save start time.
-			keyboard_ctx.keyboard_state_switch_time = TIME_GetMs();
+			keyboard_ctx.state_switch_time = TIME_get_ms();
 			// Change state.
-			keyboard_ctx.keyboard_state = KEYBOARD_STATE_KEY_PRESSED;
+			keyboard_ctx.state = KEYBOARD_STATE_KEY_PRESSED;
 		}
 		break;
 	case KEYBOARD_STATE_KEY_PRESSED:
 		// Check duration.
-		if (TIME_GetMs() > (keyboard_ctx.keyboard_state_switch_time + keyboard_ctx.keyboard_press_duration_buf[keyboard_ctx.keyboard_buf_read_idx])) {
+		if (TIME_get_ms() > (keyboard_ctx.state_switch_time + keyboard_ctx.press_duration_buf[keyboard_ctx.read_idx])) {
 			// Release key.
-			KEYBOARD_Release(&keyboard_ctx.keyboard_key_buf[keyboard_ctx.keyboard_buf_read_idx]);
+			KEYBOARD_release(&keyboard_ctx.key_buf[keyboard_ctx.read_idx]);
 			// Increment index and manage rollover.
-			keyboard_ctx.keyboard_buf_read_idx++;
-			if (keyboard_ctx.keyboard_buf_read_idx >= KEYBOARD_BUFFER_SIZE) {
-				keyboard_ctx.keyboard_buf_read_idx = 0;
+			keyboard_ctx.read_idx++;
+			if (keyboard_ctx.read_idx >= KEYBOARD_BUFFER_SIZE) {
+				keyboard_ctx.read_idx = 0;
 			}
 			// Go to idle.
-			keyboard_ctx.keyboard_state_switch_time = TIME_GetMs();
-			keyboard_ctx.keyboard_state = KEYBOARD_STATE_IDLE;
+			keyboard_ctx.state_switch_time = TIME_get_ms();
+			keyboard_ctx.state = KEYBOARD_STATE_IDLE;
 		}
 		break;
 	case KEYBOARD_STATE_IDLE:
 		// Check duration.
-		if (TIME_GetMs() > (keyboard_ctx.keyboard_state_switch_time + KEYBOARD_IDLE_STATE_DURATION_MS)) {
+		if (TIME_get_ms() > (keyboard_ctx.state_switch_time + KEYBOARD_IDLE_STATE_DURATION_MS)) {
 			// Go back to ready state.
-			keyboard_ctx.keyboard_state = KEYBOARD_STATE_READY;
+			keyboard_ctx.state = KEYBOARD_STATE_READY;
 		}
 		break;
 	default:
 		// Unknown state.
-		keyboard_ctx.keyboard_state = KEYBOARD_STATE_READY;
+		keyboard_ctx.state = KEYBOARD_STATE_READY;
 	}
 }

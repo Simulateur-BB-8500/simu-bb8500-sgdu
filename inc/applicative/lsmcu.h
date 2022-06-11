@@ -5,13 +5,13 @@
  *      Author: Ludo
  */
 
-#ifndef LSMCU_H
-#define LSMCU_H
+#ifndef __LSMCU_H__
+#define __LSMCU_H__
 
 /*** LSMCU functions ***/
 
-void LSMCU_Init(char* port);
-void LSMCU_Send(unsigned tx_command);
-void LSMCU_Task(void);
+void LSMCU_init(char* port);
+void LSMCU_send(unsigned tx_command);
+void LSMCU_task(void);
 
-#endif /* LSMCU_H */
+#endif /* __LSMCU_H__ */

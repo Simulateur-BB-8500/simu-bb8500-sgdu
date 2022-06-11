@@ -5,8 +5,8 @@
  *      Author: Ludo
  */
 
-#ifndef KEYBOARD_H
-#define KEYBOARD_H
+#ifndef __KEYBOARD_H__
+#define __KEYBOARD_H__
 
 /*** KEYBOARD macros ***/
 
@@ -50,8 +50,8 @@ static const KEYBOARD_Key KEY_Z = (KEYBOARD_Key) {0x5A, 0xAC};
 
 /*** KEYBOARD functions ***/
 
-void KEYBOARD_Init(void);
-void KEYBOARD_Send(const KEYBOARD_Key* key, unsigned int press_duration_ms);
-void KEYBOARD_Task(void);
+void KEYBOARD_init(void);
+void KEYBOARD_send(const KEYBOARD_Key* key, unsigned int press_duration_ms);
+void KEYBOARD_task(void);
 
-#endif /* KEYBOARD_H */
+#endif /* __KEYBOARD_H__ */

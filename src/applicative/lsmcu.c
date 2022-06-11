@@ -7,7 +7,7 @@
 
 #include "lsmcu.h"
 
-#include "comp.h"
+#include "compressor.h"
 #include "fd.h"
 #include "fpb.h"
 #include "kvb.h"
@@ -16,9 +16,9 @@
 #include "log.h"
 #include "mp.h"
 #include "mpinv.h"
-#include "s.h"
 #include "serial.h"
 #include "stdio.h"
+#include "whistle.h"
 #include "zba.h"
 #include "zdj.h"
 #include "zpt.h"
@@ -30,7 +30,7 @@
 
 /*** LSMCU local global variables ***/
 
-static SERIAL_Port_t lsmcu_serial_port;
+static SERIAL_port_t lsmcu_serial_port;
 
 /*** LSMCU functions ***/
 
@@ -38,14 +38,14 @@ static SERIAL_Port_t lsmcu_serial_port;
  * @param port:	LSMCU port number ("COMxx").
  * @return:		None.
  */
-void LSMCU_Init(char* port) {
+void LSMCU_init(char* port) {
 	// Local variables.
-	SERIAL_Error_t status = SERIAL_ERROR_OPEN;
+	SERIAL_status_t status = SERIAL_ERROR_OPEN;
 #ifdef LSMCU_LOG
 	printf("LSMCU *** Opening port %s: ", port);
 #endif
 	// Open serial port.
-	status = SERIAL_Open(&lsmcu_serial_port, port);
+	status = SERIAL_open(&lsmcu_serial_port, port);
 #ifdef LSMCU_LOG
 	printf("%s\n", ((status == SERIAL_SUCCESS) ? "OK" : "Error"));
 #endif
@@ -55,21 +55,21 @@ void LSMCU_Init(char* port) {
  * @param tx_command:	Command to send (see enumeration in lsmcu.h).
  * @return:				None.
  */
-void LSMCU_Send(unsigned tx_command) {
+void LSMCU_send(unsigned tx_command) {
 #ifdef LSMCU_LOG
 	printf("LSMCU *** TX command = 0x%02X.\n", tx_command);
 #endif
-	SERIAL_Write(&lsmcu_serial_port, tx_command);
+	SERIAL_write(&lsmcu_serial_port, tx_command);
 }
 
 /* MAIN TASK OF LSMCU MANAGER.
  * @param:	None.
  * @return:	None.
  */
-void LSMCU_Task(void) {
+void LSMCU_task(void) {
 	// Read serial port.
 	unsigned char rx_command = LSMCU_OUT_NOP;
-	SERIAL_Error_t rx_success = SERIAL_Read(&lsmcu_serial_port, &rx_command);
+	SERIAL_status_t rx_success = SERIAL_read(&lsmcu_serial_port, &rx_command);
 	if ((rx_success == SERIAL_SUCCESS) && (rx_command != LSMCU_OUT_NOP)) {
 #ifdef LSMCU_LOG
 		printf("LSMCU *** RX command = 0x%02X.\n", rx_command);
@@ -77,123 +77,123 @@ void LSMCU_Task(void) {
 		// Decode incoming command.
 		switch (rx_command) {
 		case LSMCU_OUT_ZBA_ON:
-			ZBA_TurnOn();
+			ZBA_turn_on();
 			break;
 		case LSMCU_OUT_ZBA_OFF:
-			ZBA_TurnOff();
+			ZBA_turn_off();
 			break;
 		case LSMCU_OUT_ZDV_ON:
-			KVB_TurnOn();
-			LOG_Enable();
+			KVB_turn_on();
+			LOG_enable();
 			break;
 		case LSMCU_OUT_ZDV_OFF:
-			KVB_TurnOff();
-			LOG_Disable();
+			KVB_turn_off();
+			LOG_disable();
 			break;
 		case LSMCU_OUT_ZPT_BACK_UP:
-			ZPT_BackUp();
+			ZPT_back_up();
 			break;
 		case LSMCU_OUT_ZPT_BACK_DOWN:
-			ZPT_BackDown();
+			ZPT_back_down();
 			break;
 		case LSMCU_OUT_ZPT_FRONT_UP:
-			ZPT_FrontUp();
+			ZPT_front_up();
 			break;
 		case LSMCU_OUT_ZPT_FRONT_DOWN:
-			ZPT_FrontDown();
+			ZPT_front_down();
 			break;
 		case LSMCU_OUT_ZDJ_OFF:
-			ZDJ_Open();
+			ZDJ_open();
 			break;
 		case LSMCU_OUT_ZEN_ON:
-			ZDJ_Lock();
+			ZDJ_lock();
 			break;
 		case LSMCU_OUT_COMPRESSOR_AUTO_REG_MIN_ON:
-			COMP_PlayAutoRegulationMin();
+			COMPRESSOR_play_auto_regulation_min();
 			break;
 		case LSMCU_OUT_COMPRESSOR_AUTO_REG_MAX_ON:
-			COMP_PlayAutoRegulationMax();
+			COMPRESSOR_play_auto_regulation_max();
 			break;
 		case LSMCU_OUT_COMPRESSOR_DIRECT_ON:
-			COMP_PlayDirect();
+			COMPRESSOR_play_direct();
 			break;
 		case LSMCU_OUT_COMPRESSOR_OFF:
-			COMP_TurnOff();
+			COMPRESSOR_turn_off();
 			break;
 		case LSMCU_OUT_FPB_ON:
-			FPB_On();
+			FPB_on();
 			break;
 		case LSMCU_OUT_FPB_OFF:
-			FPB_Off();
+			FPB_off();
 			break;
 		case LSMCU_OUT_FPB_APPLY:
-			FPB_Apply();
+			FPB_apply();
 			break;
 		case LSMCU_OUT_FPB_NEUTRAL:
-			FPB_Neutral();
+			FPB_neutral();
 			break;
 		case LSMCU_OUT_FPB_RELEASE:
-			FPB_Release();
+			FPB_release();
 			break;
 		case LSMCU_OUT_ZVM_ON:
-			ZVM_TurnOn();
+			ZVM_turn_on();
 			break;
 		case LSMCU_OUT_ZVM_OFF:
-			ZVM_TurnOff();
+			ZVM_turn_off();
 			break;
 		case LSMCU_OUT_MPINV_FORWARD:
-			MPINV_Forward();
+			MPINV_forward();
 			break;
 		case LSMCU_OUT_MPINV_NEUTRAL:
-			MPINV_Neutral();
+			MPINV_neutral();
 			break;
 		case LSMCU_OUT_MPINV_BACKWARD:
-			MPINV_Backward();
+			MPINV_backward();
 			break;
 		case LSMCU_OUT_MP_0:
 			MP_0();
 			break;
 		case LSMCU_OUT_MP_T_MORE:
-			MP_T_More();
+			MP_t_more();
 			break;
 		case LSMCU_OUT_MP_T_LESS:
-			MP_T_Less();
+			MP_t_less();
 			break;
 		case LSMCU_OUT_FD_APPLY:
-			FD_Apply();
+			FD_apply();
 			break;
 		case LSMCU_OUT_FD_NEUTRAL:
-			FD_Neutral();
+			FD_neutral();
 			break;
 		case LSMCU_OUT_FD_RELEASE:
-			FD_Release();
+			FD_release();
 			break;
 		case LSMCU_OUT_WHISTLE_HIGH_TONE:
-			S_HighTone();
+			WHISTLE_high_tone();
 			break;
 		case LSMCU_OUT_WHISTLE_NEUTRAL:
-			S_Neutral();
+			WHISTLE_neutral();
 			break;
 		case LSMCU_OUT_WHISTLE_LOW_TONE:
-			S_LowTone();
+			WHISTLE_low_tone();
 			break;
 		case LSMCU_OUT_ZFG_ON:
-			LIGHTS_ZfgOn();
+			LIGHTS_zfg_on();
 			break;
 		case LSMCU_OUT_ZFG_OFF:
-			LIGHTS_ZfgOff();
+			LIGHTS_zfg_off();
 			break;
 		case LSMCU_OUT_ZFD_ON:
-			LIGHTS_ZfdOn();
+			LIGHTS_zfd_on();
 			break;
 		case LSMCU_OUT_ZFD_OFF:
-			LIGHTS_ZfdOff();
+			LIGHTS_zfd_off();
 			break;
 		case LSMCU_OUT_ZPR_ON:
-			LIGHTS_ZprOn();
+			LIGHTS_zpr_on();
 			break;
 		case LSMCU_OUT_ZPR_OFF:
-			LIGHTS_ZprOff();
+			LIGHTS_zpr_off();
 			break;
 		default:
 			// Unknwon command.

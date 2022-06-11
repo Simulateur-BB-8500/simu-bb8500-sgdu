@@ -22,7 +22,7 @@
 /*** SERIAL macros ***/
 
 #ifdef WINDOWS
-#define SERIAL_PORT_TIMEOUT_MS			10
+#define SERIAL_port_tIMEOUT_MS			10
 #define SERIAL_PATH_HEADER				"\\\\.\\"
 #define SERIAL_PORT_NAME_MAX_LENGTH		5 // Maximum length = "COMxx" = 5.
 #define SERIAL_PORT_BAUD_RATE			9600
@@ -41,9 +41,9 @@
  * @param port:			Port number to open ("COMxx" or "USBxx").
  * @return status:		Opening status.
  */
-SERIAL_Error_t SERIAL_Open(SERIAL_Port_t* serial_port, char* port) {
+SERIAL_status_t SERIAL_open(SERIAL_port_t* serial_port, char* port) {
 	// Local variables.
-	SERIAL_Error_t status = SERIAL_ERROR_OPEN;
+	SERIAL_status_t status = SERIAL_ERROR_OPEN;
 	char port_name[strlen(SERIAL_PATH_HEADER) + SERIAL_PORT_NAME_MAX_LENGTH + 1]; // +1 for '\0'.
 	// Check parameters.
 	if ((serial_port == NULL) || (port == NULL)) goto errors;
@@ -65,11 +65,11 @@ SERIAL_Error_t SERIAL_Open(SERIAL_Port_t* serial_port, char* port) {
 	SetCommState((serial_port -> handle), &config);
 	// Configure timeouts.
 	COMMTIMEOUTS timeouts = {0};
-	timeouts.ReadIntervalTimeout = SERIAL_PORT_TIMEOUT_MS;
-	timeouts.ReadTotalTimeoutConstant = SERIAL_PORT_TIMEOUT_MS;
-	timeouts.ReadTotalTimeoutMultiplier = SERIAL_PORT_TIMEOUT_MS;
-	timeouts.WriteTotalTimeoutConstant = SERIAL_PORT_TIMEOUT_MS;
-	timeouts.WriteTotalTimeoutMultiplier = SERIAL_PORT_TIMEOUT_MS;
+	timeouts.ReadIntervalTimeout = SERIAL_port_tIMEOUT_MS;
+	timeouts.ReadTotalTimeoutConstant = SERIAL_port_tIMEOUT_MS;
+	timeouts.ReadTotalTimeoutMultiplier = SERIAL_port_tIMEOUT_MS;
+	timeouts.WriteTotalTimeoutConstant = SERIAL_port_tIMEOUT_MS;
+	timeouts.WriteTotalTimeoutMultiplier = SERIAL_port_tIMEOUT_MS;
 	SetCommTimeouts((serial_port -> handle), &timeouts);
 	if ((serial_port -> handle) == INVALID_HANDLE_VALUE) goto errors;
 #endif
@@ -114,9 +114,9 @@ errors:
  * @param tx_byte:	Byte to send.
  * @return result: 	0 if function failed, non-zero value otherwise.
  */
-SERIAL_Error_t SERIAL_Write(SERIAL_Port_t* serial_port, unsigned char tx_byte) {
+SERIAL_status_t SERIAL_write(SERIAL_port_t* serial_port, unsigned char tx_byte) {
 	// Local variables.
-	SERIAL_Error_t status = SERIAL_ERROR_WRITE;
+	SERIAL_status_t status = SERIAL_ERROR_WRITE;
 	// Check parameters.
 	if (serial_port == NULL) goto errors;
 #ifdef SERIAL_LOG
@@ -144,10 +144,12 @@ errors:
  * @param rx_byte:	Pointer to byte that will contain received data.
  * @return result:	0 if function failed, non-zero value otherwise.
  */
-SERIAL_Error_t SERIAL_Read(SERIAL_Port_t* serial_port, unsigned char* rx_byte) {
+SERIAL_status_t SERIAL_read(SERIAL_port_t* serial_port, unsigned char* rx_byte) {
 	// Local variables.
-	SERIAL_Error_t status = SERIAL_ERROR_READ;
+	SERIAL_status_t status = SERIAL_ERROR_READ;
+#ifdef WINDOWS
 	unsigned long number_of_read_bytes = 0;
+#endif
 	// Check parameters.
 	if (serial_port == NULL) goto errors;
 #ifdef WINDOWS
@@ -161,12 +163,10 @@ SERIAL_Error_t SERIAL_Read(SERIAL_Port_t* serial_port, unsigned char* rx_byte) {
 #endif
 	// Update status.
 	status = SERIAL_SUCCESS;
-errors:
 #ifdef SERIAL_LOG
-	if (status == SERIAL_SUCCESS) {
-		printf("SERIAL *** RX byte 0x%x.\n", (*rx_byte));
-	}
+	printf("SERIAL *** RX byte 0x%x.\n", (*rx_byte));
 #endif
+errors:
 	return status;
 }
 
@@ -174,7 +174,7 @@ errors:
  * @param handle:	Pointer to handle.
  * @return:			None.
  */
-void SERIAL_Flush(SERIAL_Port_t* serial_port) {
+void SERIAL_flush(SERIAL_port_t* serial_port) {
 #ifdef WINDOWS
 	if ((serial_port != NULL) && ((serial_port -> handle) != INVALID_HANDLE_VALUE)) {
 		PurgeComm((serial_port -> handle), PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
@@ -186,7 +186,7 @@ void SERIAL_Flush(SERIAL_Port_t* serial_port) {
  * @param handle:	Pointer to handle.
  * @return:			None.
  */
-void SERIAL_Close(SERIAL_Port_t* serial_port) {
+void SERIAL_close(SERIAL_port_t* serial_port) {
 	// Check parameter.
 	if (serial_port == NULL) goto errors;
 #ifdef WINDOWS

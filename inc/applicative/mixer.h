@@ -5,8 +5,8 @@
  *      Author: Ludo
  */
 
-#ifndef MIXER_H
-#define MIXER_H
+#ifndef __MIXER_H__
+#define __MIXER_H__
 
 /*** MIXER macros ***/
 
@@ -16,10 +16,10 @@
 #define ZPT_FRONT_AUDIO_GAIN	1.0
 #define ZDJ_AUDIO_GAIN			1.0
 #define ZVM_AUDIO_GAIN			1.0
-#define COMP_AUDIO_GAIN			1.0
+#define COMPRESSOR_AUDIO_GAIN	1.0
 #define MPINV_AUDIO_GAIN		1.0
 #define FPB_AUDIO_GAIN			1.0
 #define FD_AUDIO_GAIN			1.0
-#define S_AUDIO_GAIN			1.0
+#define WHISTLE_AUDIO_GAIN		1.0
 
-#endif /* MIXER_H */
+#endif /* __MIXER_H__ */

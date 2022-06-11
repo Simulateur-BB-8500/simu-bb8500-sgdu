@@ -5,14 +5,14 @@
  *      Author: Ludo
  */
 
-#ifndef LOG_H
-#define LOG_H
+#ifndef __LOG_H__
+#define __LOG_H__
 
 /*** LOG functions ***/
 
-void LOG_Init(void);
-void LOG_Enable(void);
-void LOG_Disable(void);
-void LOG_Task(void);
+void LOG_init(void);
+void LOG_enable(void);
+void LOG_disable(void);
+void LOG_task(void);
 
-#endif /* INC_APPLICATIVE_LOG_H_ */
+#endif /* __LOG_H__ */

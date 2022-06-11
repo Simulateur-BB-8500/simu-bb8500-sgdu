@@ -13,8 +13,8 @@
 
 /*** ZDJ local global variables ***/
 
-static SOUND_Context zdj_open_sound;
-static SOUND_Context zdj_lock_sound;
+static SOUND_context_t zdj_open_sound;
+static SOUND_context_t zdj_lock_sound;
 
 /*** ZDJ functions ***/
 
@@ -22,22 +22,22 @@ static SOUND_Context zdj_lock_sound;
  * @param:	None.
  * @return:	None.
  */
-void ZDJ_Init(void) {
+void ZDJ_init(void) {
 	// Init sound.
-	SOUND_Init(&zdj_open_sound, "zdj.wav", ZDJ_AUDIO_GAIN);
-	SOUND_SetVolume(&zdj_open_sound, 1.0); // No fade effect required.
-	SOUND_Init(&zdj_lock_sound, "zen.wav", ZDJ_AUDIO_GAIN);
-	SOUND_SetVolume(&zdj_lock_sound, 1.0); // No fade effect required.
+	SOUND_init(&zdj_open_sound, "zdj.wav", ZDJ_AUDIO_GAIN);
+	SOUND_set_volume(&zdj_open_sound, 1.0); // No fade effect required.
+	SOUND_init(&zdj_lock_sound, "zen.wav", ZDJ_AUDIO_GAIN);
+	SOUND_set_volume(&zdj_lock_sound, 1.0); // No fade effect required.
 }
 
 /* OPEN CIRCUIT BREAKER.
  * @param:	None.
  * @return:	None.
  */
-void ZDJ_Open(void) {
+void ZDJ_open(void) {
 	// Play sound.
-	SOUND_Play(&zdj_open_sound);
-	SOUND_Stop(&zdj_lock_sound);
+	SOUND_play(&zdj_open_sound);
+	SOUND_stop(&zdj_lock_sound);
 	printf("ZDJ *** Open.\n");
 	fflush(stdout);
 }
@@ -46,9 +46,9 @@ void ZDJ_Open(void) {
  * @param:	None.
  * @return:	None.
  */
-void ZDJ_Lock(void) {
+void ZDJ_lock(void) {
 	// Play sound.
-	SOUND_Play(&zdj_lock_sound);
+	SOUND_play(&zdj_lock_sound);
 	printf("ZDJ *** Lock.\n");
 	fflush(stdout);
 }

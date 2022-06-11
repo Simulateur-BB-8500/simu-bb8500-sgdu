@@ -5,12 +5,12 @@
  *      Author: Ludo
  */
 
-#ifndef TIME_H
-#define TIME_H
+#ifndef __TIME_H__
+#define __TIME_H__
 
 /*** TIME functions ***/
 
-void TIME_Init(void);
-unsigned long TIME_GetMs(void);
+void TIME_init(void);
+unsigned long TIME_get_ms(void);
 
-#endif /* TIME_H */
+#endif /* __TIME_H__ */

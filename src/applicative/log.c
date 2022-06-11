@@ -26,14 +26,14 @@
 /*** LOG local structures ***/
 
 typedef struct {
-	FILE* log_file;
-	unsigned char log_enable;
-	unsigned long log_next_time;
-} LOG_Context;
+	FILE* file;
+	unsigned char enable;
+	unsigned long next_time;
+} LOG_context_t;
 
 /*** LOG local global variables ***/
 
-static LOG_Context log_ctx;
+static LOG_context_t log_ctx;
 
 /*** LOG local functions ***/
 
@@ -42,7 +42,7 @@ unsigned int LOG_GetSpeed() {
 	char log_line[FILE_LINE_MAX_LENGTH];
 	char speed_string[LOG_SPEED_MAX_LENGTH];
 	// Get last line.
-	FILE_GetLastLine(log_ctx.log_file, log_line);
+	FILE_get_last_line(log_ctx.file, log_line);
 #ifdef LOG_DEBUG
 	printf("LOG *** Line = %s\n", log_line);
 #endif
@@ -106,40 +106,40 @@ unsigned int LOG_GetSpeed() {
  * @param:	None.
  * @return:	None.
  */
-void LOG_Init(void) {
+void LOG_init(void) {
 	// Open OpenRails log file.
-	FILE_Open(&log_ctx.log_file, "C:/Users/Ludovic/Desktop/OpenRailsDump.csv");
-	log_ctx.log_next_time = 0;
-	log_ctx.log_enable = 0;
+	FILE_open(&log_ctx.file, "C:/Users/Ludovic/Desktop/OpenRailsDump.csv");
+	log_ctx.next_time = 0;
+	log_ctx.enable = 0;
 }
 
 /* START GAME LOG.
  * @param:	None.
  * @eturn:	None.
  */
-void LOG_Enable(void) {
-	log_ctx.log_enable = 1;
+void LOG_enable(void) {
+	log_ctx.enable = 1;
 }
 
 /* STOP GAME LOG.
  * @param:	None.
  * @eturn:	None.
  */
-void LOG_Disable(void) {
-	log_ctx.log_enable = 0;
+void LOG_disable(void) {
+	log_ctx.enable = 0;
 }
 
 /* MAIN TASK OF GAME LOG UNIT.
  * @param:	None.
  * @return:	None.
  */
-void LOG_Task(void) {
+void LOG_task(void) {
 	// Check enable bit and period.
-	if ((log_ctx.log_enable != 0) && (TIME_GetMs() > log_ctx.log_next_time)) {
+	if ((log_ctx.enable != 0) && (TIME_get_ms() > log_ctx.next_time)) {
 		// Update next time.
-		log_ctx.log_next_time = TIME_GetMs() + LOG_PERIOD_MS;
+		log_ctx.next_time = TIME_get_ms() + LOG_PERIOD_MS;
 		// Activate log.
-		KEYBOARD_Send(OPENRAILS_LOG, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+		KEYBOARD_send(OPENRAILS_LOG, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 		// Get speed.
 		unsigned char speed_kmh = LOG_GetSpeed();
 		if (speed_kmh != LOG_SPEED_ERROR) {
@@ -147,7 +147,7 @@ void LOG_Task(void) {
 			printf("LOG *** Speed = %dkm/h\n", speed_kmh);
 #endif
 			// Transmit to dashboard.
-			LSMCU_Send(speed_kmh);
+			LSMCU_send(speed_kmh);
 		}
 #ifdef LOG_DEBUG
 		else {

@@ -5,8 +5,8 @@
  *      Author: Ludo
  */
 
-#ifndef FILE_H
-#define FILE_H
+#ifndef __FILE_H__
+#define __FILE_H__
 
 #include "stdio.h"
 
@@ -16,8 +16,8 @@
 
 /*** FILE functions ***/
 
-void FILE_Open(FILE** file, const char* file_path);
-void FILE_GetLastLine(FILE* file, char* last_line);
-void FILE_Close(FILE* file);
+void FILE_open(FILE** file, const char* file_path);
+void FILE_get_last_line(FILE* file, char* last_line);
+void FILE_close(FILE* file);
 
-#endif /* FILE_H */
+#endif /* __FILE_H__ */

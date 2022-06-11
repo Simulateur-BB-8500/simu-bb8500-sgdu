@@ -5,8 +5,8 @@
  *      Author: Ludo
  */
 
-#ifndef SERIAL_H
-#define SERIAL_H
+#ifndef __SERIAL_H__
+#define __SERIAL_H__
 
 #ifdef WINDOWS
 #include "windows.h"
@@ -22,7 +22,7 @@ typedef enum {
 	SERIAL_ERROR_OPEN,
 	SERIAL_ERROR_WRITE,
 	SERIAL_ERROR_READ
-} SERIAL_Error_t;
+} SERIAL_status_t;
 
 typedef struct {
 #ifdef WINDOWS
@@ -32,14 +32,14 @@ typedef struct {
 	int descriptor;
 	struct termios tty;
 #endif
-} SERIAL_Port_t;
+} SERIAL_port_t;
 
 /*** SERIAL functions ***/
 
-SERIAL_Error_t SERIAL_Open(SERIAL_Port_t* serial_port, char* port);
-SERIAL_Error_t SERIAL_Write(SERIAL_Port_t* serial_port, unsigned char tx_byte);
-SERIAL_Error_t SERIAL_Read(SERIAL_Port_t* serial_port, unsigned char* rx_byte);
-void SERIAL_Flush(SERIAL_Port_t* serial_port);
-void SERIAL_Close(SERIAL_Port_t* serial_port);
+SERIAL_status_t SERIAL_open(SERIAL_port_t* serial_port, char* port);
+SERIAL_status_t SERIAL_write(SERIAL_port_t* serial_port, unsigned char tx_byte);
+SERIAL_status_t SERIAL_read(SERIAL_port_t* serial_port, unsigned char* rx_byte);
+void SERIAL_flush(SERIAL_port_t* serial_port);
+void SERIAL_close(SERIAL_port_t* serial_port);
 
-#endif /* SERIAL_H */
+#endif /* __SERIAL_H__ */

@@ -5,8 +5,8 @@
  *      Author: Ludo
  */
 
-#ifndef OPENRAILS_H
-#define OPENRAILS_H
+#ifndef __OPENRAILS_H__
+#define __OPENRAILS_H__
 
 #include "keyboard.h"
 
@@ -45,4 +45,4 @@
 #define OPENRAILS_LOG							&KEY_Y
 #define OPENRAILS_NOP							&KEY_Z
 
-#endif /* OPENRAILS_H */
+#endif /* __OPENRAILS_H__ */

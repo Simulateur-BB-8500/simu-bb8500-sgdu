@@ -21,21 +21,21 @@ typedef enum {
 	LIGHTS_ZFG_STATUS_BIT_INDEX,
 	LIGHTS_ZFD_STATUS_BIT_INDEX,
 	LIGHTS_ZPR_STATUS_BIT_INDEX
-} LIGHTS_StatusBitIndex;
+} LIGHTS_status_bit_index_t;
 
 typedef enum {
 	LIGHTS_STATE_OFF,
 	LIGHTS_STATE_ON
-} LIGHTS_State;
+} LIGHTS_state_t;
 
 typedef struct {
-	unsigned char lights_status;
-	LIGHTS_State lights_state;
-} LIGHTS_Context;
+	unsigned char status;
+	LIGHTS_state_t state;
+} LIGHTS_context_t;
 
 /*** LIGHTS local global variables ***/
 
-static LIGHTS_Context lights_ctx;
+static LIGHTS_context_t lights_ctx;
 
 /*** LIGHTS functions ***/
 
@@ -43,17 +43,17 @@ static LIGHTS_Context lights_ctx;
  * @param:	None.
  * @return:	None.
  */
-void LIGHTS_Init(void) {
-	lights_ctx.lights_status = 0;
-	lights_ctx.lights_state = LIGHTS_STATE_OFF;
+void LIGHTS_init(void) {
+	lights_ctx.status = 0;
+	lights_ctx.state = LIGHTS_STATE_OFF;
 }
 
 /* TURN ZFG ON.
  * @param:	None.
  * @return:	None.
  */
-void LIGHTS_ZfgOn(void) {
-	lights_ctx.lights_status |= (0b1 << LIGHTS_ZFG_STATUS_BIT_INDEX);
+void LIGHTS_zfg_on(void) {
+	lights_ctx.status |= (0b1 << LIGHTS_ZFG_STATUS_BIT_INDEX);
 #ifdef LIGHTS_LOG
 	printf("LIGHTS *** ZFG on\n");
 	fflush(stdout);
@@ -64,8 +64,8 @@ void LIGHTS_ZfgOn(void) {
  * @param:	None.
  * @return:	None.
  */
-void LIGHTS_ZfgOff(void) {
-	lights_ctx.lights_status &= ~(0b1 << LIGHTS_ZFG_STATUS_BIT_INDEX);
+void LIGHTS_zfg_off(void) {
+	lights_ctx.status &= ~(0b1 << LIGHTS_ZFG_STATUS_BIT_INDEX);
 #ifdef LIGHTS_LOG
 	printf("LIGHTS *** ZFG off\n");
 	fflush(stdout);
@@ -76,8 +76,8 @@ void LIGHTS_ZfgOff(void) {
  * @param:	None.
  * @return:	None.
  */
-void LIGHTS_ZfdOn(void) {
-	lights_ctx.lights_status |= (0b1 << LIGHTS_ZFD_STATUS_BIT_INDEX);
+void LIGHTS_zfd_on(void) {
+	lights_ctx.status |= (0b1 << LIGHTS_ZFD_STATUS_BIT_INDEX);
 #ifdef LIGHTS_LOG
 	printf("LIGHTS *** ZFD on\n");
 	fflush(stdout);
@@ -88,8 +88,8 @@ void LIGHTS_ZfdOn(void) {
  * @param:	None.
  * @return:	None.
  */
-void LIGHTS_ZfdOff(void) {
-	lights_ctx.lights_status &= ~(0b1 << LIGHTS_ZFD_STATUS_BIT_INDEX);
+void LIGHTS_zfd_off(void) {
+	lights_ctx.status &= ~(0b1 << LIGHTS_ZFD_STATUS_BIT_INDEX);
 #ifdef LIGHTS_LOG
 	printf("LIGHTS *** ZFD off\n");
 	fflush(stdout);
@@ -100,8 +100,8 @@ void LIGHTS_ZfdOff(void) {
  * @param:	None.
  * @return:	None.
  */
-void LIGHTS_ZprOn(void) {
-	lights_ctx.lights_status |= (0b1 << LIGHTS_ZPR_STATUS_BIT_INDEX);
+void LIGHTS_zpr_on(void) {
+	lights_ctx.status |= (0b1 << LIGHTS_ZPR_STATUS_BIT_INDEX);
 #ifdef LIGHTS_LOG
 	printf("LIGHTS *** ZPR on\n");
 	fflush(stdout);
@@ -112,8 +112,8 @@ void LIGHTS_ZprOn(void) {
  * @param:	None.
  * @return:	None.
  */
-void LIGHTS_ZprOff(void) {
-	lights_ctx.lights_status &= ~(0b1 << LIGHTS_ZPR_STATUS_BIT_INDEX);
+void LIGHTS_zpr_off(void) {
+	lights_ctx.status &= ~(0b1 << LIGHTS_ZPR_STATUS_BIT_INDEX);
 #ifdef LIGHTS_LOG
 	printf("LIGHTS *** ZPR off\n");
 	fflush(stdout);
@@ -124,27 +124,27 @@ void LIGHTS_ZprOff(void) {
  * @param:	None.
  * @return:	None.
  */
-void LIGHTS_Task(void) {
+void LIGHTS_task(void) {
 	// Perform state machine.
-	switch (lights_ctx.lights_state) {
+	switch (lights_ctx.state) {
 	case LIGHTS_STATE_OFF:
-		if (lights_ctx.lights_status != 0) {
+		if (lights_ctx.status != 0) {
 			// Send keyboard control.
-			KEYBOARD_Send(OPENRAILS_LIGHTS_ON, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
-			KEYBOARD_Send(OPENRAILS_LIGHTS_ON, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
-			lights_ctx.lights_state = LIGHTS_STATE_ON;
+			KEYBOARD_send(OPENRAILS_LIGHTS_ON, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_send(OPENRAILS_LIGHTS_ON, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+			lights_ctx.state = LIGHTS_STATE_ON;
 		}
 		break;
 	case LIGHTS_STATE_ON:
-		if (lights_ctx.lights_status == 0) {
+		if (lights_ctx.status == 0) {
 			// Send keyboard control.
-			KEYBOARD_Send(OPENRAILS_LIGHTS_OFF, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
-			KEYBOARD_Send(OPENRAILS_LIGHTS_OFF, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
-			lights_ctx.lights_state = LIGHTS_STATE_OFF;
+			KEYBOARD_send(OPENRAILS_LIGHTS_OFF, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_send(OPENRAILS_LIGHTS_OFF, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+			lights_ctx.state = LIGHTS_STATE_OFF;
 		}
 		break;
 	default:
-		lights_ctx.lights_state = LIGHTS_STATE_OFF;
+		lights_ctx.state = LIGHTS_STATE_OFF;
 		break;
 	}
 }

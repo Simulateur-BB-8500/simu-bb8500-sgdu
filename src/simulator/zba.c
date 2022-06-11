@@ -13,7 +13,7 @@
 
 /*** ZBA local global variables ***/
 
-static SOUND_Context zba_sound;
+static SOUND_context_t zba_sound;
 
 /*** ZBA functions ***/
 
@@ -21,19 +21,19 @@ static SOUND_Context zba_sound;
  * @param:	None.
  * @return:	None.
  */
-void ZBA_Init(void) {
+void ZBA_init(void) {
 	// Init sound.
-	SOUND_Init(&zba_sound, "zba.wav", ZBA_AUDIO_GAIN);
-	SOUND_SetVolume(&zba_sound, 1.0); // No fade effect required.
+	SOUND_init(&zba_sound, "zba.wav", ZBA_AUDIO_GAIN);
+	SOUND_set_volume(&zba_sound, 1.0); // No fade effect required.
 }
 
 /* TURN ZBA ON.
  * @param:	None.
  * @return:	None.
  */
-void ZBA_TurnOn(void) {
+void ZBA_turn_on(void) {
 	// Play sound.
-	SOUND_Play(&zba_sound);
+	SOUND_play(&zba_sound);
 	printf("ZBA *** Turn on.\n");
 	fflush(stdout);
 }
@@ -42,9 +42,9 @@ void ZBA_TurnOn(void) {
  * @param:	None.
  * @return:	None.
  */
-void ZBA_TurnOff(void) {
+void ZBA_turn_off(void) {
 	// Play sound.
-	SOUND_Play(&zba_sound);
+	SOUND_play(&zba_sound);
 	printf("ZBA *** Turn off.\n");
 	fflush(stdout);
 }

@@ -11,12 +11,14 @@
 #include "stdio.h"
 #include "stdlib.h"
 
+/*** FILE functions ***/
+
 /* OPEN A FILE FOR READING ONLY.
  * @param file:			Pointer to file.
  * @param file_path:	Abolute or relative path of the file.
  * @return:				None.
  */
-void FILE_Open(FILE** file, const char* file_path) {
+void FILE_open(FILE** file, const char* file_path) {
 	(*file) = fopen(file_path, "r");
 	if ((*file) != NULL) {
 		printf("FILE : Open %s: OK.\n", file_path);
@@ -32,7 +34,7 @@ void FILE_Open(FILE** file, const char* file_path) {
  * @param last_line:	Pointer to the string that will contain the last line.
  * @return:				None.
  */
-void FILE_GetLastLine(FILE* file, char* last_line) {
+void FILE_get_last_line(FILE* file, char* last_line) {
 	if (file != NULL) {
 		unsigned int char_idx = 0;
 		// Move the cursor before the last character of the file.
@@ -64,7 +66,7 @@ void FILE_GetLastLine(FILE* file, char* last_line) {
  * @param file:	Pointer to the file to close.
  * @return:		None.
  */
-void FILE_Close(FILE* file) {
+void FILE_close(FILE* file) {
 	if (file != NULL) {
 		fclose(file);
 	}
