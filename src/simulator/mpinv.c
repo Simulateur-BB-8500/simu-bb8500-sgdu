@@ -26,8 +26,8 @@ typedef enum {
 } MPINV_state_t;
 
 typedef struct {
-	SOUND_context_t forward_backward_sound;
-	SOUND_context_t neutral_sound;
+	SOUND_context_t sound_forward_backward;
+	SOUND_context_t sound_neutral;
 	MPINV_state_t state;
 } MPINV_context_t;
 
@@ -43,10 +43,10 @@ static MPINV_context_t mpinv_ctx;
  */
 void MPINV_init(void) {
 	// Init sounds.
-	SOUND_init(&(mpinv_ctx.forward_backward_sound), "forward_backward.wav", MPINV_AUDIO_GAIN);
-	SOUND_set_volume(&(mpinv_ctx.forward_backward_sound), 1.0); // No fade effect required.
-	SOUND_init(&(mpinv_ctx.neutral_sound), "neutral.wav", MPINV_AUDIO_GAIN);
-	SOUND_set_volume(&(mpinv_ctx.neutral_sound), 1.0); // No fade effect required.
+	SOUND_init(&(mpinv_ctx.sound_forward_backward), "mpinv_forward_backward.wav", MPINV_AUDIO_GAIN);
+	SOUND_set_volume(&(mpinv_ctx.sound_forward_backward), 1.0); // No fade effect required.
+	SOUND_init(&(mpinv_ctx.sound_neutral), "mpinv_neutral.wav", MPINV_AUDIO_GAIN);
+	SOUND_set_volume(&(mpinv_ctx.sound_neutral), 1.0); // No fade effect required.
 }
 
 /* MOVE INVERSOR TO FORWARD.
@@ -55,7 +55,7 @@ void MPINV_init(void) {
  */
 void MPINV_forward(void) {
 	// Play sound.
-	SOUND_play(&(mpinv_ctx.forward_backward_sound));
+	SOUND_play(&(mpinv_ctx.sound_forward_backward));
 	// Send OpenRails shortcut.
 	KEYBOARD_send(OPENRAILS_MPINV_FORWARD, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 	// Update state.
@@ -72,7 +72,7 @@ void MPINV_forward(void) {
  */
 void MPINV_neutral(void) {
 	// Play sound.
-	SOUND_play(&(mpinv_ctx.neutral_sound));
+	SOUND_play(&(mpinv_ctx.sound_neutral));
 	// Send accurate OpenRails shortcut.
 	switch (mpinv_ctx.state) {
 	case MPINV_STATE_FORWARD:
@@ -100,7 +100,7 @@ void MPINV_neutral(void) {
  */
 void MPINV_backward(void) {
 	// Play sound.
-	SOUND_play(&(mpinv_ctx.forward_backward_sound));
+	SOUND_play(&(mpinv_ctx.sound_forward_backward));
 	// Send OpenRails shortcut.
 	KEYBOARD_send(OPENRAILS_MPINV_BACKWARD, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 	// Update state.

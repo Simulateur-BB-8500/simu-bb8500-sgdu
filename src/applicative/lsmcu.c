@@ -109,16 +109,16 @@ void LSMCU_task(void) {
 			ZDJ_lock();
 			break;
 		case LSMCU_OUT_COMPRESSOR_AUTO_REG_MIN_ON:
-			COMPRESSOR_play_auto_regulation_min();
+			COMPRESSOR_play_zca_regulation_min();
 			break;
 		case LSMCU_OUT_COMPRESSOR_AUTO_REG_MAX_ON:
-			COMPRESSOR_play_auto_regulation_max();
+			COMPRESSOR_play_zca_regulation_max();
 			break;
 		case LSMCU_OUT_COMPRESSOR_DIRECT_ON:
-			COMPRESSOR_play_direct();
+			COMPRESSOR_play_zcd();
 			break;
 		case LSMCU_OUT_COMPRESSOR_OFF:
-			COMPRESSOR_turn_off();
+			COMPRESSOR_off();
 			break;
 		case LSMCU_OUT_FPB_ON:
 			FPB_on();

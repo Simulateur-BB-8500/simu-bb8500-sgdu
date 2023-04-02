@@ -21,8 +21,8 @@
 /*** KVB local structures ***/
 
 typedef struct {
-	SOUND_context_t sound_turnon;
-	SOUND_context_t sound_turnoff;
+	SOUND_context_t sound_on;
+	SOUND_context_t sound_off;
 	SOUND_context_t sound_urgency;
 } KVB_context_t;
 
@@ -38,10 +38,10 @@ static KVB_context_t kvb_ctx;
  */
 void KVB_init(void) {
 	// Init sounds.
-	SOUND_init(&(kvb_ctx.sound_turnon), "kvb_turnon.wav", KVB_AUDIO_GAIN);
-	SOUND_set_volume(&(kvb_ctx.sound_turnon), 1.0); // No fade effect required.
-	SOUND_init(&(kvb_ctx.sound_turnoff), "kvb_turnoff.wav", KVB_AUDIO_GAIN);
-	SOUND_set_volume(&(kvb_ctx.sound_turnoff), 1.0); // No fade effect required.
+	SOUND_init(&(kvb_ctx.sound_on), "kvb_on.wav", KVB_AUDIO_GAIN);
+	SOUND_set_volume(&(kvb_ctx.sound_on), 1.0); // No fade effect required.
+	SOUND_init(&(kvb_ctx.sound_off), "kvb_off.wav", KVB_AUDIO_GAIN);
+	SOUND_set_volume(&(kvb_ctx.sound_off), 1.0); // No fade effect required.
 	SOUND_init(&(kvb_ctx.sound_urgency), "kvb_urgency.wav", KVB_AUDIO_GAIN);
 	SOUND_set_volume(&(kvb_ctx.sound_urgency), 1.0); // No fade effect required.
 }
@@ -52,8 +52,8 @@ void KVB_init(void) {
  */
 void KVB_turn_on(void) {
 	// Play sound.
-	SOUND_play(&(kvb_ctx.sound_turnon));
-	SOUND_stop(&(kvb_ctx.sound_turnoff));
+	SOUND_play(&(kvb_ctx.sound_on));
+	SOUND_stop(&(kvb_ctx.sound_off));
 #ifdef KVB_LOG
 	printf("KVB *** Turn on.\n");
 #endif
@@ -65,8 +65,8 @@ void KVB_turn_on(void) {
  */
 void KVB_turn_off(void) {
 	// Play sound.
-	SOUND_play(&(kvb_ctx.sound_turnoff));
-	SOUND_stop(&(kvb_ctx.sound_turnon));
+	SOUND_play(&(kvb_ctx.sound_off));
+	SOUND_stop(&(kvb_ctx.sound_on));
 #ifdef KVB_LOG
 	printf("KVB *** Turn off.\n");
 #endif

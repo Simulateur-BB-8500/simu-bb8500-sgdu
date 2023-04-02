@@ -27,8 +27,8 @@ typedef enum {
 } FD_state_t;
 
 typedef struct {
-	SOUND_context_t apply_sound;
-	SOUND_context_t release_sound;
+	SOUND_context_t sound_apply;
+	SOUND_context_t sound_release;
 	FD_state_t state;
 } FD_context_t;
 
@@ -44,10 +44,10 @@ static FD_context_t fd_ctx;
  */
 void FD_init(void) {
 	// Init sounds.
-	SOUND_init(&(fd_ctx.apply_sound), "apply.wav", FD_AUDIO_GAIN);
-	SOUND_set_volume(&(fd_ctx.apply_sound), 1.0); // No fade effect required.
-	SOUND_init(&(fd_ctx.release_sound), "release.wav", FD_AUDIO_GAIN);
-	SOUND_set_volume(&(fd_ctx.release_sound), 1.0); // No fade effect required.
+	SOUND_init(&(fd_ctx.sound_apply), "fd_apply.wav", FD_AUDIO_GAIN);
+	SOUND_set_volume(&(fd_ctx.sound_apply), 1.0); // No fade effect required.
+	SOUND_init(&(fd_ctx.sound_release), "fd_release.wav", FD_AUDIO_GAIN);
+	SOUND_set_volume(&(fd_ctx.sound_release), 1.0); // No fade effect required.
 }
 
 /* APPLY FD.
@@ -56,7 +56,7 @@ void FD_init(void) {
  */
 void FD_apply(void) {
 	// Play sound.
-	SOUND_play(&(fd_ctx.apply_sound));
+	SOUND_play(&(fd_ctx.sound_apply));
 	// Send OpenRails shortcut (twice if previous state was released).
 	KEYBOARD_send(OPENRAILS_FD_APPLY, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 	KEYBOARD_send(OPENRAILS_FD_APPLY, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
@@ -73,7 +73,7 @@ void FD_apply(void) {
  */
 void FD_neutral(void) {
 	// Save release sound parameter for fade-out.
-	SOUND_save_fade_parameters(&(fd_ctx.release_sound));
+	SOUND_save_fade_parameters(&(fd_ctx.sound_release));
 	// Send accurate OpenRails shortcut.
 	switch (fd_ctx.state) {
 	case FD_STATE_APPLY:
@@ -100,8 +100,8 @@ void FD_neutral(void) {
  */
 void FD_release(void) {
 	// Play sound.
-	SOUND_set_volume(&(fd_ctx.release_sound), 1.0); // No fade effect required.
-	SOUND_play(&(fd_ctx.release_sound));
+	SOUND_set_volume(&(fd_ctx.sound_release), 1.0); // No fade effect required.
+	SOUND_play(&(fd_ctx.sound_release));
 	// Send OpenRails shortcut (twice if previous state was applied).
 	KEYBOARD_send(OPENRAILS_FD_RELEASE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 	KEYBOARD_send(OPENRAILS_FD_RELEASE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
@@ -119,6 +119,6 @@ void FD_release(void) {
 void FD_task(void) {
 	// Release sound fade-out.
 	if (fd_ctx.state != FD_STATE_RELEASE) {
-		SOUND_fade_out(&(fd_ctx.release_sound), FD_FADE_DURATION_MS);
+		SOUND_fade_out(&(fd_ctx.sound_release), FD_FADE_DURATION_MS);
 	}
 }

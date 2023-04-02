@@ -20,11 +20,11 @@
 /*** ZPT local structures ***/
 
 typedef struct {
-	SOUND_context_t back_up_sound;
-	SOUND_context_t back_down_sound;
+	SOUND_context_t sound_back_up;
+	SOUND_context_t sound_back_down;
 	unsigned char back_raised;
-	SOUND_context_t front_up_sound;
-	SOUND_context_t front_down_sound;
+	SOUND_context_t sound_front_up;
+	SOUND_context_t sound_front_down;
 	unsigned char front_raised;
 } ZPT_context_t;
 
@@ -40,14 +40,14 @@ static ZPT_context_t zpt_ctx;
  */
 void ZPT_init(void) {
 	// Init sounds.
-	SOUND_init(&(zpt_ctx.back_up_sound), "zpt_up.wav", ZPT_BACK_AUDIO_GAIN);
-	SOUND_set_volume(&(zpt_ctx.back_up_sound), 1.0); // No fade effect required.
-	SOUND_init(&(zpt_ctx.back_down_sound), "zpt_down.wav", ZPT_BACK_AUDIO_GAIN);
-	SOUND_set_volume(&(zpt_ctx.back_down_sound), 1.0); // No fade effect required.
-	SOUND_init(&(zpt_ctx.front_up_sound), "zpt_up.wav", ZPT_FRONT_AUDIO_GAIN);
-	SOUND_set_volume(&(zpt_ctx.front_up_sound), 1.0); // No fade effect required.
-	SOUND_init(&(zpt_ctx.front_down_sound), "zpt_down.wav", ZPT_FRONT_AUDIO_GAIN);
-	SOUND_set_volume(&(zpt_ctx.front_down_sound), 1.0); // No fade effect required.
+	SOUND_init(&(zpt_ctx.sound_back_up), "zpt_up.wav", ZPT_BACK_AUDIO_GAIN);
+	SOUND_set_volume(&(zpt_ctx.sound_back_up), 1.0); // No fade effect required.
+	SOUND_init(&(zpt_ctx.sound_back_down), "zpt_down.wav", ZPT_BACK_AUDIO_GAIN);
+	SOUND_set_volume(&(zpt_ctx.sound_back_down), 1.0); // No fade effect required.
+	SOUND_init(&(zpt_ctx.sound_front_up), "zpt_up.wav", ZPT_FRONT_AUDIO_GAIN);
+	SOUND_set_volume(&(zpt_ctx.sound_front_up), 1.0); // No fade effect required.
+	SOUND_init(&(zpt_ctx.sound_front_down), "zpt_down.wav", ZPT_FRONT_AUDIO_GAIN);
+	SOUND_set_volume(&(zpt_ctx.sound_front_down), 1.0); // No fade effect required.
 	// Init context.
 	zpt_ctx.back_raised = 0;
 	zpt_ctx.front_raised = 0;
@@ -59,7 +59,7 @@ void ZPT_init(void) {
  */
 void ZPT_back_up(void) {
 	// Play sound.
-	SOUND_play(&(zpt_ctx.back_up_sound));
+	SOUND_play(&(zpt_ctx.sound_back_up));
 	// Send OpenRails shortcut if state changed.
 	if (zpt_ctx.back_raised == 0) {
 		KEYBOARD_send(OPENRAILS_ZPT_BACK_TOGGLE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
@@ -77,8 +77,8 @@ void ZPT_back_up(void) {
  */
 void ZPT_back_down(void) {
 	// Play sound.
-	SOUND_play(&(zpt_ctx.back_down_sound));
-	SOUND_stop(&(zpt_ctx.back_up_sound));
+	SOUND_play(&(zpt_ctx.sound_back_down));
+	SOUND_stop(&(zpt_ctx.sound_back_up));
 	// Send OpenRails shortcut if state changed.
 	if (zpt_ctx.back_raised != 0) {
 		KEYBOARD_send(OPENRAILS_ZPT_BACK_TOGGLE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
@@ -96,7 +96,7 @@ void ZPT_back_down(void) {
  */
 void ZPT_front_up(void) {
 	// Play sound.
-	SOUND_play(&(zpt_ctx.front_up_sound));
+	SOUND_play(&(zpt_ctx.sound_front_up));
 	// Send OpenRails shortcut if state changed.
 	if (zpt_ctx.front_raised == 0) {
 		KEYBOARD_send(OPENRAILS_ZPT_FRONT_TOGGLE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
@@ -114,8 +114,8 @@ void ZPT_front_up(void) {
  */
 void ZPT_front_down(void) {
 	// Play sound.
-	SOUND_play(&(zpt_ctx.front_down_sound));
-	SOUND_stop(&(zpt_ctx.front_up_sound));
+	SOUND_play(&(zpt_ctx.sound_front_down));
+	SOUND_stop(&(zpt_ctx.sound_front_up));
 	// Send OpenRails shortcut if state changed.
 	if (zpt_ctx.front_raised != 0) {
 		KEYBOARD_send(OPENRAILS_ZPT_FRONT_TOGGLE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);

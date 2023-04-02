@@ -8,6 +8,7 @@
 #include "sound.h"
 
 #include "fmod.h"
+#include "fmod_common.h"
 #include "stddef.h"
 #include "stdio.h"
 #include "string.h"
@@ -18,10 +19,10 @@
 #define SOUND_FMOD_NUMBER_OF_CHANNELS			32
 #define SOUND_AUDIO_FILE_NAME_MAXIMUM_LENGTH	100
 #ifdef WINDOWS
-#define SOUND_AUDIO_FILES_FOLDER_PATH			"C:/Users/Ludovic/Documents/git/LSSGIU/wav/"
+#define SOUND_AUDIO_FILES_FOLDER_PATH			"C:/Users/User/Documents/git/lssgiu/sounds/"
 #endif
 #ifdef LINUX
-#define SOUND_AUDIO_FILES_FOLDER_PATH			"/home/ludo/git/lssgiu/wav/"
+#define SOUND_AUDIO_FILES_FOLDER_PATH			"/home/ludo/git/lssgiu/sounds/"
 #endif
 //#define SOUND_LOG
 
@@ -54,7 +55,7 @@ void SOUND_init(SOUND_context_t* sound_ctx, const char* audio_file_name, float m
 	// Create full name.
 	char audio_file_full_name[SOUND_AUDIO_FILE_NAME_MAXIMUM_LENGTH] = SOUND_AUDIO_FILES_FOLDER_PATH;
 	strcat(audio_file_full_name, audio_file_name);
-	// Structure initialisation.
+	// Structure initialization.
 	FMOD_RESULT fmod_result = FMOD_System_CreateSound(sound_fmod_system, audio_file_full_name, FMOD_2D | FMOD_CREATESTREAM, NULL, &(sound_ctx -> fmod_sound));
 	FMOD_Sound_GetLength((sound_ctx -> fmod_sound), &(sound_ctx -> length_ms), FMOD_TIMEUNIT_MS);
 	sound_ctx -> current_volume = 0.0;
@@ -99,7 +100,7 @@ void SOUND_set_volume(SOUND_context_t* sound_ctx, float new_volume) {
 }
 
 /* GET THE DURATION OF A SOUND.
- * @param sound_ctx:	Sound to analyse.
+ * @param sound_ctx:	Sound to analyze.
  * @return length_ms: 	Sound duration in ms.
  */
 unsigned int SOUND_get_length_ms(SOUND_context_t* sound_ctx) {
@@ -107,7 +108,7 @@ unsigned int SOUND_get_length_ms(SOUND_context_t* sound_ctx) {
 }
 
 /* GET THE CURRENT POSITION IN A SOUND.
- * @param sound_ctx:	Sound to analyse.
+ * @param sound_ctx:	Sound to analyze.
  * @return position_ms:	Current reading position in ms.
  */
 unsigned int SOUND_get_position_ms(SOUND_context_t* sound_ctx) {
@@ -126,7 +127,7 @@ void SOUND_set_position_ms(SOUND_context_t* sound_ctx, unsigned int new_position
 }
 
 /* CHECK IS A SOUND IS CURRENTLY PLAYING.
- * @param sound_ctx:	Sound to analyse.
+ * @param sound_ctx:	Sound to analyze.
  * @return is_playing:	Non-zero value if the sound is currently playing, 0 otherwise.
  */
 FMOD_BOOL SOUND_is_playing(SOUND_context_t* sound_ctx) {

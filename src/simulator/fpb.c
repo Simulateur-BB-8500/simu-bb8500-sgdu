@@ -37,9 +37,9 @@ typedef enum {
 } FPB_state_t;
 
 typedef struct {
-	SOUND_context_t on_sound;
-	SOUND_context_t apply_release_sound;
-	SOUND_context_t neutral_sound;
+	SOUND_context_t sound_on;
+	SOUND_context_t sound_apply_release;
+	SOUND_context_t sound_neutral;
 	FPB_state_t state;
 	unsigned char request;
 	unsigned long apply_release_start_time;
@@ -57,10 +57,10 @@ static FPB_context_t fpb_ctx;
  */
 void FPB_init(void) {
 	// Init sounds.
-	SOUND_init(&(fpb_ctx.apply_release_sound), "apply_release.wav", FPB_AUDIO_GAIN);
-	SOUND_set_volume(&(fpb_ctx.apply_release_sound), 1.0); // No fade effect required.
-	SOUND_init(&(fpb_ctx.neutral_sound), "neutral.wav", FPB_AUDIO_GAIN);
-	SOUND_set_volume(&(fpb_ctx.neutral_sound), 1.0); // No fade effect required.
+	SOUND_init(&(fpb_ctx.sound_apply_release), "fpb_apply_release.wav", FPB_AUDIO_GAIN);
+	SOUND_set_volume(&(fpb_ctx.sound_apply_release), 1.0); // No fade effect required.
+	SOUND_init(&(fpb_ctx.sound_neutral), "fpb_neutral.wav", FPB_AUDIO_GAIN);
+	SOUND_set_volume(&(fpb_ctx.sound_neutral), 1.0); // No fade effect required.
 	// Init context.
 	fpb_ctx.state = FPB_STATE_NEUTRAL; // Bypass for debug.
 	fpb_ctx.request = FPB_REQUEST_NEUTRAL;
@@ -138,7 +138,7 @@ void FPB_task(void) {
 			break;
 		case FPB_REQUEST_APPLY:
 			// Play sound.
-			SOUND_play(&(fpb_ctx.apply_release_sound));
+			SOUND_play(&(fpb_ctx.sound_apply_release));
 			// Send OpenRails shortcut.
 			KEYBOARD_send(OPENRAILS_FPB_APPLY, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 			// Save time and switch state.
@@ -147,7 +147,7 @@ void FPB_task(void) {
 			break;
 		case FPB_REQUEST_RELEASE:
 			// Play sound.
-			SOUND_play(&(fpb_ctx.apply_release_sound));
+			SOUND_play(&(fpb_ctx.sound_apply_release));
 			// Send OpenRails shortcut.
 			KEYBOARD_send(OPENRAILS_FPB_RELEASE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 			// Save time and switch state.
@@ -162,14 +162,14 @@ void FPB_task(void) {
 	case FPB_STATE_APPLY:
 		if (fpb_ctx.request == FPB_REQUEST_NEUTRAL) {
 			// Play sound.
-			SOUND_play(&(fpb_ctx.neutral_sound));
-			SOUND_stop(&(fpb_ctx.apply_release_sound));
+			SOUND_play(&(fpb_ctx.sound_neutral));
+			SOUND_stop(&(fpb_ctx.sound_apply_release));
 			// Come back to neutral state.
 			fpb_ctx.state = FPB_STATE_NEUTRAL;
 		}
 		else {
 			if (TIME_get_ms() > (fpb_ctx.apply_release_start_time + FPB_APPLY_RELEASE_PERIOD_MS)) {
-				// Send OpenRails shortcut  and update time.
+				// Send OpenRails shortcut and update time.
 				KEYBOARD_send(OPENRAILS_FPB_APPLY, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 				fpb_ctx.apply_release_start_time = TIME_get_ms();
 			}
@@ -178,14 +178,14 @@ void FPB_task(void) {
 	case FPB_STATE_RELEASE:
 		if (fpb_ctx.request == FPB_REQUEST_NEUTRAL) {
 			// Play sound.
-			SOUND_play(&(fpb_ctx.neutral_sound));
-			SOUND_stop(&(fpb_ctx.apply_release_sound));
+			SOUND_play(&(fpb_ctx.sound_neutral));
+			SOUND_stop(&(fpb_ctx.sound_apply_release));
 			// Come back to neutral state.
 			fpb_ctx.state = FPB_STATE_NEUTRAL;
 		}
 		else {
 			if (TIME_get_ms() > (fpb_ctx.apply_release_start_time + FPB_APPLY_RELEASE_PERIOD_MS)) {
-				// Send OpenRails shortcut  and update time.
+				// Send OpenRails shortcut and update time.
 				KEYBOARD_send(OPENRAILS_FPB_RELEASE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 				fpb_ctx.apply_release_start_time = TIME_get_ms();
 			}

@@ -26,10 +26,10 @@ typedef enum {
 
 typedef struct {
 	// Sounds.
-	SOUND_context_t low_tone_sound;
-	SOUND_context_t low_tone_end_sound;
-	SOUND_context_t high_tone_sound;
-	SOUND_context_t high_tone_end_sound;
+	SOUND_context_t sound_low_tone;
+	SOUND_context_t sound_low_tone_end;
+	SOUND_context_t sound_high_tone;
+	SOUND_context_t sound_high_tone_end;
 	// State.
 	WHISTLE_state_t s_state;
 } WHISTLE_Context;
@@ -46,14 +46,14 @@ static WHISTLE_Context s_ctx;
  */
 void WHISTLE_init(void) {
 	// Init sounds.
-	SOUND_init(&(s_ctx.low_tone_sound), "low_tone.wav", WHISTLE_AUDIO_GAIN);
-	SOUND_set_volume(&(s_ctx.low_tone_sound), 1.0); // No fade effect required.
-	SOUND_init(&(s_ctx.low_tone_end_sound), "low_tone_end.wav", WHISTLE_AUDIO_GAIN);
-	SOUND_set_volume(&(s_ctx.low_tone_end_sound), 1.0); // No fade effect required.
-	SOUND_init(&(s_ctx.high_tone_sound), "high_tone.wav", WHISTLE_AUDIO_GAIN);
-	SOUND_set_volume(&(s_ctx.high_tone_sound), 1.0); // No fade effect required.
-	SOUND_init(&(s_ctx.high_tone_end_sound), "high_tone_end.wav", WHISTLE_AUDIO_GAIN);
-	SOUND_set_volume(&(s_ctx.high_tone_end_sound), 1.0); // No fade effect required.
+	SOUND_init(&(s_ctx.sound_low_tone), "s_low_tone.wav", WHISTLE_AUDIO_GAIN);
+	SOUND_set_volume(&(s_ctx.sound_low_tone), 1.0); // No fade effect required.
+	SOUND_init(&(s_ctx.sound_low_tone_end), "s_low_tone_end.wav", WHISTLE_AUDIO_GAIN);
+	SOUND_set_volume(&(s_ctx.sound_low_tone_end), 1.0); // No fade effect required.
+	SOUND_init(&(s_ctx.sound_high_tone), "s_high_tone.wav", WHISTLE_AUDIO_GAIN);
+	SOUND_set_volume(&(s_ctx.sound_high_tone), 1.0); // No fade effect required.
+	SOUND_init(&(s_ctx.sound_high_tone_end), "s_high_tone_end.wav", WHISTLE_AUDIO_GAIN);
+	SOUND_set_volume(&(s_ctx.sound_high_tone_end), 1.0); // No fade effect required.
 	// Init context.
 	s_ctx.s_state = WHISTLE_STATE_NEUTRAL;
 }
@@ -64,7 +64,7 @@ void WHISTLE_init(void) {
  */
 void WHISTLE_high_tone(void) {
 	// Play sound.
-	SOUND_play(&(s_ctx.high_tone_sound));
+	SOUND_play(&(s_ctx.sound_high_tone));
 	// Update state.
 	s_ctx.s_state = WHISTLE_STATE_HIGH_TONE;
 #ifdef WHISTLE_LOG
@@ -79,7 +79,7 @@ void WHISTLE_high_tone(void) {
  */
 void WHISTLE_low_tone(void) {
 	// Play sound.
-	SOUND_play(&(s_ctx.low_tone_sound));
+	SOUND_play(&(s_ctx.sound_low_tone));
 	// Update state.
 	s_ctx.s_state = WHISTLE_STATE_LOW_TONE;
 #ifdef WHISTLE_LOG
@@ -97,13 +97,13 @@ void WHISTLE_neutral(void) {
 	switch (s_ctx.s_state) {
 	case WHISTLE_STATE_LOW_TONE:
 		// End low tone.
-		SOUND_play(&(s_ctx.low_tone_end_sound));
-		SOUND_stop(&(s_ctx.low_tone_sound));
+		SOUND_play(&(s_ctx.sound_low_tone_end));
+		SOUND_stop(&(s_ctx.sound_low_tone));
 		break;
 	case WHISTLE_STATE_HIGH_TONE:
 		// End high tone.
-		SOUND_play(&(s_ctx.high_tone_end_sound));
-		SOUND_stop(&(s_ctx.high_tone_sound));
+		SOUND_play(&(s_ctx.sound_high_tone_end));
+		SOUND_stop(&(s_ctx.sound_high_tone));
 		break;
 	default:
 		break;
