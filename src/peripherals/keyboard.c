@@ -8,6 +8,7 @@
 #include "keyboard.h"
 
 #include "stdio.h"
+#include "stdint.h"
 #include "time.h"
 #ifdef WINDOWS
 #include "windows.h"
@@ -28,7 +29,7 @@ typedef enum {
 } KEYBOARD_state_t;
 
 typedef struct {
-	KEYBOARD_Key key_buf[KEYBOARD_BUFFER_SIZE];
+	KEYBOARD_shortcut_t shortcut_buf[KEYBOARD_BUFFER_SIZE];
 	unsigned int press_duration_buf[KEYBOARD_BUFFER_SIZE];
 	unsigned char write_idx;
 	unsigned char read_idx;
@@ -43,29 +44,39 @@ static KEYBOARD_context_t keyboard_ctx;
 /*** KEYBOARD local functions ***/
 
 /* PRESS A KEYBOARD KEY.
- * @param key:	Key to press.
- * @return:		None.
+ * @param shortcut:	Shortcut to press.
+ * @return:			None.
  */
-static void KEYBOARD_press(const KEYBOARD_Key* key) {
+static void _KEYBOARD_press(const KEYBOARD_shortcut_t* shortcut) {
 #ifdef WINDOWS
-	keybd_event((key -> keyboard_key_code), (key -> keyboard_key_scan), 0, 0);
+	if ((shortcut -> vk_code_0) != VK_NONE) {
+		keybd_event((shortcut -> vk_code_0), MapVirtualKey((shortcut -> vk_code_0), MAPVK_VK_TO_VSC), 0, 0);
+	}
+	if ((shortcut -> vk_code_1) != VK_NONE) {
+		keybd_event((shortcut -> vk_code_1), MapVirtualKey((shortcut -> vk_code_1), MAPVK_VK_TO_VSC), 0, 0);
+	}
 #endif
 #ifdef KEYBOARD_LOG
-	printf("KEYBOARD *** Press key 0x%x\n", (key -> keyboard_key_code));
+	printf("KEYBOARD *** Press key 0x%x\n", (key -> KEYBOARD_key_t_code));
 	fflush(stdout);
 #endif
 }
 
 /* RELEASE A KEYBOARD KEY.
- * @param key:	Key to release.
- * @return:		None.
+ * @param shortcut:	Shortcut to release.
+ * @return:			None.
  */
-static void KEYBOARD_release(const KEYBOARD_Key* key) {
+static void _KEYBOARD_release(const KEYBOARD_shortcut_t* shortcut) {
 #ifdef WINDOWS
-	keybd_event((key -> keyboard_key_code), (key -> keyboard_key_scan), KEYEVENTF_KEYUP, 0);
+	if ((shortcut -> vk_code_0) != VK_NONE) {
+		keybd_event((shortcut -> vk_code_0), MapVirtualKey((shortcut -> vk_code_0), MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
+	}
+	if ((shortcut -> vk_code_1) != VK_NONE) {
+		keybd_event((shortcut -> vk_code_1), MapVirtualKey((shortcut -> vk_code_1), MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
+	}
 #endif
 #ifdef KEYBOARD_LOG
-	printf("KEYBOARD *** Release key 0x%x\n", (key -> keyboard_key_code));
+	printf("KEYBOARD *** Release key 0x%x\n", (key -> KEYBOARD_key_t_code));
 	fflush(stdout);
 #endif
 }
@@ -85,14 +96,14 @@ void KEYBOARD_init(void) {
 }
 
 /* APPEND A NEW KEY TO THE KEYBOARD BUFFER.
- * @param key:					Key to press.
+ * @param shortcut:				Shortcut to press.
  * @param press_duration_ms:	Key press duration in ms.
  * @return:						None.
  */
-void KEYBOARD_send(const KEYBOARD_Key* key, unsigned int press_duration_ms) {
+void KEYBOARD_send(const KEYBOARD_shortcut_t* shortcut, uint32_t press_duration_ms) {
 	// Fill buffers.
-	keyboard_ctx.key_buf[keyboard_ctx.write_idx].keyboard_key_code = (key -> keyboard_key_code);
-	keyboard_ctx.key_buf[keyboard_ctx.write_idx].keyboard_key_scan = (key -> keyboard_key_scan);
+	keyboard_ctx.shortcut_buf[keyboard_ctx.write_idx].vk_code_0 = (shortcut -> vk_code_0);
+	keyboard_ctx.shortcut_buf[keyboard_ctx.write_idx].vk_code_1 = (shortcut -> vk_code_1);
 	keyboard_ctx.press_duration_buf[keyboard_ctx.write_idx] = press_duration_ms;
 	// Increment index and manage rollover.
 	keyboard_ctx.write_idx++;
@@ -112,7 +123,7 @@ void KEYBOARD_task(void) {
 		// Check indexes.
 		if (keyboard_ctx.read_idx != keyboard_ctx.write_idx) {
 			// Press key.
-			KEYBOARD_press(&keyboard_ctx.key_buf[keyboard_ctx.read_idx]);
+			_KEYBOARD_press(&keyboard_ctx.shortcut_buf[keyboard_ctx.read_idx]);
 			// Save start time.
 			keyboard_ctx.state_switch_time = TIME_get_ms();
 			// Change state.
@@ -123,7 +134,7 @@ void KEYBOARD_task(void) {
 		// Check duration.
 		if (TIME_get_ms() > (keyboard_ctx.state_switch_time + keyboard_ctx.press_duration_buf[keyboard_ctx.read_idx])) {
 			// Release key.
-			KEYBOARD_release(&keyboard_ctx.key_buf[keyboard_ctx.read_idx]);
+			_KEYBOARD_release(&keyboard_ctx.shortcut_buf[keyboard_ctx.read_idx]);
 			// Increment index and manage rollover.
 			keyboard_ctx.read_idx++;
 			if (keyboard_ctx.read_idx >= KEYBOARD_BUFFER_SIZE) {

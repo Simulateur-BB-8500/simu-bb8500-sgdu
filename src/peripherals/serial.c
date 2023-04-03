@@ -8,8 +8,10 @@
 #include "serial.h"
 
 #include "string.h"
+#include "stdint.h"
 #include "stdio.h"
 #ifdef WINDOWS
+#include "windef.h"
 #include "windows.h"
 #endif
 #ifdef LINUX
@@ -114,7 +116,7 @@ errors:
  * @param tx_byte:	Byte to send.
  * @return result: 	0 if function failed, non-zero value otherwise.
  */
-SERIAL_status_t SERIAL_write(SERIAL_port_t* serial_port, unsigned char tx_byte) {
+SERIAL_status_t SERIAL_write(SERIAL_port_t* serial_port, uint8_t tx_byte) {
 	// Local variables.
 	SERIAL_status_t status = SERIAL_ERROR_WRITE;
 	// Check parameters.
@@ -144,11 +146,11 @@ errors:
  * @param rx_byte:	Pointer to byte that will contain received data.
  * @return result:	0 if function failed, non-zero value otherwise.
  */
-SERIAL_status_t SERIAL_read(SERIAL_port_t* serial_port, unsigned char* rx_byte) {
+SERIAL_status_t SERIAL_read(SERIAL_port_t* serial_port, uint8_t* rx_byte) {
 	// Local variables.
 	SERIAL_status_t status = SERIAL_ERROR_READ;
 #ifdef WINDOWS
-	unsigned long number_of_read_bytes = 0;
+	DWORD number_of_read_bytes = 0;
 #endif
 	// Check parameters.
 	if (serial_port == NULL) goto errors;

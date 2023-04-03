@@ -9,6 +9,7 @@
 
 #include "mixer.h"
 #include "sound.h"
+#include "stdint.h"
 #include "stdio.h"
 
 /*** ZVM local macros ***/
@@ -34,7 +35,7 @@ typedef struct {
 	SOUND_context_t sound_0;
 	SOUND_context_t sound_1;
 	SOUND_context_t sound_off;
-	unsigned char on;
+	uint8_t on;
 	ZVM_state_t state;
 } ZVM_Context;
 
@@ -85,10 +86,10 @@ void ZVM_turn_off(void) {
  */
 void ZVM_task(void) {
 	// Local variables.
-	unsigned char turn_on_fade_end = 0;
-	unsigned char on1_fade_end = 0;
-	unsigned char on2_fade_end = 0;
-	unsigned char turn_off_fade_end = 0;
+	uint8_t turn_on_fade_end = 0;
+	uint8_t on1_fade_end = 0;
+	uint8_t on2_fade_end = 0;
+	uint8_t turn_off_fade_end = 0;
 	// Perform internal state machine.
 	switch (zvm_ctx.state) {
 	case ZVM_STATE_OFF:

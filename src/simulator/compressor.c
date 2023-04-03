@@ -8,6 +8,7 @@
 #include "compressor.h"
 #include "mixer.h"
 #include "sound.h"
+#include "stdint.h"
 #include "stdio.h"
 
 /*** COMPRESSOR local macros ***/
@@ -20,8 +21,8 @@
 
 typedef enum {
 	COMPRESSOR_STATE_OFF,
-	COMPRESSOR_STATE_zca_reg_MIN_MAX,
-	COMPRESSOR_STATE_zca_off,
+	COMPRESSOR_STATE_ZCA_REG_MIN_MAX,
+	COMPRESSOR_STATE_ZCA_OFF,
 	COMPRESSOR_STATE_DIRECT_TURNON,
 	COMPRESSOR_STATE_DIRECT_TURNON_TO_ON1,
 	COMPRESSOR_STATE_DIRECT_ON1,
@@ -122,13 +123,13 @@ void COMPRESSOR_off(void) {
  */
 void COMPRESSOR_task(void) {
 	// Local variables.
-	unsigned char zca_reg_min_fade_end = 0;
-	unsigned char zca_reg_max_fade_end = 0;
-	unsigned char zca_off_fade_end = 0;
-	unsigned char direct_turnon_fade_end = 0;
-	unsigned char direct_on1_fade_end = 0;
-	unsigned char direct_on2_fade_end = 0;
-	unsigned char direct_turnoff_fade_end = 0;
+	uint8_t zca_reg_min_fade_end = 0;
+	uint8_t zca_reg_max_fade_end = 0;
+	uint8_t zca_off_fade_end = 0;
+	uint8_t direct_turnon_fade_end = 0;
+	uint8_t direct_on1_fade_end = 0;
+	uint8_t direct_on2_fade_end = 0;
+	uint8_t direct_turnoff_fade_end = 0;
 	// Perform internal state machine.
 	switch (compressor_ctx.comp_state) {
 	case COMPRESSOR_STATE_OFF:
@@ -145,7 +146,7 @@ void COMPRESSOR_task(void) {
 				SOUND_set_volume(&(compressor_ctx.sound_zca_reg_min), 1.0); // No fade-in effect required.
 				SOUND_play(&(compressor_ctx.sound_zca_reg_min));
 				SOUND_save_fade_parameters(&(compressor_ctx.sound_zca_reg_min));
-				compressor_ctx.comp_state = COMPRESSOR_STATE_zca_reg_MIN_MAX;
+				compressor_ctx.comp_state = COMPRESSOR_STATE_ZCA_REG_MIN_MAX;
 			}
 			else {
 				if (compressor_ctx.sound_request == COMPRESSOR_SOUND_REQUEST_REG_MAX) {
@@ -153,12 +154,12 @@ void COMPRESSOR_task(void) {
 					SOUND_set_volume(&(compressor_ctx.sound_zca_reg_max), 1.0); // No fade-in effect required.
 					SOUND_play(&(compressor_ctx.sound_zca_reg_max));
 					SOUND_save_fade_parameters(&(compressor_ctx.sound_zca_reg_max));
-					compressor_ctx.comp_state = COMPRESSOR_STATE_zca_reg_MIN_MAX;
+					compressor_ctx.comp_state = COMPRESSOR_STATE_ZCA_REG_MIN_MAX;
 				}
 			}
 		}
 		break;
-	case COMPRESSOR_STATE_zca_reg_MIN_MAX:
+	case COMPRESSOR_STATE_ZCA_REG_MIN_MAX:
 		// Auto to direct mode.
 		if (compressor_ctx.sound_request == COMPRESSOR_SOUND_REQUEST_DIRECT) {
 			// Save all auto sounds.
@@ -180,7 +181,7 @@ void COMPRESSOR_task(void) {
 				SOUND_set_volume(&(compressor_ctx.sound_zca_off), 0.0);
 				SOUND_play(&(compressor_ctx.sound_zca_off));
 				SOUND_save_fade_parameters(&(compressor_ctx.sound_zca_off));
-				compressor_ctx.comp_state = COMPRESSOR_STATE_zca_off;
+				compressor_ctx.comp_state = COMPRESSOR_STATE_ZCA_OFF;
 			}
 			else {
 				if ((SOUND_get_position_ms(&(compressor_ctx.sound_zca_reg_min)) > (SOUND_get_length_ms(&(compressor_ctx.sound_zca_reg_min)) - COMPRESSOR_AUTO_OFF_MARGIN_MS)) ||
@@ -192,7 +193,7 @@ void COMPRESSOR_task(void) {
 			}
 		}
 		break;
-	case COMPRESSOR_STATE_zca_off:
+	case COMPRESSOR_STATE_ZCA_OFF:
 		// Auto to direct mode.
 		if (compressor_ctx.sound_request == COMPRESSOR_SOUND_REQUEST_DIRECT) {
 			// Save all auto sounds.

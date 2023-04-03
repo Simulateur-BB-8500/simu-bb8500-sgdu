@@ -9,6 +9,7 @@
 
 #include "keyboard.h"
 #include "openrails.h"
+#include "stdint.h"
 #include "stdio.h"
 
 /*** LIGHTS local macros ***/
@@ -29,7 +30,7 @@ typedef enum {
 } LIGHTS_state_t;
 
 typedef struct {
-	unsigned char status;
+	uint8_t status;
 	LIGHTS_state_t state;
 } LIGHTS_context_t;
 
@@ -130,16 +131,16 @@ void LIGHTS_task(void) {
 	case LIGHTS_STATE_OFF:
 		if (lights_ctx.status != 0) {
 			// Send keyboard control.
-			KEYBOARD_send(OPENRAILS_LIGHTS_ON, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
-			KEYBOARD_send(OPENRAILS_LIGHTS_ON, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_send(&OPENRAILS_LIGHTS_ON, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_send(&OPENRAILS_LIGHTS_ON, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 			lights_ctx.state = LIGHTS_STATE_ON;
 		}
 		break;
 	case LIGHTS_STATE_ON:
 		if (lights_ctx.status == 0) {
 			// Send keyboard control.
-			KEYBOARD_send(OPENRAILS_LIGHTS_OFF, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
-			KEYBOARD_send(OPENRAILS_LIGHTS_OFF, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_send(&OPENRAILS_LIGHTS_OFF, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_send(&OPENRAILS_LIGHTS_OFF, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 			lights_ctx.state = LIGHTS_STATE_OFF;
 		}
 		break;

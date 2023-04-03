@@ -11,6 +11,7 @@
 #include "mixer.h"
 #include "openrails.h"
 #include "sound.h"
+#include "stdint.h"
 #include "stdio.h"
 #include "time.h"
 
@@ -41,8 +42,8 @@ typedef struct {
 	SOUND_context_t sound_apply_release;
 	SOUND_context_t sound_neutral;
 	FPB_state_t state;
-	unsigned char request;
-	unsigned long apply_release_start_time;
+	FPB_request_t request;
+	uint64_t apply_release_start_time;
 } FPB_context_t;
 
 /*** FPB local global variables ***/
@@ -140,7 +141,7 @@ void FPB_task(void) {
 			// Play sound.
 			SOUND_play(&(fpb_ctx.sound_apply_release));
 			// Send OpenRails shortcut.
-			KEYBOARD_send(OPENRAILS_FPB_APPLY, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_send(&OPENRAILS_FPB_APPLY, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 			// Save time and switch state.
 			fpb_ctx.apply_release_start_time = TIME_get_ms();
 			fpb_ctx.state = FPB_STATE_APPLY;
@@ -149,7 +150,7 @@ void FPB_task(void) {
 			// Play sound.
 			SOUND_play(&(fpb_ctx.sound_apply_release));
 			// Send OpenRails shortcut.
-			KEYBOARD_send(OPENRAILS_FPB_RELEASE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_send(&OPENRAILS_FPB_RELEASE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 			// Save time and switch state.
 			fpb_ctx.apply_release_start_time = TIME_get_ms();
 			fpb_ctx.state = FPB_STATE_RELEASE;
@@ -170,7 +171,7 @@ void FPB_task(void) {
 		else {
 			if (TIME_get_ms() > (fpb_ctx.apply_release_start_time + FPB_APPLY_RELEASE_PERIOD_MS)) {
 				// Send OpenRails shortcut and update time.
-				KEYBOARD_send(OPENRAILS_FPB_APPLY, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+				KEYBOARD_send(&OPENRAILS_FPB_APPLY, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 				fpb_ctx.apply_release_start_time = TIME_get_ms();
 			}
 		}
@@ -186,7 +187,7 @@ void FPB_task(void) {
 		else {
 			if (TIME_get_ms() > (fpb_ctx.apply_release_start_time + FPB_APPLY_RELEASE_PERIOD_MS)) {
 				// Send OpenRails shortcut and update time.
-				KEYBOARD_send(OPENRAILS_FPB_RELEASE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+				KEYBOARD_send(&OPENRAILS_FPB_RELEASE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 				fpb_ctx.apply_release_start_time = TIME_get_ms();
 			}
 		}

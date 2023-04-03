@@ -8,10 +8,12 @@
 #ifndef __LSMCU_H__
 #define __LSMCU_H__
 
+#include "stdint.h"
+
 /*** LSMCU functions ***/
 
 void LSMCU_init(char* port);
-void LSMCU_send(unsigned tx_command);
+void LSMCU_send(uint8_t tx_command);
 void LSMCU_task(void);
 
 #endif /* __LSMCU_H__ */

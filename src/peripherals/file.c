@@ -8,6 +8,7 @@
 #include "file.h"
 
 #include "stddef.h"
+#include "stdint.h"
 #include "stdio.h"
 #include "stdlib.h"
 
@@ -36,7 +37,7 @@ void FILE_open(FILE** file, const char* file_path) {
  */
 void FILE_get_last_line(FILE* file, char* last_line) {
 	if (file != NULL) {
-		unsigned int char_idx = 0;
+		uint32_t char_idx = 0;
 		// Move the cursor before the last character of the file.
 		fseek(file, -1, SEEK_END);
 		char current_char = fgetc(file);
@@ -47,7 +48,7 @@ void FILE_get_last_line(FILE* file, char* last_line) {
 			current_char = fgetc(file);
 			char_idx++;
 		}
-		unsigned int line_length = 0;
+		uint32_t line_length = 0;
 		while (current_char != '\n') {
 			// Go back character per character.
 			fseek(file, -2, SEEK_CUR); // -2 because fgetc() made the cursor go forward.

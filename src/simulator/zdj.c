@@ -9,6 +9,7 @@
 
 #include "mixer.h"
 #include "sound.h"
+#include "stdint.h"
 #include "stdio.h"
 
 /*** ZDJ local global variables ***/

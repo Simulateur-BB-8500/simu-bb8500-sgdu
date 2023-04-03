@@ -10,6 +10,7 @@
 #include "mixer.h"
 #include "openrails.h"
 #include "sound.h"
+#include "stdint.h"
 #include "stdio.h"
 
 /*** WHISTLE local macros ***/

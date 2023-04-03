@@ -10,6 +10,7 @@
 #include "fmod.h"
 #include "fmod_common.h"
 #include "stddef.h"
+#include "stdint.h"
 #include "stdio.h"
 #include "string.h"
 #include "time.h"
@@ -30,8 +31,8 @@
 
 static FMOD_SYSTEM* sound_fmod_system;
 #ifdef SOUND_LOG
-unsigned int a = 0;
-unsigned int b = 0;
+uint32_t a = 0;
+uint32_t b = 0;
 #endif
 
 /*** SOUND functions ***/
@@ -103,7 +104,7 @@ void SOUND_set_volume(SOUND_context_t* sound_ctx, float new_volume) {
  * @param sound_ctx:	Sound to analyze.
  * @return length_ms: 	Sound duration in ms.
  */
-unsigned int SOUND_get_length_ms(SOUND_context_t* sound_ctx) {
+uint32_t SOUND_get_length_ms(SOUND_context_t* sound_ctx) {
 	return (sound_ctx -> length_ms);
 }
 
@@ -111,8 +112,8 @@ unsigned int SOUND_get_length_ms(SOUND_context_t* sound_ctx) {
  * @param sound_ctx:	Sound to analyze.
  * @return position_ms:	Current reading position in ms.
  */
-unsigned int SOUND_get_position_ms(SOUND_context_t* sound_ctx) {
-	unsigned int position_ms = 0;
+uint32_t SOUND_get_position_ms(SOUND_context_t* sound_ctx) {
+	uint32_t position_ms = 0;
 	FMOD_Channel_GetPosition((sound_ctx -> fmod_channel), &position_ms, FMOD_TIMEUNIT_MS);
 	return position_ms;
 }
@@ -122,7 +123,7 @@ unsigned int SOUND_get_position_ms(SOUND_context_t* sound_ctx) {
  * @param new_position_ms:	New reading position in ms.
  * @return: 				None.
  */
-void SOUND_set_position_ms(SOUND_context_t* sound_ctx, unsigned int new_position_ms) {
+void SOUND_set_position_ms(SOUND_context_t* sound_ctx, uint32_t new_position_ms) {
 	FMOD_Channel_SetPosition((sound_ctx -> fmod_channel), new_position_ms, FMOD_TIMEUNIT_MS);
 }
 
@@ -150,9 +151,10 @@ void SOUND_save_fade_parameters(SOUND_context_t* sound_ctx) {
  * @param fade_duration_ms:	Fade effect duration in ms.
  * @return fade_end			'1' if the fade effect is finished, '0' otherwise.
  */
-unsigned char SOUND_fade_in(SOUND_context_t* sound_ctx, unsigned int fade_duration_ms) {
+uint8_t SOUND_fade_in(SOUND_context_t* sound_ctx, uint32_t fade_duration_ms) {
+	// Local variables.
 	float fade_in_volume = (sound_ctx -> current_volume);
-	unsigned char fade_end = 0;
+	uint8_t fade_end = 0;
 	// Ensure sound is playing and current position is greater or equal the start position.
 	if ((SOUND_get_position_ms(sound_ctx) >= (sound_ctx -> fade_start_position_ms)) && (SOUND_is_playing(sound_ctx) > 0)) {
 		if ((SOUND_get_position_ms(sound_ctx) >= ((sound_ctx -> fade_start_position_ms) + fade_duration_ms)) || (SOUND_get_position_ms(sound_ctx) >= (sound_ctx -> length_ms))) {
@@ -187,9 +189,10 @@ unsigned char SOUND_fade_in(SOUND_context_t* sound_ctx, unsigned int fade_durati
  * @param fade_duration_ms:	Fade effect duration in ms.
  * @return fade_end			'1' if the fade effect is finished, '0' otherwise.
  */
-unsigned char SOUND_fade_out(SOUND_context_t* sound_ctx, unsigned int fade_duration_ms) {
+uint8_t SOUND_fade_out(SOUND_context_t* sound_ctx, uint32_t fade_duration_ms) {
+	// Local variables.
 	float fade_out_volume = (sound_ctx -> current_volume);
-	unsigned char fade_end = 0;
+	uint8_t fade_end = 0;
 	// Ensure sound is playing and current position is greater or equal the start position.
 	if ((SOUND_get_position_ms(sound_ctx) >= (sound_ctx -> fade_start_position_ms)) && (SOUND_is_playing(sound_ctx) > 0)) {
 		if ((SOUND_get_position_ms(sound_ctx) >= ((sound_ctx -> fade_start_position_ms) + fade_duration_ms)) || (SOUND_get_position_ms(sound_ctx) >= (sound_ctx -> length_ms))) {

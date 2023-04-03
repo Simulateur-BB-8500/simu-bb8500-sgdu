@@ -16,6 +16,7 @@
 #include "mp.h"
 #include "mpinv.h"
 #include "sound.h"
+#include "stdint.h"
 #include "stdio.h"
 #include "time.h"
 #include "whistle.h"
@@ -23,6 +24,8 @@
 #include "zdj.h"
 #include "zpt.h"
 #include "zvm.h"
+
+#include <winuser.h>
 
 /* MAIN FUNCTION.
  * @param:	None.

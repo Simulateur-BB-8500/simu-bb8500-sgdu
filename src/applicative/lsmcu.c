@@ -17,6 +17,7 @@
 #include "mp.h"
 #include "mpinv.h"
 #include "serial.h"
+#include "stdint.h"
 #include "stdio.h"
 #include "whistle.h"
 #include "zba.h"
@@ -55,7 +56,7 @@ void LSMCU_init(char* port) {
  * @param tx_command:	Command to send (see enumeration in lsmcu.h).
  * @return:				None.
  */
-void LSMCU_send(unsigned tx_command) {
+void LSMCU_send(uint8_t tx_command) {
 #ifdef LSMCU_LOG
 	printf("LSMCU *** TX command = 0x%02X.\n", tx_command);
 #endif
@@ -68,7 +69,7 @@ void LSMCU_send(unsigned tx_command) {
  */
 void LSMCU_task(void) {
 	// Read serial port.
-	unsigned char rx_command = LSMCU_OUT_NOP;
+	uint8_t rx_command = LSMCU_OUT_NOP;
 	SERIAL_status_t rx_success = SERIAL_read(&lsmcu_serial_port, &rx_command);
 	if ((rx_success == SERIAL_SUCCESS) && (rx_command != LSMCU_OUT_NOP)) {
 #ifdef LSMCU_LOG

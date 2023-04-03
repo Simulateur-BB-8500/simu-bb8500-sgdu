@@ -11,6 +11,7 @@
 #include "mixer.h"
 #include "openrails.h"
 #include "sound.h"
+#include "stdint.h"
 #include "stdio.h"
 
 /*** MPINV local macros ***/
@@ -57,7 +58,7 @@ void MPINV_forward(void) {
 	// Play sound.
 	SOUND_play(&(mpinv_ctx.sound_forward_backward));
 	// Send OpenRails shortcut.
-	KEYBOARD_send(OPENRAILS_MPINV_FORWARD, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+	KEYBOARD_send(&OPENRAILS_MPINV_FORWARD, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 	// Update state.
 	mpinv_ctx.state = MPINV_STATE_FORWARD;
 #ifdef MPINV_LOG
@@ -77,11 +78,11 @@ void MPINV_neutral(void) {
 	switch (mpinv_ctx.state) {
 	case MPINV_STATE_FORWARD:
 		// Previous state was forward.
-		KEYBOARD_send(OPENRAILS_MPINV_BACKWARD, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+		KEYBOARD_send(&OPENRAILS_MPINV_BACKWARD, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 		break;
 	case MPINV_STATE_BACKWARD:
 		// Previous state was backward.
-		KEYBOARD_send(OPENRAILS_MPINV_FORWARD, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+		KEYBOARD_send(&OPENRAILS_MPINV_FORWARD, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 		break;
 	default:
 		break;
@@ -102,7 +103,7 @@ void MPINV_backward(void) {
 	// Play sound.
 	SOUND_play(&(mpinv_ctx.sound_forward_backward));
 	// Send OpenRails shortcut.
-	KEYBOARD_send(OPENRAILS_MPINV_BACKWARD, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+	KEYBOARD_send(&OPENRAILS_MPINV_BACKWARD, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 	// Update state.
 	mpinv_ctx.state = MPINV_STATE_BACKWARD;
 #ifdef MPINV_LOG

@@ -7,6 +7,7 @@
 
 #include "time.h"
 
+#include "stdint.h"
 #ifdef WINDOWS
 #include "windows.h"
 #endif
@@ -34,9 +35,9 @@ void TIME_init(void) {
 #ifdef WINDOWS
 	GetSystemTime(&(time_ctx.system_time));
 	time_ctx.start_ms = (time_ctx.system_time.wHour * 3600000) +
-							 (time_ctx.system_time.wMinute * 60000) +
-							 (time_ctx.system_time.wSecond * 1000) +
-							 (time_ctx.system_time.wMilliseconds);
+						(time_ctx.system_time.wMinute * 60000) +
+						(time_ctx.system_time.wSecond * 1000) +
+						(time_ctx.system_time.wMilliseconds);
 #endif
 }
 
@@ -44,7 +45,7 @@ void TIME_init(void) {
  * @param:	None.
  * @return:	Number of milliseconds ellapsed since the program started.
  */
-unsigned long TIME_get_ms(void) {
+uint64_t TIME_get_ms(void) {
 	// Local variables.
 	unsigned long now = 0;
 #ifdef WINDOWS

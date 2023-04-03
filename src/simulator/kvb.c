@@ -11,6 +11,7 @@
 #include "lssgiu.h"
 #include "mixer.h"
 #include "sound.h"
+#include "stdint.h"
 #include "stdio.h"
 #include "time.h"
 

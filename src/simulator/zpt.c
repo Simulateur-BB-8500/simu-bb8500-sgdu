@@ -11,6 +11,7 @@
 #include "mixer.h"
 #include "openrails.h"
 #include "sound.h"
+#include "stdint.h"
 #include "stdio.h"
 
 /*** ZPT local macros ***/
@@ -22,10 +23,10 @@
 typedef struct {
 	SOUND_context_t sound_back_up;
 	SOUND_context_t sound_back_down;
-	unsigned char back_raised;
+	uint8_t back_raised;
 	SOUND_context_t sound_front_up;
 	SOUND_context_t sound_front_down;
-	unsigned char front_raised;
+	uint8_t front_raised;
 } ZPT_context_t;
 
 /*** ZPT local global variables ***/
@@ -62,7 +63,7 @@ void ZPT_back_up(void) {
 	SOUND_play(&(zpt_ctx.sound_back_up));
 	// Send OpenRails shortcut if state changed.
 	if (zpt_ctx.back_raised == 0) {
-		KEYBOARD_send(OPENRAILS_ZPT_BACK_TOGGLE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+		KEYBOARD_send(&OPENRAILS_ZPT_BACK_TOGGLE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 	}
 	zpt_ctx.back_raised = 1;
 #ifdef ZPT_LOG
@@ -81,7 +82,7 @@ void ZPT_back_down(void) {
 	SOUND_stop(&(zpt_ctx.sound_back_up));
 	// Send OpenRails shortcut if state changed.
 	if (zpt_ctx.back_raised != 0) {
-		KEYBOARD_send(OPENRAILS_ZPT_BACK_TOGGLE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+		KEYBOARD_send(&OPENRAILS_ZPT_BACK_TOGGLE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 	}
 	zpt_ctx.back_raised = 0;
 #ifdef ZPT_LOG
@@ -99,7 +100,7 @@ void ZPT_front_up(void) {
 	SOUND_play(&(zpt_ctx.sound_front_up));
 	// Send OpenRails shortcut if state changed.
 	if (zpt_ctx.front_raised == 0) {
-		KEYBOARD_send(OPENRAILS_ZPT_FRONT_TOGGLE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+		KEYBOARD_send(&OPENRAILS_ZPT_FRONT_TOGGLE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 	}
 	zpt_ctx.front_raised = 1;
 #ifdef ZPT_LOG
@@ -118,7 +119,7 @@ void ZPT_front_down(void) {
 	SOUND_stop(&(zpt_ctx.sound_front_up));
 	// Send OpenRails shortcut if state changed.
 	if (zpt_ctx.front_raised != 0) {
-		KEYBOARD_send(OPENRAILS_ZPT_FRONT_TOGGLE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+		KEYBOARD_send(&OPENRAILS_ZPT_FRONT_TOGGLE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
 	}
 	zpt_ctx.front_raised = 0;
 #ifdef ZPT_LOG

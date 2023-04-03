@@ -9,40 +9,40 @@
 #define __OPENRAILS_H__
 
 #include "keyboard.h"
+#include "winuser.h"
 
 /*** OPENRAILS shortcuts definition ***/
 
 // Press duration to make the shortcuts work (in milliseconds).
-#define OPENRAILS_PRESS_DURATION_MS_DEFAULT 	100
-#define OPENRAILS_PRESS_DURATION_MS_MP 			300
+#define OPENRAILS_PRESS_DURATION_MS_DEFAULT 					100
+#define OPENRAILS_PRESS_DURATION_MS_MP 							300
 // ZPT.
-#define OPENRAILS_ZPT_FRONT_TOGGLE				&KEY_A
-#define OPENRAILS_ZPT_BACK_TOGGLE				&KEY_B
+static const KEYBOARD_shortcut_t OPENRAILS_ZPT_FRONT_TOGGLE = 	(KEYBOARD_shortcut_t) {'P', VK_NONE};
+static const KEYBOARD_shortcut_t OPENRAILS_ZPT_BACK_TOGGLE = 	(KEYBOARD_shortcut_t) {VK_SHIFT, 'P'};
 // MPINV.
-#define OPENRAILS_MPINV_FORWARD					&KEY_C
-#define OPENRAILS_MPINV_BACKWARD				&KEY_D
+static const KEYBOARD_shortcut_t OPENRAILS_MPINV_FORWARD = 		(KEYBOARD_shortcut_t) {'Z', VK_NONE};
+static const KEYBOARD_shortcut_t OPENRAILS_MPINV_BACKWARD = 	(KEYBOARD_shortcut_t) {'S', VK_NONE};
 // MP.
-#define OPENRAILS_MP_T_MORE						&KEY_E
-#define OPENRAILS_MP_T_LESS 					&KEY_F
-#define OPENRAILS_MP_0 							&KEY_G
+static const KEYBOARD_shortcut_t OPENRAILS_MP_T_MORE =			(KEYBOARD_shortcut_t) {'D', VK_NONE};
+static const KEYBOARD_shortcut_t OPENRAILS_MP_T_LESS =			(KEYBOARD_shortcut_t) {'Q', VK_NONE};
+static const KEYBOARD_shortcut_t OPENRAILS_MP_0 =				(KEYBOARD_shortcut_t) {VK_CONTROL, 'Q'};
 // FPB.
-#define OPENRAILS_FPB_APPLY 					&KEY_H
-#define OPENRAILS_FPB_RELEASE 					&KEY_I
+static const KEYBOARD_shortcut_t OPENRAILS_FPB_APPLY =			(KEYBOARD_shortcut_t) {VK_OEM_3, VK_NONE}; // VK_OEM_3 = 'ù' key.
+static const KEYBOARD_shortcut_t OPENRAILS_FPB_RELEASE  =		(KEYBOARD_shortcut_t) {'M', VK_NONE};
 // FD.
-#define OPENRAILS_FD_APPLY 						&KEY_J
-#define OPENRAILS_FD_RELEASE					&KEY_K
+static const KEYBOARD_shortcut_t OPENRAILS_FD_APPLY =			(KEYBOARD_shortcut_t) {VK_OEM_1, VK_NONE}; // VK_OEM_1 = '$' key.
+static const KEYBOARD_shortcut_t OPENRAILS_FD_RELEASE =			(KEYBOARD_shortcut_t) {VK_OEM_6, VK_NONE}; // // VK_OEM_6 = '^' key.
 // BPURG.
-#define OPENRAILS_BPURG 						&KEY_L
+static const KEYBOARD_shortcut_t OPENRAILS_BPURG =				(KEYBOARD_shortcut_t) {VK_BACK, VK_NONE};
 // AUX.
-#define OPENRAILS_BPEV 							&KEY_N
-#define OPENRAILS_SABLAGE 						&KEY_O
+static const KEYBOARD_shortcut_t OPENRAILS_BPEV =				(KEYBOARD_shortcut_t) {'V', VK_NONE};
+static const KEYBOARD_shortcut_t OPENRAILS_SABLAGE =			(KEYBOARD_shortcut_t) {VK_SHIFT, 'X'};
 // Lights.
-#define OPENRAILS_LIGHTS_ON						&KEY_P
-#define OPENRAILS_LIGHTS_OFF 					&KEY_Q
+static const KEYBOARD_shortcut_t OPENRAILS_LIGHTS_ON =			(KEYBOARD_shortcut_t) {'H', VK_NONE};
+static const KEYBOARD_shortcut_t OPENRAILS_LIGHTS_OFF =			(KEYBOARD_shortcut_t) {VK_SHIFT, 'H'};
 // Game.
-#define OPENRAILS_MASK_CAB 						&KEY_W
-#define OPENRAILS_CHANGE_CAB 					&KEY_X
-#define OPENRAILS_LOG							&KEY_Y
-#define OPENRAILS_NOP							&KEY_Z
+static const KEYBOARD_shortcut_t OPENRAILS_MASK_CAB = 			(KEYBOARD_shortcut_t) {VK_SHIFT, '1'};
+static const KEYBOARD_shortcut_t OPENRAILS_LOG =				(KEYBOARD_shortcut_t) {VK_F12, VK_NONE};
+static const KEYBOARD_shortcut_t OPENRAILS_NOP =				(KEYBOARD_shortcut_t) {VK_NONE, VK_NONE};
 
 #endif /* __OPENRAILS_H__ */
