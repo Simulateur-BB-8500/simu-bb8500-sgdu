@@ -32,7 +32,7 @@ typedef struct {
 	uint8_t write_idx;
 	uint8_t read_idx;
 	KEYBOARD_state_t state;
-	unsigned long state_switch_time;
+	uint64_t state_switch_time;
 } KEYBOARD_context_t;
 
 /*** KEYBOARD local global variables ***/
@@ -123,14 +123,14 @@ void KEYBOARD_task(void) {
 			// Press key.
 			_KEYBOARD_press(&keyboard_ctx.shortcut_buf[keyboard_ctx.read_idx]);
 			// Save start time.
-			keyboard_ctx.state_switch_time = TIME_get_ms();
+			keyboard_ctx.state_switch_time = TIME_get_milliseconds();
 			// Change state.
 			keyboard_ctx.state = KEYBOARD_STATE_KEY_PRESSED;
 		}
 		break;
 	case KEYBOARD_STATE_KEY_PRESSED:
 		// Check duration.
-		if (TIME_get_ms() > (keyboard_ctx.state_switch_time + keyboard_ctx.press_duration_buf[keyboard_ctx.read_idx])) {
+		if (TIME_get_milliseconds() > (keyboard_ctx.state_switch_time + keyboard_ctx.press_duration_buf[keyboard_ctx.read_idx])) {
 			// Release key.
 			_KEYBOARD_release(&keyboard_ctx.shortcut_buf[keyboard_ctx.read_idx]);
 			// Increment index and manage rollover.
@@ -139,13 +139,13 @@ void KEYBOARD_task(void) {
 				keyboard_ctx.read_idx = 0;
 			}
 			// Go to idle.
-			keyboard_ctx.state_switch_time = TIME_get_ms();
+			keyboard_ctx.state_switch_time = TIME_get_milliseconds();
 			keyboard_ctx.state = KEYBOARD_STATE_IDLE;
 		}
 		break;
 	case KEYBOARD_STATE_IDLE:
 		// Check duration.
-		if (TIME_get_ms() > (keyboard_ctx.state_switch_time + KEYBOARD_IDLE_STATE_DURATION_MS)) {
+		if (TIME_get_milliseconds() > (keyboard_ctx.state_switch_time + KEYBOARD_IDLE_STATE_DURATION_MS)) {
 			// Go back to ready state.
 			keyboard_ctx.state = KEYBOARD_STATE_READY;
 		}

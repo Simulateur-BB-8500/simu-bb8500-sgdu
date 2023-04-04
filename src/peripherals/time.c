@@ -40,7 +40,7 @@ void TIME_init(void) {
  * @param:	None.
  * @return:	Number of milliseconds elapsed since the program started.
  */
-uint64_t TIME_get_ms(void) {
+uint64_t TIME_get_milliseconds(void) {
 	// Local variables.
 	unsigned long now = 0;
 	// Read current time.

@@ -9,7 +9,7 @@
 
 #include "keyboard.h"
 #include "mixer.h"
-#include "openrails.h"
+#include "orts_shortcut.h"
 #include "sound.h"
 #include "stdint.h"
 #include "stdio.h"
@@ -59,8 +59,8 @@ void FD_apply(void) {
 	// Play sound.
 	SOUND_play(&(fd_ctx.sound_apply));
 	// Send OpenRails shortcut (twice if previous state was released).
-	KEYBOARD_send(&OPENRAILS_FD_APPLY, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
-	KEYBOARD_send(&OPENRAILS_FD_APPLY, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+	KEYBOARD_send(&ORTS_SHORTCUT_FD_APPLY, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+	KEYBOARD_send(&ORTS_SHORTCUT_FD_APPLY, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 	// Update state.
 	fd_ctx.state = FD_STATE_APPLY;
 #ifdef FD_LOG
@@ -79,11 +79,11 @@ void FD_neutral(void) {
 	switch (fd_ctx.state) {
 	case FD_STATE_APPLY:
 		// Previous state was forward.
-		KEYBOARD_send(&OPENRAILS_FD_RELEASE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+		KEYBOARD_send(&ORTS_SHORTCUT_FD_RELEASE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 		break;
 	case FD_STATE_RELEASE:
 		// Previous state was backward.
-		KEYBOARD_send(&OPENRAILS_FD_APPLY, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+		KEYBOARD_send(&ORTS_SHORTCUT_FD_APPLY, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 		break;
 	default:
 		break;
@@ -104,8 +104,8 @@ void FD_release(void) {
 	SOUND_set_volume(&(fd_ctx.sound_release), 1.0); // No fade effect required.
 	SOUND_play(&(fd_ctx.sound_release));
 	// Send OpenRails shortcut (twice if previous state was applied).
-	KEYBOARD_send(&OPENRAILS_FD_RELEASE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
-	KEYBOARD_send(&OPENRAILS_FD_RELEASE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+	KEYBOARD_send(&ORTS_SHORTCUT_FD_RELEASE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+	KEYBOARD_send(&ORTS_SHORTCUT_FD_RELEASE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 	// Update state.
 	fd_ctx.state = FD_STATE_RELEASE;
 #ifdef FD_LOG

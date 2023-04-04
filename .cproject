@@ -24,11 +24,11 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/inc&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/inc/peripherals&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/inc/simulator&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/inc/applicative&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/inc/game&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/curl/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/fmod/api/core/inc&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lsmcu/inc/simulator}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lsmcu/inc/applicative}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/curl/include&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1759633209" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
@@ -42,11 +42,11 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/inc&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/inc/peripherals&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/inc/simulator&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/inc/applicative&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/inc/game&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/curl/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/fmod/api/core/inc&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lsmcu/inc/simulator}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lsmcu/inc/applicative}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/curl/include&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.preprocessor.def.symbols.128654250" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="CURL_STATICLIB"/>

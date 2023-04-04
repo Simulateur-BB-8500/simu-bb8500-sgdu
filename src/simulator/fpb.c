@@ -9,7 +9,7 @@
 
 #include "keyboard.h"
 #include "mixer.h"
-#include "openrails.h"
+#include "orts_shortcut.h"
 #include "sound.h"
 #include "stdint.h"
 #include "stdio.h"
@@ -141,18 +141,18 @@ void FPB_task(void) {
 			// Play sound.
 			SOUND_play(&(fpb_ctx.sound_apply_release));
 			// Send OpenRails shortcut.
-			KEYBOARD_send(&OPENRAILS_FPB_APPLY, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_send(&ORTS_SHORTCUT_FPB_APPLY, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 			// Save time and switch state.
-			fpb_ctx.apply_release_start_time = TIME_get_ms();
+			fpb_ctx.apply_release_start_time = TIME_get_milliseconds();
 			fpb_ctx.state = FPB_STATE_APPLY;
 			break;
 		case FPB_REQUEST_RELEASE:
 			// Play sound.
 			SOUND_play(&(fpb_ctx.sound_apply_release));
 			// Send OpenRails shortcut.
-			KEYBOARD_send(&OPENRAILS_FPB_RELEASE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_send(&ORTS_SHORTCUT_FPB_RELEASE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 			// Save time and switch state.
-			fpb_ctx.apply_release_start_time = TIME_get_ms();
+			fpb_ctx.apply_release_start_time = TIME_get_milliseconds();
 			fpb_ctx.state = FPB_STATE_RELEASE;
 			break;
 		default:
@@ -169,10 +169,10 @@ void FPB_task(void) {
 			fpb_ctx.state = FPB_STATE_NEUTRAL;
 		}
 		else {
-			if (TIME_get_ms() > (fpb_ctx.apply_release_start_time + FPB_APPLY_RELEASE_PERIOD_MS)) {
+			if (TIME_get_milliseconds() > (fpb_ctx.apply_release_start_time + FPB_APPLY_RELEASE_PERIOD_MS)) {
 				// Send OpenRails shortcut and update time.
-				KEYBOARD_send(&OPENRAILS_FPB_APPLY, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
-				fpb_ctx.apply_release_start_time = TIME_get_ms();
+				KEYBOARD_send(&ORTS_SHORTCUT_FPB_APPLY, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+				fpb_ctx.apply_release_start_time = TIME_get_milliseconds();
 			}
 		}
 		break;
@@ -185,10 +185,10 @@ void FPB_task(void) {
 			fpb_ctx.state = FPB_STATE_NEUTRAL;
 		}
 		else {
-			if (TIME_get_ms() > (fpb_ctx.apply_release_start_time + FPB_APPLY_RELEASE_PERIOD_MS)) {
+			if (TIME_get_milliseconds() > (fpb_ctx.apply_release_start_time + FPB_APPLY_RELEASE_PERIOD_MS)) {
 				// Send OpenRails shortcut and update time.
-				KEYBOARD_send(&OPENRAILS_FPB_RELEASE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
-				fpb_ctx.apply_release_start_time = TIME_get_ms();
+				KEYBOARD_send(&ORTS_SHORTCUT_FPB_RELEASE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+				fpb_ctx.apply_release_start_time = TIME_get_milliseconds();
 			}
 		}
 		break;

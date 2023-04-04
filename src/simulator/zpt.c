@@ -9,7 +9,7 @@
 
 #include "keyboard.h"
 #include "mixer.h"
-#include "openrails.h"
+#include "orts_shortcut.h"
 #include "sound.h"
 #include "stdint.h"
 #include "stdio.h"
@@ -63,7 +63,7 @@ void ZPT_back_up(void) {
 	SOUND_play(&(zpt_ctx.sound_back_up));
 	// Send OpenRails shortcut if state changed.
 	if (zpt_ctx.back_raised == 0) {
-		KEYBOARD_send(&OPENRAILS_ZPT_BACK_TOGGLE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+		KEYBOARD_send(&ORTS_SHORTCUT_ZPT_BACK_TOGGLE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 	}
 	zpt_ctx.back_raised = 1;
 #ifdef ZPT_LOG
@@ -82,7 +82,7 @@ void ZPT_back_down(void) {
 	SOUND_stop(&(zpt_ctx.sound_back_up));
 	// Send OpenRails shortcut if state changed.
 	if (zpt_ctx.back_raised != 0) {
-		KEYBOARD_send(&OPENRAILS_ZPT_BACK_TOGGLE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+		KEYBOARD_send(&ORTS_SHORTCUT_ZPT_BACK_TOGGLE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 	}
 	zpt_ctx.back_raised = 0;
 #ifdef ZPT_LOG
@@ -100,7 +100,7 @@ void ZPT_front_up(void) {
 	SOUND_play(&(zpt_ctx.sound_front_up));
 	// Send OpenRails shortcut if state changed.
 	if (zpt_ctx.front_raised == 0) {
-		KEYBOARD_send(&OPENRAILS_ZPT_FRONT_TOGGLE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+		KEYBOARD_send(&ORTS_SHORTCUT_ZPT_FRONT_TOGGLE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 	}
 	zpt_ctx.front_raised = 1;
 #ifdef ZPT_LOG
@@ -119,7 +119,7 @@ void ZPT_front_down(void) {
 	SOUND_stop(&(zpt_ctx.sound_front_up));
 	// Send OpenRails shortcut if state changed.
 	if (zpt_ctx.front_raised != 0) {
-		KEYBOARD_send(&OPENRAILS_ZPT_FRONT_TOGGLE, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+		KEYBOARD_send(&ORTS_SHORTCUT_ZPT_FRONT_TOGGLE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 	}
 	zpt_ctx.front_raised = 0;
 #ifdef ZPT_LOG

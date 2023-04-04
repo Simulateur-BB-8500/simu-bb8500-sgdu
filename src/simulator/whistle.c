@@ -8,7 +8,7 @@
 #include "whistle.h"
 
 #include "mixer.h"
-#include "openrails.h"
+#include "orts_shortcut.h"
 #include "sound.h"
 #include "stdint.h"
 #include "stdio.h"

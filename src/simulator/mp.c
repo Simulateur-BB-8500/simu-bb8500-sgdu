@@ -9,7 +9,7 @@
 
 #include "keyboard.h"
 #include "mixer.h"
-#include "openrails.h"
+#include "orts_shortcut.h"
 #include "sound.h"
 #include "stdint.h"
 #include "stdio.h"
@@ -34,7 +34,7 @@ void MP_init(void) {
  */
 void MP_0(void) {
 	// Send OpenRails shortcut.
-	KEYBOARD_send(&OPENRAILS_MP_0, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+	KEYBOARD_send(&ORTS_SHORTCUT_MP_0, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 #ifdef MP_LOG
 	printf("MP *** 0.\n");
 	fflush(stdout);
@@ -47,7 +47,7 @@ void MP_0(void) {
  */
 void MP_t_more(void) {
 	// Send OpenRails shortcut.
-	KEYBOARD_send(&OPENRAILS_MP_T_MORE, OPENRAILS_PRESS_DURATION_MS_MP);
+	KEYBOARD_send(&ORTS_SHORTCUT_MP_T_MORE, ORTS_SHORTCUT_PRESS_DURATION_MS_MP);
 #ifdef MP_LOG
 	printf("MP *** T More.\n");
 	fflush(stdout);
@@ -60,7 +60,7 @@ void MP_t_more(void) {
  */
 void MP_t_less(void) {
 	// Send OpenRails shortcut.
-	KEYBOARD_send(&OPENRAILS_MP_T_LESS, OPENRAILS_PRESS_DURATION_MS_MP);
+	KEYBOARD_send(&ORTS_SHORTCUT_MP_T_LESS, ORTS_SHORTCUT_PRESS_DURATION_MS_MP);
 #ifdef MP_LOG
 	printf("MP *** T Less.\n");
 	fflush(stdout);

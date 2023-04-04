@@ -14,7 +14,7 @@
 #include "lsmcu.h"
 #include "mp.h"
 #include "mpinv.h"
-#include "openrails.h"
+#include "orts.h"
 #include "sound.h"
 #include "stdint.h"
 #include "stdio.h"
@@ -53,8 +53,11 @@ int main (void) {
 	ZVM_init();
 	// Init serial link.
 	LSMCU_init("COM6");
+	// Init OpenRails server.
+	ORTS_init_server();
 	// Main loop.
 	while (1) {
+		ORTS_task();
 		COMPRESSOR_task();
 		FPB_task();
 		FD_task();

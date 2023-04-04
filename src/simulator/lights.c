@@ -8,7 +8,7 @@
 #include "lights.h"
 
 #include "keyboard.h"
-#include "openrails.h"
+#include "orts_shortcut.h"
 #include "stdint.h"
 #include "stdio.h"
 
@@ -131,16 +131,16 @@ void LIGHTS_task(void) {
 	case LIGHTS_STATE_OFF:
 		if (lights_ctx.status != 0) {
 			// Send keyboard control.
-			KEYBOARD_send(&OPENRAILS_LIGHTS_ON, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
-			KEYBOARD_send(&OPENRAILS_LIGHTS_ON, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_send(&ORTS_SHORTCUT_LIGHTS_ON, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_send(&ORTS_SHORTCUT_LIGHTS_ON, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 			lights_ctx.state = LIGHTS_STATE_ON;
 		}
 		break;
 	case LIGHTS_STATE_ON:
 		if (lights_ctx.status == 0) {
 			// Send keyboard control.
-			KEYBOARD_send(&OPENRAILS_LIGHTS_OFF, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
-			KEYBOARD_send(&OPENRAILS_LIGHTS_OFF, OPENRAILS_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_send(&ORTS_SHORTCUT_LIGHTS_OFF, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_send(&ORTS_SHORTCUT_LIGHTS_OFF, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 			lights_ctx.state = LIGHTS_STATE_OFF;
 		}
 		break;

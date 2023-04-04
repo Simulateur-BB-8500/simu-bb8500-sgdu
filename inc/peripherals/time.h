@@ -13,6 +13,6 @@
 /*** TIME functions ***/
 
 void TIME_init(void);
-uint64_t TIME_get_ms(void);
+uint64_t TIME_get_milliseconds(void);
 
 #endif /* __TIME_H__ */
