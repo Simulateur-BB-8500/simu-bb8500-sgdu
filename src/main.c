@@ -11,10 +11,10 @@
 #include "keyboard.h"
 #include "kvb.h"
 #include "lights.h"
-#include "log.h"
 #include "lsmcu.h"
 #include "mp.h"
 #include "mpinv.h"
+#include "openrails.h"
 #include "sound.h"
 #include "stdint.h"
 #include "stdio.h"
@@ -24,8 +24,6 @@
 #include "zdj.h"
 #include "zpt.h"
 #include "zvm.h"
-
-#include <winuser.h>
 
 /* MAIN FUNCTION.
  * @param:	None.
@@ -38,8 +36,6 @@ int main (void) {
 	printf("*******************************************************************\n\n");
 	// Init time.
 	TIME_init();
-	// Init log.
-	LOG_init();
 	// Init modules.
 	SOUND_fmod_system_init();
 	COMPRESSOR_init();
@@ -57,7 +53,7 @@ int main (void) {
 	ZVM_init();
 	// Init serial link.
 #ifdef WINDOWS
-	LSMCU_init("COM5");
+	LSMCU_init("COM6");
 #endif
 #ifdef LINUX
 	LSMCU_init("USB1");
@@ -68,10 +64,10 @@ int main (void) {
 		FPB_task();
 		FD_task();
 		LIGHTS_task();
-		LOG_task();
 		LSMCU_task();
 		KEYBOARD_task();
 		ZVM_task();
+		fflush(stdout);
 	}
 	return 0;
 }

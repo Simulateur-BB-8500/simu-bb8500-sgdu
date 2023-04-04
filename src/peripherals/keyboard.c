@@ -30,9 +30,9 @@ typedef enum {
 
 typedef struct {
 	KEYBOARD_shortcut_t shortcut_buf[KEYBOARD_BUFFER_SIZE];
-	unsigned int press_duration_buf[KEYBOARD_BUFFER_SIZE];
-	unsigned char write_idx;
-	unsigned char read_idx;
+	uint32_t press_duration_buf[KEYBOARD_BUFFER_SIZE];
+	uint8_t write_idx;
+	uint8_t read_idx;
 	KEYBOARD_state_t state;
 	unsigned long state_switch_time;
 } KEYBOARD_context_t;

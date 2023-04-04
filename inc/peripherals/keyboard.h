@@ -8,7 +8,6 @@
 #ifndef __KEYBOARD_H__
 #define __KEYBOARD_H__
 
-#include "winuser.h"
 #include "stdint.h"
 
 #ifdef WINDOWS

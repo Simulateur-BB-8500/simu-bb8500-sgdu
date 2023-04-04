@@ -13,7 +13,6 @@
 #include "kvb.h"
 #include "lights.h"
 #include "lssgiu.h"
-#include "log.h"
 #include "mp.h"
 #include "mpinv.h"
 #include "serial.h"
@@ -85,11 +84,9 @@ void LSMCU_task(void) {
 			break;
 		case LSMCU_OUT_ZDV_ON:
 			KVB_turn_on();
-			LOG_enable();
 			break;
 		case LSMCU_OUT_ZDV_OFF:
 			KVB_turn_off();
-			LOG_disable();
 			break;
 		case LSMCU_OUT_ZPT_BACK_UP:
 			ZPT_back_up();

@@ -71,7 +71,6 @@ void SOUND_init(SOUND_context_t* sound_ctx, const char* audio_file_name, float m
 	else {
 		printf("Error.\n");
 	}
-	fflush(stdout);
 }
 
 /* PLAY A SOUND.
