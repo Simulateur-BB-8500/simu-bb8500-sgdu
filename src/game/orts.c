@@ -22,7 +22,7 @@
 #define ORTS_CURL_REQUEST_PERIOD_MS		1000
 #define ORTS_REQUEST_TIMEOUT_S			1
 
-//#define ORTS_LOG
+#define ORTS_LOG
 
 /*** ORTS local structures ***/
 

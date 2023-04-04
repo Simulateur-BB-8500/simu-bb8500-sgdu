@@ -34,21 +34,28 @@ static SERIAL_port_t lsmcu_serial_port;
 
 /*** LSMCU functions ***/
 
-/* INIT LSMCU MANAGER.
- * @param port:	LSMCU port number ("COMxx").
- * @return:		None.
+/* INIT LSMCU INTERFACE.
+ * @param port:		LSMCU port number ("COMxx").
+ * @return status:	Function execution status.
  */
-void LSMCU_init(char* port) {
+LSMCU_status_t LSMCU_init(char* port) {
 	// Local variables.
-	SERIAL_status_t status = SERIAL_ERROR_OPEN;
+	LSMCU_status_t status = LSMCU_SUCCESS;
+	SERIAL_status_t serial_status = SERIAL_SUCCESS;
 #ifdef LSMCU_LOG
 	printf("LSMCU *** Opening port %s: ", port);
 #endif
 	// Open serial port.
-	status = SERIAL_open(&lsmcu_serial_port, port);
+	serial_status = SERIAL_open(&lsmcu_serial_port, port);
+	if (serial_status != SERIAL_SUCCESS) {
+		status = LSMCU_ERROR_SERIAL_OPEN;
+		goto errors;
+	}
+errors:
 #ifdef LSMCU_LOG
-	printf("%s\n", ((status == SERIAL_SUCCESS) ? "OK" : "Error"));
+	printf("%s\n", ((status == LSMCU_SUCCESS) ? "OK" : "Error"));
 #endif
+	return status;
 }
 
 /* SEND A COMMAND TO LSMCU.

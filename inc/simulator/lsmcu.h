@@ -10,9 +10,17 @@
 
 #include "stdint.h"
 
+/*** LSMCU structures ***/
+
+typedef enum {
+	LSMCU_SUCCESS = 0,
+	LSMCU_ERROR_SERIAL_OPEN,
+	LSMCU_ERROR_BASE_LAST = 0x0100
+} LSMCU_status_t;
+
 /*** LSMCU functions ***/
 
-void LSMCU_init(char* port);
+LSMCU_status_t LSMCU_init(char* port);
 void LSMCU_send(uint8_t tx_command);
 void LSMCU_task(void);
 
