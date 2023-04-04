@@ -52,12 +52,7 @@ int main (void) {
 	ZPT_init();
 	ZVM_init();
 	// Init serial link.
-#ifdef WINDOWS
 	LSMCU_init("COM6");
-#endif
-#ifdef LINUX
-	LSMCU_init("USB1");
-#endif
 	// Main loop.
 	while (1) {
 		COMPRESSOR_task();

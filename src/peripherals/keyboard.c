@@ -10,9 +10,7 @@
 #include "stdio.h"
 #include "stdint.h"
 #include "time.h"
-#ifdef WINDOWS
 #include "windows.h"
-#endif
 
 /*** KEYBOARD local macros ***/
 
@@ -48,14 +46,14 @@ static KEYBOARD_context_t keyboard_ctx;
  * @return:			None.
  */
 static void _KEYBOARD_press(const KEYBOARD_shortcut_t* shortcut) {
-#ifdef WINDOWS
+	// Press first key.
 	if ((shortcut -> vk_code_0) != VK_NONE) {
 		keybd_event((shortcut -> vk_code_0), MapVirtualKey((shortcut -> vk_code_0), MAPVK_VK_TO_VSC), 0, 0);
 	}
+	// Press second key.
 	if ((shortcut -> vk_code_1) != VK_NONE) {
 		keybd_event((shortcut -> vk_code_1), MapVirtualKey((shortcut -> vk_code_1), MAPVK_VK_TO_VSC), 0, 0);
 	}
-#endif
 #ifdef KEYBOARD_LOG
 	printf("KEYBOARD *** Press key 0x%x\n", (key -> KEYBOARD_key_t_code));
 	fflush(stdout);
@@ -67,14 +65,14 @@ static void _KEYBOARD_press(const KEYBOARD_shortcut_t* shortcut) {
  * @return:			None.
  */
 static void _KEYBOARD_release(const KEYBOARD_shortcut_t* shortcut) {
-#ifdef WINDOWS
+	// Release first key.
 	if ((shortcut -> vk_code_0) != VK_NONE) {
 		keybd_event((shortcut -> vk_code_0), MapVirtualKey((shortcut -> vk_code_0), MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
 	}
+	// Release second key.
 	if ((shortcut -> vk_code_1) != VK_NONE) {
 		keybd_event((shortcut -> vk_code_1), MapVirtualKey((shortcut -> vk_code_1), MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
 	}
-#endif
 #ifdef KEYBOARD_LOG
 	printf("KEYBOARD *** Release key 0x%x\n", (key -> KEYBOARD_key_t_code));
 	fflush(stdout);

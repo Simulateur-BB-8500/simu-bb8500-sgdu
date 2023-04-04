@@ -10,8 +10,6 @@
 
 #include "stdint.h"
 
-#ifdef WINDOWS
-
 /*** KEYBOARD macros ***/
 
 #define VK_NONE	0x00
@@ -28,7 +26,5 @@ typedef struct {
 void KEYBOARD_init(void);
 void KEYBOARD_send(const KEYBOARD_shortcut_t* shortcut, uint32_t press_duration_ms);
 void KEYBOARD_task(void);
-
-#endif /* WINDOWS */
 
 #endif /* __KEYBOARD_H__ */

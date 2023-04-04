@@ -19,12 +19,7 @@
 
 #define SOUND_FMOD_NUMBER_OF_CHANNELS			32
 #define SOUND_AUDIO_FILE_NAME_MAXIMUM_LENGTH	100
-#ifdef WINDOWS
 #define SOUND_AUDIO_FILES_FOLDER_PATH			"C:/Users/User/Documents/git/lssgiu/sounds/"
-#endif
-#ifdef LINUX
-#define SOUND_AUDIO_FILES_FOLDER_PATH			"/home/ludo/git/lssgiu/sounds/"
-#endif
 //#define SOUND_LOG
 
 /*** SOUND local global variables ***/

@@ -8,12 +8,7 @@
 #ifndef __SERIAL_H__
 #define __SERIAL_H__
 
-#ifdef WINDOWS
 #include "windows.h"
-#endif
-#ifdef LINUX
-#include <termios.h>
-#endif
 #include "stdint.h"
 
 /*** SERIAL structures ***/
@@ -26,13 +21,7 @@ typedef enum {
 } SERIAL_status_t;
 
 typedef struct {
-#ifdef WINDOWS
 	HANDLE handle;
-#endif
-#ifdef LINUX
-	int descriptor;
-	struct termios tty;
-#endif
 } SERIAL_port_t;
 
 /*** SERIAL functions ***/
