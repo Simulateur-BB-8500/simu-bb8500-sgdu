@@ -20,7 +20,6 @@
 #include "stdio.h"
 #include "tch.h"
 #include "whistle.h"
-#include "zba.h"
 #include "zdj.h"
 #include "zpt.h"
 #include "zvm.h"
@@ -91,10 +90,10 @@ void LSMCU_task(void) {
 		// Decode incoming command.
 		switch (rx_command) {
 		case LSMCU_OUT_ZBA_ON:
-			ZBA_turn_on();
+			// TODO
 			break;
 		case LSMCU_OUT_ZBA_OFF:
-			ZBA_turn_off();
+			// TODO
 			break;
 		case LSMCU_OUT_ZDV_ON:
 			KVB_turn_on();

@@ -20,7 +20,6 @@
 #include "stdio.h"
 #include "time.h"
 #include "whistle.h"
-#include "zba.h"
 #include "zdj.h"
 #include "zpt.h"
 #include "zvm.h"
@@ -86,7 +85,6 @@ int main (void) {
 			MP_init();
 			MPINV_init();
 			WHISTLE_init();
-			ZBA_init();
 			ZDJ_init();
 			ZPT_init();
 			ZVM_init();
