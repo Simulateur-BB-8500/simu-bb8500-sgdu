@@ -26,28 +26,28 @@
 
 /*** MAIN macros ***/
 
-#define LSSGIU_LSMCU_COM_PORT					"COM6"
-#define LSSGIU_INTERFACES_POLLING_PERIOD_MS		1000
+#define LSAGIU_LSMCU_COM_PORT					"COM6"
+#define LSAGIU_INTERFACES_POLLING_PERIOD_MS		1000
 
 /*** MAIN structures ***/
 
 typedef enum {
-	LSSGIU_STATE_INIT = 0,
-	LSSGIU_STATE_WAIT_INTERFACES,
-	LSSGIU_STATE_RUNNING,
-	LSSGIU_STATE_LAST
-} LSSGIU_state_t;
+	LSAGIU_STATE_INIT = 0,
+	LSAGIU_STATE_WAIT_INTERFACES,
+	LSAGIU_STATE_RUNNING,
+	LSAGIU_STATE_LAST
+} LSAGIU_state_t;
 
 typedef struct {
-	LSSGIU_state_t state;
+	LSAGIU_state_t state;
 	uint8_t lsmcu_connected;
 	uint8_t orts_server_connected;
 	uint64_t interfaces_polling_next_time;
-} LSSGIU_context_t;
+} LSAGIU_context_t;
 
 /*** MAIN global variables ***/
 
-static LSSGIU_context_t lssgiu_ctx;
+static LSAGIU_context_t lsagiu_ctx;
 
 /* MAIN FUNCTION.
  * @param:	None.
@@ -55,23 +55,23 @@ static LSSGIU_context_t lssgiu_ctx;
  */
 int main (void) {
 	// Start print.
-	printf("*******************************************************************\n");
-	printf("*** Locomotive Simulator Sound and Game Interface Unit (LSSGIU) ***\n");
-	printf("*******************************************************************\n\n");
+	printf("********************************************************************\n");
+	printf("*** Locomotive Simulator Audio and Game Interface Unit (LS-AGIU) ***\n");
+	printf("********************************************************************\n\n");
 	fflush(stdout);
 	// Local variables.
 	LSMCU_status_t lsmcu_status = LSMCU_SUCCESS;
 	ORTS_status_t orts_status = ORTS_SUCCESS;
 	// Init context.
-	lssgiu_ctx.state = LSSGIU_STATE_INIT;
-	lssgiu_ctx.lsmcu_connected = 0;
-	lssgiu_ctx.orts_server_connected = 0;
-	lssgiu_ctx.interfaces_polling_next_time = 0;
+	lsagiu_ctx.state = LSAGIU_STATE_INIT;
+	lsagiu_ctx.lsmcu_connected = 0;
+	lsagiu_ctx.orts_server_connected = 0;
+	lsagiu_ctx.interfaces_polling_next_time = 0;
 	// Main loop.
 	while (1) {
 		// Perform state machine.
-		switch (lssgiu_ctx.state) {
-		case LSSGIU_STATE_INIT:
+		switch (lsagiu_ctx.state) {
+		case LSAGIU_STATE_INIT:
 			// Init time.
 			TIME_init();
 			// Init modules.
@@ -89,36 +89,36 @@ int main (void) {
 			ZPT_init();
 			ZVM_init();
 			// Compute next state.
-			lssgiu_ctx.state = LSSGIU_STATE_WAIT_INTERFACES;
+			lsagiu_ctx.state = LSAGIU_STATE_WAIT_INTERFACES;
 			printf("*******************************************************************\n");
 			fflush(stdout);
 			break;
-		case LSSGIU_STATE_WAIT_INTERFACES:
+		case LSAGIU_STATE_WAIT_INTERFACES:
 			// Check period.
-			if (TIME_get_milliseconds() >= lssgiu_ctx.interfaces_polling_next_time) {
+			if (TIME_get_milliseconds() >= lsagiu_ctx.interfaces_polling_next_time) {
 				// Update next time.
-				lssgiu_ctx.interfaces_polling_next_time = TIME_get_milliseconds() + LSSGIU_INTERFACES_POLLING_PERIOD_MS;
+				lsagiu_ctx.interfaces_polling_next_time = TIME_get_milliseconds() + LSAGIU_INTERFACES_POLLING_PERIOD_MS;
 				// Open LSMCU interface.
-				if (lssgiu_ctx.lsmcu_connected == 0) {
-					lsmcu_status = LSMCU_init(LSSGIU_LSMCU_COM_PORT);
+				if (lsagiu_ctx.lsmcu_connected == 0) {
+					lsmcu_status = LSMCU_init(LSAGIU_LSMCU_COM_PORT);
 					// Update flag.
-					lssgiu_ctx.lsmcu_connected = (lsmcu_status == LSMCU_SUCCESS) ? 1 : 0;
+					lsagiu_ctx.lsmcu_connected = (lsmcu_status == LSMCU_SUCCESS) ? 1 : 0;
 				}
 				// Open ORTS server.
-				if (lssgiu_ctx.orts_server_connected == 0) {
+				if (lsagiu_ctx.orts_server_connected == 0) {
 					orts_status = ORTS_init_server();
 					// Update flag.
-					lssgiu_ctx.orts_server_connected = (orts_status == ORTS_SUCCESS) ? 1 : 0;
+					lsagiu_ctx.orts_server_connected = (orts_status == ORTS_SUCCESS) ? 1 : 0;
 				}
 			}
 			// Compute next state.
-			if ((lssgiu_ctx.lsmcu_connected != 0) && (lssgiu_ctx.orts_server_connected != 0)) {
-				lssgiu_ctx.state = LSSGIU_STATE_RUNNING;
+			if ((lsagiu_ctx.lsmcu_connected != 0) && (lsagiu_ctx.orts_server_connected != 0)) {
+				lsagiu_ctx.state = LSAGIU_STATE_RUNNING;
 				printf("*******************************************************************\n");
 			}
 			fflush(stdout);
 			break;
-		case LSSGIU_STATE_RUNNING:
+		case LSAGIU_STATE_RUNNING:
 			ORTS_task();
 			COMPRESSOR_task();
 			FPB_task();

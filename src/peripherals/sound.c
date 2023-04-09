@@ -19,7 +19,7 @@
 
 #define SOUND_FMOD_NUMBER_OF_CHANNELS			32
 #define SOUND_AUDIO_FILE_NAME_MAXIMUM_LENGTH	100
-#define SOUND_AUDIO_FILES_FOLDER_PATH			"C:/Users/User/Documents/git/lssgiu/audio/"
+#define SOUND_AUDIO_FILES_FOLDER_PATH			"C:/Users/User/Documents/git/lsagiu/audio/"
 //#define SOUND_LOG
 
 /*** SOUND local global variables ***/
