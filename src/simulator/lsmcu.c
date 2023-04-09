@@ -18,6 +18,7 @@
 #include "serial.h"
 #include "stdint.h"
 #include "stdio.h"
+#include "tch.h"
 #include "whistle.h"
 #include "zba.h"
 #include "zdj.h"
@@ -64,7 +65,13 @@ errors:
  */
 void LSMCU_send(uint8_t tx_command) {
 #ifdef LSMCU_LOG
-	printf("LSMCU *** TX command = 0x%02X.\n", tx_command);
+	printf("LSMCU *** TX command = 0x%02X ", tx_command);
+	if (tx_command <= TCH_SPEED_MAX_KMH) {
+		printf("(%dkm/h)\n", tx_command);
+	}
+	else {
+		printf("\n");
+	}
 #endif
 	SERIAL_write(&lsmcu_serial_port, tx_command);
 }
@@ -126,10 +133,10 @@ void LSMCU_task(void) {
 			COMPRESSOR_off();
 			break;
 		case LSMCU_OUT_FPB_ON:
-			FPB_on();
+			// TODO
 			break;
 		case LSMCU_OUT_FPB_OFF:
-			FPB_off();
+			// TODO
 			break;
 		case LSMCU_OUT_FPB_APPLY:
 			FPB_apply();

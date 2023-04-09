@@ -93,6 +93,7 @@ int main (void) {
 			// Compute next state.
 			lssgiu_ctx.state = LSSGIU_STATE_WAIT_INTERFACES;
 			printf("*******************************************************************\n");
+			fflush(stdout);
 			break;
 		case LSSGIU_STATE_WAIT_INTERFACES:
 			// Check period.
@@ -117,6 +118,7 @@ int main (void) {
 				lssgiu_ctx.state = LSSGIU_STATE_RUNNING;
 				printf("*******************************************************************\n");
 			}
+			fflush(stdout);
 			break;
 		case LSSGIU_STATE_RUNNING:
 			ORTS_task();

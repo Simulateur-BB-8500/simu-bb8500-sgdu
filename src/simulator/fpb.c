@@ -1,7 +1,7 @@
 /*
  * fpb.c
  *
- *  Created on: 9 mai 2020
+ *  Created on: 9 may 2020
  *      Author: Ludo
  */
 
@@ -13,37 +13,24 @@
 #include "sound.h"
 #include "stdint.h"
 #include "stdio.h"
-#include "time.h"
 
 /*** FPB local macros ***/
 
-#define FPB_APPLY_RELEASE_PERIOD_MS		1000
 #define FPB_LOG
+#define FPB_FADE_DURATION_MS	500
 
-/*** FPB structures ***/
-
-typedef enum {
-	FPB_REQUEST_ON,
-	FPB_REQUEST_OFF,
-	FPB_REQUEST_NEUTRAL,
-	FPB_REQUEST_APPLY,
-	FPB_REQUEST_RELEASE,
-} FPB_request_t;
+/*** FPB local structures ***/
 
 typedef enum {
-	FPB_STATE_OFF,
 	FPB_STATE_NEUTRAL,
 	FPB_STATE_APPLY,
 	FPB_STATE_RELEASE
 } FPB_state_t;
 
 typedef struct {
-	SOUND_context_t sound_on;
-	SOUND_context_t sound_apply_release;
-	SOUND_context_t sound_neutral;
+	SOUND_context_t sound_apply;
+	SOUND_context_t sound_release;
 	FPB_state_t state;
-	FPB_request_t request;
-	uint64_t apply_release_start_time;
 } FPB_context_t;
 
 /*** FPB local global variables ***/
@@ -58,32 +45,10 @@ static FPB_context_t fpb_ctx;
  */
 void FPB_init(void) {
 	// Init sounds.
-	SOUND_init(&(fpb_ctx.sound_apply_release), "fpb_apply_release.wav", FPB_AUDIO_GAIN);
-	SOUND_set_volume(&(fpb_ctx.sound_apply_release), 1.0); // No fade effect required.
-	SOUND_init(&(fpb_ctx.sound_neutral), "fpb_neutral.wav", FPB_AUDIO_GAIN);
-	SOUND_set_volume(&(fpb_ctx.sound_neutral), 1.0); // No fade effect required.
-	// Init context.
-	fpb_ctx.state = FPB_STATE_NEUTRAL; // Bypass for debug.
-	fpb_ctx.request = FPB_REQUEST_NEUTRAL;
-	fpb_ctx.apply_release_start_time = 0;
-}
-
-/* TURN FPB MODULE ON.
- * @param:	None.
- * @return:	None.
- */
-void FPB_on(void) {
-	// Update request.
-	fpb_ctx.request = FPB_REQUEST_ON;
-}
-
-/* TURN FPB MODULE OFF.
- * @param:	None.
- * @return:	None.
- */
-void FPB_off(void) {
-	// Update request.
-	fpb_ctx.request = FPB_REQUEST_OFF;
+	SOUND_init(&(fpb_ctx.sound_apply), "fpb_apply.wav", FPB_AUDIO_GAIN);
+	SOUND_set_volume(&(fpb_ctx.sound_apply), 1.0); // No fade effect required.
+	SOUND_init(&(fpb_ctx.sound_release), "fpb_release.wav", FPB_AUDIO_GAIN);
+	SOUND_set_volume(&(fpb_ctx.sound_release), 1.0); // No fade effect required.
 }
 
 /* APPLY FPB.
@@ -91,22 +56,14 @@ void FPB_off(void) {
  * @return:	None.
  */
 void FPB_apply(void) {
-	// Update request.
-	fpb_ctx.request = FPB_REQUEST_APPLY;
+	// Play sound.
+	SOUND_play(&(fpb_ctx.sound_apply));
+	// Press OpenRails shortcut.
+	KEYBOARD_press(&ORTS_SHORTCUT_FPB_APPLY);
+	// Update state.
+	fpb_ctx.state = FPB_STATE_APPLY;
 #ifdef FPB_LOG
 	printf("FPB *** Apply.\n");
-#endif
-}
-
-/* SET FPB TO NEUTRAL.
- * @param:	None.
- * @return:	None.
- */
-void FPB_neutral(void) {
-	// Update request.
-	fpb_ctx.request = FPB_REQUEST_NEUTRAL;
-#ifdef FPB_LOG
-	printf("FPB *** Neutral.\n");
 #endif
 }
 
@@ -115,10 +72,41 @@ void FPB_neutral(void) {
  * @return:	None.
  */
 void FPB_release(void) {
-	// Update request.
-	fpb_ctx.request = FPB_REQUEST_RELEASE;
+	// Play sound.
+	SOUND_play(&(fpb_ctx.sound_release));
+	// Press OpenRails shortcut.
+	KEYBOARD_press(&ORTS_SHORTCUT_FPB_RELEASE);
+	// Update state.
+	fpb_ctx.state = FPB_STATE_RELEASE;
 #ifdef FPB_LOG
 	printf("FPB *** Release.\n");
+#endif
+}
+
+/* SET FPB TO NEUTRAL.
+ * @param:	None.
+ * @return:	None.
+ */
+void FPB_neutral(void) {
+	// Save release sound parameter for fade-out.
+	SOUND_save_fade_parameters(&(fpb_ctx.sound_release));
+	// Send accurate OpenRails shortcut.
+	switch (fpb_ctx.state) {
+	case FPB_STATE_APPLY:
+		// Previous state was forward.
+		KEYBOARD_release(&ORTS_SHORTCUT_FPB_APPLY);
+		break;
+	case FPB_STATE_RELEASE:
+		// Previous state was backward.
+		KEYBOARD_release(&ORTS_SHORTCUT_FPB_RELEASE);
+		break;
+	default:
+		break;
+	}
+	// Update state.
+	fpb_ctx.state = FPB_STATE_NEUTRAL;
+#ifdef FPB_LOG
+	printf("FPB *** Neutral.\n");
 #endif
 }
 
@@ -127,74 +115,8 @@ void FPB_release(void) {
  * @return:	None.
  */
 void FPB_task(void) {
-	// Perform state machine.
-	switch (fpb_ctx.state) {
-	case FPB_STATE_OFF:
-		// TBD.
-		break;
-	case FPB_STATE_NEUTRAL:
-		switch (fpb_ctx.request) {
-		case FPB_REQUEST_OFF:
-			// TBD.
-			break;
-		case FPB_REQUEST_APPLY:
-			// Play sound.
-			SOUND_play(&(fpb_ctx.sound_apply_release));
-			// Send OpenRails shortcut.
-			KEYBOARD_send(&ORTS_SHORTCUT_FPB_APPLY, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
-			// Save time and switch state.
-			fpb_ctx.apply_release_start_time = TIME_get_milliseconds();
-			fpb_ctx.state = FPB_STATE_APPLY;
-			break;
-		case FPB_REQUEST_RELEASE:
-			// Play sound.
-			SOUND_play(&(fpb_ctx.sound_apply_release));
-			// Send OpenRails shortcut.
-			KEYBOARD_send(&ORTS_SHORTCUT_FPB_RELEASE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
-			// Save time and switch state.
-			fpb_ctx.apply_release_start_time = TIME_get_milliseconds();
-			fpb_ctx.state = FPB_STATE_RELEASE;
-			break;
-		default:
-			// Nothing to do.
-			break;
-		}
-		break;
-	case FPB_STATE_APPLY:
-		if (fpb_ctx.request == FPB_REQUEST_NEUTRAL) {
-			// Play sound.
-			SOUND_play(&(fpb_ctx.sound_neutral));
-			SOUND_stop(&(fpb_ctx.sound_apply_release));
-			// Come back to neutral state.
-			fpb_ctx.state = FPB_STATE_NEUTRAL;
-		}
-		else {
-			if (TIME_get_milliseconds() > (fpb_ctx.apply_release_start_time + FPB_APPLY_RELEASE_PERIOD_MS)) {
-				// Send OpenRails shortcut and update time.
-				KEYBOARD_send(&ORTS_SHORTCUT_FPB_APPLY, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
-				fpb_ctx.apply_release_start_time = TIME_get_milliseconds();
-			}
-		}
-		break;
-	case FPB_STATE_RELEASE:
-		if (fpb_ctx.request == FPB_REQUEST_NEUTRAL) {
-			// Play sound.
-			SOUND_play(&(fpb_ctx.sound_neutral));
-			SOUND_stop(&(fpb_ctx.sound_apply_release));
-			// Come back to neutral state.
-			fpb_ctx.state = FPB_STATE_NEUTRAL;
-		}
-		else {
-			if (TIME_get_milliseconds() > (fpb_ctx.apply_release_start_time + FPB_APPLY_RELEASE_PERIOD_MS)) {
-				// Send OpenRails shortcut and update time.
-				KEYBOARD_send(&ORTS_SHORTCUT_FPB_RELEASE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
-				fpb_ctx.apply_release_start_time = TIME_get_milliseconds();
-			}
-		}
-		break;
-	default:
-		// Unknown state.
-		fpb_ctx.state = FPB_STATE_OFF;
-		break;
+	// Release sound fade-out.
+	if (fpb_ctx.state == FPB_STATE_NEUTRAL) {
+		SOUND_fade_out(&(fpb_ctx.sound_release), FPB_FADE_DURATION_MS);
 	}
 }

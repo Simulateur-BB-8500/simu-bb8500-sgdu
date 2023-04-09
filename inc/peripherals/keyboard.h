@@ -24,7 +24,9 @@ typedef struct {
 /*** KEYBOARD functions ***/
 
 void KEYBOARD_init(void);
-void KEYBOARD_send(const KEYBOARD_shortcut_t* shortcut, uint32_t press_duration_ms);
+void KEYBOARD_press(const KEYBOARD_shortcut_t* shortcut);
+void KEYBOARD_release(const KEYBOARD_shortcut_t* shortcut);
+void KEYBOARD_single_press(const KEYBOARD_shortcut_t* shortcut, uint32_t press_duration_ms);
 void KEYBOARD_task(void);
 
 #endif /* __KEYBOARD_H__ */

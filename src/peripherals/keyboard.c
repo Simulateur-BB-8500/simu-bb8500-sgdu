@@ -39,13 +39,25 @@ typedef struct {
 
 static KEYBOARD_context_t keyboard_ctx;
 
-/*** KEYBOARD local functions ***/
+/*** KEYBOARD functions ***/
+
+/*** KEYBOARD MODULE INITIALIZATION.
+ * @param:	None.
+ * @return:	None.
+ */
+void KEYBOARD_init(void) {
+	// Init context.
+	keyboard_ctx.read_idx = 0;
+	keyboard_ctx.write_idx = 0;
+	keyboard_ctx.state = KEYBOARD_STATE_READY;
+	keyboard_ctx.state_switch_time = 0;
+}
 
 /* PRESS A KEYBOARD KEY.
  * @param shortcut:	Shortcut to press.
  * @return:			None.
  */
-static void _KEYBOARD_press(const KEYBOARD_shortcut_t* shortcut) {
+void KEYBOARD_press(const KEYBOARD_shortcut_t* shortcut) {
 	// Press first key.
 	if ((shortcut -> vk_code_0) != VK_NONE) {
 		keybd_event((shortcut -> vk_code_0), MapVirtualKey((shortcut -> vk_code_0), MAPVK_VK_TO_VSC), 0, 0);
@@ -64,7 +76,7 @@ static void _KEYBOARD_press(const KEYBOARD_shortcut_t* shortcut) {
  * @param shortcut:	Shortcut to release.
  * @return:			None.
  */
-static void _KEYBOARD_release(const KEYBOARD_shortcut_t* shortcut) {
+void KEYBOARD_release(const KEYBOARD_shortcut_t* shortcut) {
 	// Release first key.
 	if ((shortcut -> vk_code_0) != VK_NONE) {
 		keybd_event((shortcut -> vk_code_0), MapVirtualKey((shortcut -> vk_code_0), MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
@@ -79,26 +91,12 @@ static void _KEYBOARD_release(const KEYBOARD_shortcut_t* shortcut) {
 #endif
 }
 
-/*** KEYBOARD functions ***/
-
-/*** KEYBOARD MODULE INITIALIZATION.
- * @param:	None.
- * @return:	None.
- */
-void KEYBOARD_init(void) {
-	// Init context.
-	keyboard_ctx.read_idx = 0;
-	keyboard_ctx.write_idx = 0;
-	keyboard_ctx.state = KEYBOARD_STATE_READY;
-	keyboard_ctx.state_switch_time = 0;
-}
-
 /* APPEND A NEW KEY TO THE KEYBOARD BUFFER.
  * @param shortcut:				Shortcut to press.
  * @param press_duration_ms:	Key press duration in ms.
  * @return:						None.
  */
-void KEYBOARD_send(const KEYBOARD_shortcut_t* shortcut, uint32_t press_duration_ms) {
+void KEYBOARD_single_press(const KEYBOARD_shortcut_t* shortcut, uint32_t press_duration_ms) {
 	// Fill buffers.
 	keyboard_ctx.shortcut_buf[keyboard_ctx.write_idx].vk_code_0 = (shortcut -> vk_code_0);
 	keyboard_ctx.shortcut_buf[keyboard_ctx.write_idx].vk_code_1 = (shortcut -> vk_code_1);
@@ -121,7 +119,7 @@ void KEYBOARD_task(void) {
 		// Check indexes.
 		if (keyboard_ctx.read_idx != keyboard_ctx.write_idx) {
 			// Press key.
-			_KEYBOARD_press(&keyboard_ctx.shortcut_buf[keyboard_ctx.read_idx]);
+			KEYBOARD_press(&keyboard_ctx.shortcut_buf[keyboard_ctx.read_idx]);
 			// Save start time.
 			keyboard_ctx.state_switch_time = TIME_get_milliseconds();
 			// Change state.
@@ -132,7 +130,7 @@ void KEYBOARD_task(void) {
 		// Check duration.
 		if (TIME_get_milliseconds() > (keyboard_ctx.state_switch_time + keyboard_ctx.press_duration_buf[keyboard_ctx.read_idx])) {
 			// Release key.
-			_KEYBOARD_release(&keyboard_ctx.shortcut_buf[keyboard_ctx.read_idx]);
+			KEYBOARD_release(&keyboard_ctx.shortcut_buf[keyboard_ctx.read_idx]);
 			// Increment index and manage rollover.
 			keyboard_ctx.read_idx++;
 			if (keyboard_ctx.read_idx >= KEYBOARD_BUFFER_SIZE) {

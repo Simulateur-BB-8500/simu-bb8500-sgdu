@@ -58,13 +58,28 @@ void FD_init(void) {
 void FD_apply(void) {
 	// Play sound.
 	SOUND_play(&(fd_ctx.sound_apply));
-	// Send OpenRails shortcut (twice if previous state was released).
-	KEYBOARD_send(&ORTS_SHORTCUT_FD_APPLY, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
-	KEYBOARD_send(&ORTS_SHORTCUT_FD_APPLY, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+	// Press OpenRails shortcut.
+	KEYBOARD_press(&ORTS_SHORTCUT_FD_APPLY);
 	// Update state.
 	fd_ctx.state = FD_STATE_APPLY;
 #ifdef FD_LOG
 	printf("FD *** Apply.\n");
+#endif
+}
+
+/* RELEASE FD.
+ * @param:	None.
+ * @return:	None.
+ */
+void FD_release(void) {
+	// Play sound.
+	SOUND_play(&(fd_ctx.sound_release));
+	// Press OpenRails shortcut.
+	KEYBOARD_press(&ORTS_SHORTCUT_FD_RELEASE);
+	// Update state.
+	fd_ctx.state = FD_STATE_RELEASE;
+#ifdef FD_LOG
+	printf("FD *** Release.\n");
 #endif
 }
 
@@ -79,11 +94,11 @@ void FD_neutral(void) {
 	switch (fd_ctx.state) {
 	case FD_STATE_APPLY:
 		// Previous state was forward.
-		KEYBOARD_send(&ORTS_SHORTCUT_FD_RELEASE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+		KEYBOARD_release(&ORTS_SHORTCUT_FD_APPLY);
 		break;
 	case FD_STATE_RELEASE:
 		// Previous state was backward.
-		KEYBOARD_send(&ORTS_SHORTCUT_FD_APPLY, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+		KEYBOARD_release(&ORTS_SHORTCUT_FD_RELEASE);
 		break;
 	default:
 		break;
@@ -95,31 +110,13 @@ void FD_neutral(void) {
 #endif
 }
 
-/* RELEASE FD.
- * @param:	None.
- * @return:	None.
- */
-void FD_release(void) {
-	// Play sound.
-	SOUND_set_volume(&(fd_ctx.sound_release), 1.0); // No fade effect required.
-	SOUND_play(&(fd_ctx.sound_release));
-	// Send OpenRails shortcut (twice if previous state was applied).
-	KEYBOARD_send(&ORTS_SHORTCUT_FD_RELEASE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
-	KEYBOARD_send(&ORTS_SHORTCUT_FD_RELEASE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
-	// Update state.
-	fd_ctx.state = FD_STATE_RELEASE;
-#ifdef FD_LOG
-	printf("FD *** Release.\n");
-#endif
-}
-
 /* MAIN TASK OF FD MODULE.
  * @param:	None.
  * @return:	None.
  */
 void FD_task(void) {
 	// Release sound fade-out.
-	if (fd_ctx.state != FD_STATE_RELEASE) {
+	if (fd_ctx.state == FD_STATE_NEUTRAL) {
 		SOUND_fade_out(&(fd_ctx.sound_release), FD_FADE_DURATION_MS);
 	}
 }
