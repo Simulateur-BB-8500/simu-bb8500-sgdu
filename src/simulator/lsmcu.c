@@ -64,13 +64,7 @@ errors:
  */
 void LSMCU_send(uint8_t tx_command) {
 #ifdef LSMCU_LOG
-	printf("LSMCU *** TX command = 0x%02X ", tx_command);
-	if (tx_command <= TCH_SPEED_MAX_KMH) {
-		printf("(%dkm/h)\n", tx_command);
-	}
-	else {
-		printf("\n");
-	}
+	printf("LSMCU *** TX command = 0x%02X\n", tx_command);
 #endif
 	SERIAL_write(&lsmcu_serial_port, tx_command);
 }

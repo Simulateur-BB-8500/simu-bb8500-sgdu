@@ -8,6 +8,7 @@
 #include "orts.h"
 
 #include "curl/curl.h"
+#include "lsagiu.h"
 #include "lsmcu.h"
 #include "stdint.h"
 #include "string.h"
@@ -15,9 +16,12 @@
 
 /*** ORTS macros ***/
 
-#define ORTS_SERVER_ADDRESS				"http://localhost:2150/API/CABCONTROLS"
+#define ORTS_SERVER_ADDRESS				"http://localhost:2150/API/HUD/7"
 #define ORTS_CURL_BUFFER_SIZE			16384
 #define ORTS_STRING_BUFFER_SIZE			32
+
+#define ORTS_HUD7_SPEED_DATA_KEYWORD	"Chemin"
+#define ORTS_HUD7_SPEED_UNIT			"km/h"
 
 #define ORTS_CURL_REQUEST_PERIOD_MS		1000
 #define ORTS_REQUEST_TIMEOUT_S			1
@@ -27,8 +31,9 @@
 /*** ORTS local structures ***/
 
 typedef enum {
-	ORTS_API_SAMPLE_SPEED = 0,
-	ORTS_API_SAMPLE_LAST
+	ORTS_DATA_INDEX_SPEED_KMH = 0,
+	ORTS_DATA_INDEX_SPEED_LIMIT_KMH,
+	ORTS_DATA_INDEX_LAST
 } ORTS_api_sample_t;
 
 typedef struct {
@@ -36,11 +41,11 @@ typedef struct {
 	char curl_data[ORTS_CURL_BUFFER_SIZE];
 	uint32_t curl_data_index;
 	uint64_t request_next_time;
+	uint8_t data[ORTS_DATA_INDEX_LAST];
 } ORTS_context_t;
 
 /*** ORTS local global variables ***/
 
-static const char* ORTS_JSON_FIELD_API_SAMPLE[ORTS_API_SAMPLE_LAST] = {"SPEEDOMETER"};
 static ORTS_context_t orts_ctx;
 
 /*** ORTS local functions ***/
@@ -64,45 +69,48 @@ size_t _ORTS_write_api_data(char* ptr, size_t size, size_t nmemb, void* user_dat
 }
 
 /* GET ORTS API SAMPLE.
- * @param api_sample:	API sample index.
- * @param value:		Pointer that will contain the value.
- * @return status:		Function execution status.
+ * @param:			None.
+ * @return status:	Function execution status.
  */
-ORTS_status_t _ORTS_get_api_sample(ORTS_api_sample_t api_sample, float* value) {
+ORTS_status_t _ORTS_update_data(void) {
 	// Local variables.
 	ORTS_status_t status = ORTS_SUCCESS;
-	char* api_sample_ptr = NULL;
-	char name_str[ORTS_STRING_BUFFER_SIZE];
-	char min_value_str[ORTS_STRING_BUFFER_SIZE];
-	char max_value_str[ORTS_STRING_BUFFER_SIZE];
-	char range_fraction_str[ORTS_STRING_BUFFER_SIZE];
-	float min_value = 0.0;
-	float max_value = 0.0;
-	float range_fraction = 0.0;
-	int32_t scan_success_count = 0;
-	// Check parameters.
-	if (api_sample >= ORTS_API_SAMPLE_LAST) {
-		status = ORTS_ERROR_API_SAMPLE;
+	char* data_ptr = NULL;
+	const char * separators = "\"";
+	int32_t sscanf_count = 0;
+	int32_t temp = 0;
+	uint8_t field_index = 0;
+	// Search key word in CURL data.
+	data_ptr = strstr(orts_ctx.curl_data, ORTS_HUD7_SPEED_DATA_KEYWORD);
+	// Check result.
+	if (data_ptr == NULL) {
+		status = ORTS_ERROR_DATA_PARSING;
 		goto errors;
 	}
-	if (value == NULL) {
-		status = ORTS_ERROR_NULL_PARAMETER;
-		goto errors;
+	// Parsing.
+	data_ptr = strtok(data_ptr, separators);
+	// Fields loop.
+	while (data_ptr != NULL) {
+		// Check if speed unit is present.
+		if (strstr(data_ptr, ORTS_HUD7_SPEED_UNIT) != NULL) {
+			// Convert string to value.
+			sscanf_count = sscanf(data_ptr, "%d", &temp);
+			// Check result.
+			if (sscanf_count == 0) {
+				status = ORTS_ERROR_DATA_PARSING;
+				goto errors;
+			}
+			// Update data.
+			orts_ctx.data[field_index] = (uint8_t) temp;
+			field_index++;
+			// Check index.
+			if (field_index >= ORTS_DATA_INDEX_LAST) {
+				break;
+			}
+		}
+		// Go to next field.
+		data_ptr = strtok (NULL, separators);
 	}
-	// Search JSON field in CURL data.
-	api_sample_ptr = strstr(orts_ctx.curl_data, ORTS_JSON_FIELD_API_SAMPLE[api_sample]);
-	if (api_sample_ptr == NULL) {
-		status = ORTS_ERROR_API_SAMPLE_NOT_FOUND;
-		goto errors;
-	}
-	// Parse JSON structure.
-	scan_success_count = sscanf(api_sample_ptr, "%s %s %f, %s %f, %s %f", name_str, min_value_str, &min_value, max_value_str, &max_value, range_fraction_str, &range_fraction);
-	if (scan_success_count != 7) {
-		status = ORTS_ERROR_API_SAMPLE_PARSING;
-		goto errors;
-	}
-	// Compute value.
-	(*value) = ((max_value - min_value) * range_fraction);
 errors:
 	return status;
 }
@@ -145,7 +153,6 @@ ORTS_status_t ORTS_task(void) {
 	ORTS_status_t status = ORTS_SUCCESS;
 	CURLcode curl_status;
 	uint32_t idx = 0;
-	float value = 0.0;
 	// Check period.
 	if (TIME_get_milliseconds() >= orts_ctx.request_next_time) {
 		// Update next time.
@@ -156,7 +163,7 @@ ORTS_status_t ORTS_task(void) {
 		}
 		orts_ctx.curl_data_index = 0;
 #ifdef ORTS_LOG
-		printf("ORTS *** API Server request: ");
+		printf("ORTS *** API server request: ");
 #endif
 		// Check CURL object.
 		if ((orts_ctx.curl) != NULL) {
@@ -177,11 +184,15 @@ ORTS_status_t ORTS_task(void) {
 #ifdef ORTS_LOG
 			printf("OK (%d bytes received)\n", (orts_ctx.curl_data_index + 1));
 #endif
-			// Get speed.
-			status = _ORTS_get_api_sample(ORTS_API_SAMPLE_SPEED, &value);
+			// Update data.
+			status = _ORTS_update_data();
 			if (status != ORTS_SUCCESS) goto errors;
-			// Send speed to LSMCU.
-			LSMCU_send((uint8_t) value);
+#ifdef ORTS_LOG
+			printf("ORTS *** API data: speed = %dkm/h, speed limit = %dkm/h\n", orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH], orts_ctx.data[ORTS_DATA_INDEX_SPEED_LIMIT_KMH]);
+#endif
+			// Send data to LSMCU.
+			LSMCU_send(LSMCU_TCH_SPEED_OFFSET + orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH]);
+			LSMCU_send(LSMCU_SPEED_LIMIT_OFFSET + (orts_ctx.data[ORTS_DATA_INDEX_SPEED_LIMIT_KMH] / LSAGIU_SPEED_LIMIT_FACTOR));
 		}
 	}
 errors:
