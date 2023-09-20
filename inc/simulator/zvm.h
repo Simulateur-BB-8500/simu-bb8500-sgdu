@@ -65,10 +65,10 @@ ZVM_status_t ZVM_set_state(ZVM_state_t state);
 ZVM_status_t ZVM_process(void);
 
 /*******************************************************************/
-#define ZVM_exit_error(error_code) { if (zvm_status == 0) { status = error_code; goto errors; } }
+#define ZVM_exit_error(error_code) { if (zvm_status != ZVM_SUCCESS) { status = error_code; goto errors; } }
 
 /*******************************************************************/
-#define ZVM_stack_error(void) { if (zvm_status == 0) { ERROR_stack_add((ERROR_BASE_ZVM * ERROR_BASE_STEP) + zvm_status); } }
+#define ZVM_stack_error(void) { if (zvm_status != ZVM_SUCCESS) { ERROR_stack_add((ERROR_BASE_ZVM * ERROR_BASE_STEP) + zvm_status); } }
 
 /*******************************************************************/
 #define ZVM_stack_exit_error(error_code) { ZVM_stack_error(); ZVM_exit_error(error_code); }

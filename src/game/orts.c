@@ -9,6 +9,7 @@
 
 #include "curl/curl.h"
 #include "error.h"
+#include "log.h"
 #include "lsagiu.h"
 #include "lsmcu.h"
 #include "stdint.h"
@@ -26,8 +27,6 @@
 
 #define ORTS_CURL_REQUEST_PERIOD_MS		1000
 #define ORTS_REQUEST_TIMEOUT_S			1
-
-#define ORTS_LOG
 
 /*** ORTS local structures ***/
 
@@ -129,9 +128,6 @@ ORTS_status_t ORTS_init(void) {
 	orts_ctx.curl_data_index = 0;
 	orts_ctx.request_next_time = 0;
 	// Init CURL library.
-#ifdef ORTS_LOG
-	printf("ORTS *** Opening server: ");
-#endif
 	orts_ctx.curl = curl_easy_init();
 	// Check returned object.
 	if (orts_ctx.curl == NULL) {
@@ -139,8 +135,8 @@ ORTS_status_t ORTS_init(void) {
 		goto errors;
 	}
 errors:
-#ifdef ORTS_LOG
-	printf("%s\n", ((status == ORTS_SUCCESS) ? "OK" : "Error"));
+#ifdef LOG_ORTS
+	LOG_STATUS(status, ORTS_SUCCESS, "OK");
 #endif
 	return status;
 }
@@ -161,9 +157,6 @@ ORTS_status_t ORTS_process(void) {
 			orts_ctx.curl_data[idx] = '\0';
 		}
 		orts_ctx.curl_data_index = 0;
-#ifdef ORTS_LOG
-		printf("ORTS *** API server request: ");
-#endif
 		// Check CURL object.
 		if ((orts_ctx.curl) != NULL) {
 			// Configure request.
@@ -173,15 +166,9 @@ ORTS_status_t ORTS_process(void) {
 			// Perform request.
 			curl_status = curl_easy_perform(orts_ctx.curl);
 			CURL_stack_exit_error(ORTS_ERROR_DRIVER_CURL);
-#ifdef ORTS_LOG
-			printf("OK (%d bytes received)\n", (orts_ctx.curl_data_index + 1));
-#endif
 			// Update data.
 			status = _ORTS_update_data();
 			if (status != ORTS_SUCCESS) goto errors;
-#ifdef ORTS_LOG
-			printf("ORTS *** API data: speed = %dkm/h, speed limit = %dkm/h\n", orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH], orts_ctx.data[ORTS_DATA_INDEX_SPEED_LIMIT_KMH]);
-#endif
 			// Send data to LSMCU.
 			lsmcu_status = LSMCU_send(LSMCU_TCH_SPEED_OFFSET + orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH]);
 			LSMCU_stack_exit_error(ORTS_ERROR_DRIVER_LSMCU);
@@ -190,5 +177,8 @@ ORTS_status_t ORTS_process(void) {
 		}
 	}
 errors:
+#ifdef LOG_ORTS
+	LOG_STATUS(status, ORTS_SUCCESS, "OK (%d API data bytes received). speed=%dkm/h, speed_limit=%dkm/h)", (orts_ctx.curl_data_index + 1), orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH], orts_ctx.data[ORTS_DATA_INDEX_SPEED_LIMIT_KMH]);
+#endif
 	return status;
 }

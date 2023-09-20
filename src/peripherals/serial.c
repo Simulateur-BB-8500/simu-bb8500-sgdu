@@ -8,9 +8,11 @@
 #include "serial.h"
 
 #include "error.h"
+#include "log.h"
 #include "string.h"
 #include "stdint.h"
 #include "stdio.h"
+#include "time.h"
 #include "windef.h"
 #include "windows.h"
 
@@ -20,7 +22,6 @@
 #define SERIAL_PATH_HEADER				"\\\\.\\"
 #define SERIAL_PORT_NAME_MAX_LENGTH		5 // Maximum length = "COMxx" = 5.
 #define SERIAL_PORT_BAUD_RATE			9600
-//#define SERIAL_LOG
 
 /*** SERIAL local functions ***/
 
@@ -50,9 +51,6 @@ SERIAL_status_t SERIAL_open(SERIAL_port_t* serial_port, char* port) {
 	}
 	// Build port full path.
 	sprintf(port_name, "%s%s", SERIAL_PATH_HEADER, port);
-#ifdef SERIAL_LOG
-	printf("SERIAL *** Opening port %s: ", port_name);
-#endif
 	// Create handle.
 	(serial_port -> handle) = CreateFile(port_name, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 	// Read current parameters.
@@ -80,8 +78,8 @@ SERIAL_status_t SERIAL_open(SERIAL_port_t* serial_port, char* port) {
 		goto errors;
 	}
 errors:
-#ifdef SERIAL_LOG
-	printf("%s\n", ((status == SERIAL_SUCCESS) ? "OK" : "Error"));
+#ifdef LOG_SERIAL
+	LOG_STATUS(status, SERIAL_SUCCESS, "OK");
 #endif
 	return status;
 }
@@ -105,6 +103,9 @@ SERIAL_status_t SERIAL_close(SERIAL_port_t* serial_port) {
 	windows_status = CloseHandle(serial_port -> handle);
 	WINDOWS_stack_exit_error(SERIAL_ERROR_DRIVER_WINDOWS);
 errors:
+#ifdef LOG_SERIAL
+	LOG_STATUS(status, SERIAL_SUCCESS, "OK");
+#endif
 	return status;
 }
 
@@ -123,15 +124,12 @@ SERIAL_status_t SERIAL_write(SERIAL_port_t* serial_port, uint8_t tx_byte) {
 		status = SERIAL_ERROR_INVALID_HANDLE;
 		goto errors;
 	}
-#ifdef SERIAL_LOG
-	printf("SERIAL *** TX byte 0x%x: ", tx_byte);
-#endif
 	// Write byte.
 	windows_status = WriteFile((serial_port -> handle), &tx_byte, 1, NULL, NULL);
 	WINDOWS_stack_exit_error(SERIAL_ERROR_DRIVER_WINDOWS);
 errors:
-#ifdef SERIAL_LOG
-	printf("%s\n", ((status == SERIAL_SUCCESS) ? "OK" : "Error"));
+#ifdef LOG_SERIAL
+	LOG_STATUS(status, SERIAL_SUCCESS, "TX byte = 0x%02X", tx_byte);
 #endif
 	return status;
 }
@@ -155,10 +153,10 @@ SERIAL_status_t SERIAL_read(SERIAL_port_t* serial_port, uint8_t* rx_byte) {
 	// Read byte.
 	windows_status = ReadFile((serial_port -> handle), rx_byte, 1, &number_of_read_bytes, NULL);
 	WINDOWS_stack_exit_error(SERIAL_ERROR_DRIVER_WINDOWS);
-#ifdef SERIAL_LOG
-	printf("SERIAL *** RX byte 0x%x.\n", (*rx_byte));
-#endif
 errors:
+#ifdef LOG_SERIAL
+	LOG_STATUS(status, SERIAL_SUCCESS, "RX byte = 0x%02X", (*rx_byte));
+#endif
 	return status;
 }
 
@@ -181,5 +179,8 @@ SERIAL_status_t SERIAL_flush(SERIAL_port_t* serial_port) {
 	windows_status = PurgeComm((serial_port -> handle), PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
 	WINDOWS_stack_exit_error(SERIAL_ERROR_DRIVER_WINDOWS);
 errors:
+#ifdef LOG_SERIAL
+	LOG_STATUS(status, SERIAL_SUCCESS, "OK");
+#endif
 	return status;
 }

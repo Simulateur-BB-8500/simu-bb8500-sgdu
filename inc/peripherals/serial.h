@@ -87,10 +87,10 @@ SERIAL_status_t SERIAL_read(SERIAL_port_t* serial_port, uint8_t* rx_byte);
 SERIAL_status_t SERIAL_flush(SERIAL_port_t* serial_port);
 
 /*******************************************************************/
-#define SERIAL_exit_error(error_code) { if (serial_status == 0) { status = error_code; goto errors; } }
+#define SERIAL_exit_error(error_code) { if (serial_status != SERIAL_SUCCESS) { status = error_code; goto errors; } }
 
 /*******************************************************************/
-#define SERIAL_stack_error(void) { if (serial_status == 0) { ERROR_stack_add((ERROR_BASE_SERIAL * ERROR_BASE_STEP) + serial_status); } }
+#define SERIAL_stack_error(void) { if (serial_status != SERIAL_SUCCESS) { ERROR_stack_add((ERROR_BASE_SERIAL * ERROR_BASE_STEP) + serial_status); } }
 
 /*******************************************************************/
 #define SERIAL_stack_exit_error(error_code) { SERIAL_stack_error(); SERIAL_exit_error(error_code); }

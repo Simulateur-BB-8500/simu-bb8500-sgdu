@@ -9,11 +9,13 @@
 
 #include "error.h"
 #include "keyboard.h"
+#include "log.h"
 #include "mixer.h"
 #include "orts_shortcut.h"
 #include "sound.h"
 #include "stdint.h"
 #include "stdio.h"
+#include "time.h"
 
 /*** MP local macros ***/
 
@@ -49,6 +51,9 @@ MP_status_t MP_init(void) {
 		SOUND_stack_exit_error(MP_ERROR_DRIVER_SOUND);
 	}
 errors:
+#ifdef LOG_MP
+	LOG_STATUS(status, MP_SUCCESS, "OK");
+#endif
 	return status;
 }
 
@@ -98,5 +103,8 @@ MP_status_t MP_set_event(MP_event_t event) {
 		goto errors;
 	}
 errors:
+#ifdef LOG_MP
+	LOG_STATUS(status, MP_SUCCESS, "event=%d", event);
+#endif
 	return status;
 }

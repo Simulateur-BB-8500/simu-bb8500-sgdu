@@ -62,10 +62,10 @@ MP_status_t MP_init(void);
 MP_status_t MP_set_event(MP_event_t event);
 
 /*******************************************************************/
-#define MP_exit_error(error_code) { if (mp_status == 0) { status = error_code; goto errors; } }
+#define MP_exit_error(error_code) { if (mp_status != MP_SUCCESS) { status = error_code; goto errors; } }
 
 /*******************************************************************/
-#define MP_stack_error(void) { if (mp_status == 0) { ERROR_stack_add((ERROR_BASE_MP * ERROR_BASE_STEP) + mp_status); } }
+#define MP_stack_error(void) { if (mp_status != MP_SUCCESS) { ERROR_stack_add((ERROR_BASE_MP * ERROR_BASE_STEP) + mp_status); } }
 
 /*******************************************************************/
 #define MP_stack_exit_error(error_code) { MP_stack_error(); MP_exit_error(error_code); }

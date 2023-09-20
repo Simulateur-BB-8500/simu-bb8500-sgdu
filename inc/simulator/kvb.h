@@ -53,10 +53,10 @@ KVB_status_t KVB_init(void);
 KVB_status_t KVB_set_state(KVB_state_t state);
 
 /*******************************************************************/
-#define KVB_exit_error(error_code) { if (kvb_status == 0) { status = error_code; goto errors; } }
+#define KVB_exit_error(error_code) { if (kvb_status != KVB_SUCCESS) { status = error_code; goto errors; } }
 
 /*******************************************************************/
-#define KVB_stack_error(void) { if (kvb_status == 0) { ERROR_stack_add((ERROR_BASE_KVB * ERROR_BASE_STEP) + kvb_status); } }
+#define KVB_stack_error(void) { if (kvb_status != KVB_SUCCESS) { ERROR_stack_add((ERROR_BASE_KVB * ERROR_BASE_STEP) + kvb_status); } }
 
 /*******************************************************************/
 #define KVB_stack_exit_error(error_code) { KVB_stack_error(); KVB_exit_error(error_code); }

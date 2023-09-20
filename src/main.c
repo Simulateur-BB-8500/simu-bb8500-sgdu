@@ -12,6 +12,7 @@
 #include "keyboard.h"
 #include "kvb.h"
 #include "light.h"
+#include "log.h"
 #include "lsmcu.h"
 #include "mp.h"
 #include "mpinv.h"
@@ -32,7 +33,6 @@
 #define LSAGIU_ERROR_STACK_CHECK_PERIOD_MS		10000
 
 /*** MAIN structures ***/
-
 
 /*******************************************************************/
 typedef enum {
@@ -63,18 +63,21 @@ static void _LSAGIU_print_error_stack(void) {
 	ERROR_code_t error_code = ERROR_BASE_NONE;
 	uint32_t count = 0;
 	// Print stack.
-	printf("LSAGIU ERROR STACK [ ");
+	TIME_print();
+	printf("LSAGIU_print_error_stack() *** [ ");
 	// Check if empty.
 	if (ERROR_stack_is_empty() == 0) {
 		do {
 			// Unstack error.
 			error_code = ERROR_stack_read();
-			printf("%d ", error_code);
+			printf("0x%08X ", error_code);
 			// Manage screen width.
 			count++;
 			if (count >= 10) {
 				// Change line.
-				printf("]\n                   [ ");
+				printf("]\n");
+				TIME_print();
+				printf("                               [ ");
 				count = 0;
 			}
 		} while (error_code != ERROR_BASE_NONE);

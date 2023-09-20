@@ -56,10 +56,10 @@ WHISTLE_status_t WHISTLE_init(void);
 WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state);
 
 /*******************************************************************/
-#define WHISTLE_exit_error(error_code) { if (whistle_status == 0) { status = error_code; goto errors; } }
+#define WHISTLE_exit_error(error_code) { if (whistle_status != WHISTLE_SUCCESS) { status = error_code; goto errors; } }
 
 /*******************************************************************/
-#define WHISTLE_stack_error(void) { if (whistle_status == 0) { ERROR_stack_add((ERROR_BASE_WHISTLE * ERROR_BASE_STEP) + whistle_status); } }
+#define WHISTLE_stack_error(void) { if (whistle_status != WHISTLE_SUCCESS) { ERROR_stack_add((ERROR_BASE_WHISTLE * ERROR_BASE_STEP) + whistle_status); } }
 
 /*******************************************************************/
 #define WHISTLE_stack_exit_error(error_code) { WHISTLE_stack_error(); WHISTLE_exit_error(error_code); }

@@ -9,11 +9,13 @@
 
 #include "error.h"
 #include "keyboard.h"
+#include "log.h"
 #include "mixer.h"
 #include "orts_shortcut.h"
 #include "sound.h"
 #include "stdint.h"
 #include "stdio.h"
+#include "time.h"
 
 /*** ZPT local macros ***/
 
@@ -55,6 +57,9 @@ ZPT_status_t ZPT_init(void) {
 	sound_status = SOUND_init(&(zpt_ctx.sound_front_down), "zpt_down.wav", ZPT_FRONT_AUDIO_GAIN);
 	SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
 errors:
+#ifdef LOG_ZPT
+	LOG_STATUS(status, ZPT_SUCCESS, "OK");
+#endif
 	return status;
 }
 
@@ -129,5 +134,8 @@ ZPT_status_t ZPT_set_position(ZPT_pantograph_t pantograph, ZPT_state_t state) {
 	sound_status = SOUND_process(&(zpt_ctx.sound_front_down));
 	SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
 errors:
+#ifdef LOG_ZPT
+	LOG_STATUS(status, ZPT_SUCCESS, "pantograph=%d state=%d", pantograph, state);
+#endif
 	return status;
 }

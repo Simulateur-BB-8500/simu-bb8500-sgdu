@@ -84,10 +84,10 @@ KEYBOARD_status_t KEYBOARD_single_press(const KEYBOARD_shortcut_t* shortcut, uin
 KEYBOARD_status_t KEYBOARD_process(void);
 
 /*******************************************************************/
-#define KEYBOARD_exit_error(error_code) { if (keyboard_status == 0) { status = error_code; goto errors; } }
+#define KEYBOARD_exit_error(error_code) { if (keyboard_status != KEYBOARD_SUCCESS) { status = error_code; goto errors; } }
 
 /*******************************************************************/
-#define KEYBOARD_stack_error(void) { if (keyboard_status == 0) { ERROR_stack_add((ERROR_BASE_KEYBOARD * ERROR_BASE_STEP) + keyboard_status); } }
+#define KEYBOARD_stack_error(void) { if (keyboard_status != KEYBOARD_SUCCESS) { ERROR_stack_add((ERROR_BASE_KEYBOARD * ERROR_BASE_STEP) + keyboard_status); } }
 
 /*******************************************************************/
 #define KEYBOARD_stack_exit_error(error_code) { KEYBOARD_stack_error(); KEYBOARD_exit_error(error_code); }

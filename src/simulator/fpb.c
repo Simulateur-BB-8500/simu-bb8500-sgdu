@@ -9,11 +9,13 @@
 
 #include "error.h"
 #include "keyboard.h"
+#include "log.h"
 #include "mixer.h"
 #include "orts_shortcut.h"
 #include "sound.h"
 #include "stdint.h"
 #include "stdio.h"
+#include "time.h"
 
 /*** FPB local macros ***/
 
@@ -46,6 +48,9 @@ FPB_status_t FPB_init(void) {
 	sound_status = SOUND_init(&(fpb_ctx.sound_release), "fpb_release.wav", FPB_AUDIO_GAIN);
 	SOUND_stack_exit_error(FPB_ERROR_DRIVER_SOUND);
 errors:
+#ifdef LOG_FPB
+	LOG_STATUS(status, FPB_SUCCESS, "OK");
+#endif
 	return status;
 }
 
@@ -105,6 +110,9 @@ FPB_status_t FPB_set_state(FPB_state_t state) {
 	// Update local state.
 	fpb_ctx.state = state;
 errors:
+#ifdef LOG_FPB
+	LOG_STATUS(status, FPB_SUCCESS, "state=%d", state);
+#endif
 	return status;
 }
 
@@ -119,5 +127,8 @@ FPB_status_t FPB_process(void) {
 	sound_status = SOUND_process(&(fpb_ctx.sound_release));
 	SOUND_stack_exit_error(FPB_ERROR_DRIVER_SOUND);
 errors:
+#ifdef LOG_FPB
+	LOG_STATUS(status, FPB_SUCCESS, "OK");
+#endif
 	return status;
 }

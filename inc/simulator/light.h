@@ -70,10 +70,10 @@ LIGHT_status_t LIGHT_init(void);
 LIGHT_status_t LIGHT_set_state(LIGHT_type_t type, LIGHT_state_t state);
 
 /*******************************************************************/
-#define LIGHT_exit_error(error_code) { if (light_status == 0) { status = error_code; goto errors; } }
+#define LIGHT_exit_error(error_code) { if (light_status != LIGHT_SUCCESS) { status = error_code; goto errors; } }
 
 /*******************************************************************/
-#define LIGHT_stack_error(void) { if (light_status == 0) { ERROR_stack_add((ERROR_BASE_LIGHT * ERROR_BASE_STEP) + light_status); } }
+#define LIGHT_stack_error(void) { if (light_status != LIGHT_SUCCESS) { ERROR_stack_add((ERROR_BASE_LIGHT * ERROR_BASE_STEP) + light_status); } }
 
 /*******************************************************************/
 #define LIGHT_stack_exit_error(error_code) { LIGHT_stack_error(); LIGHT_exit_error(error_code); }

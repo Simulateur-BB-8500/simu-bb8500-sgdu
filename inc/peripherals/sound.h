@@ -135,10 +135,10 @@ SOUND_status_t SOUND_update(SOUND_context_t* sound_ctx);
 SOUND_status_t SOUND_process(SOUND_context_t* sound_ctx);
 
 /*******************************************************************/
-#define SOUND_exit_error(error_code) { if (sound_status == 0) { status = error_code; goto errors; } }
+#define SOUND_exit_error(error_code) { if (sound_status != SOUND_SUCCESS) { status = error_code; goto errors; } }
 
 /*******************************************************************/
-#define SOUND_stack_error(void) { if (sound_status == 0) { ERROR_stack_add((ERROR_BASE_SOUND * ERROR_BASE_STEP) + sound_status); } }
+#define SOUND_stack_error(void) { if (sound_status != SOUND_SUCCESS) { ERROR_stack_add((ERROR_BASE_SOUND * ERROR_BASE_STEP) + sound_status); } }
 
 /*******************************************************************/
 #define SOUND_stack_exit_error(error_code) { SOUND_stack_error(); SOUND_exit_error(error_code); }

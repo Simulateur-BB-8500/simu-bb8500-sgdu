@@ -57,10 +57,10 @@ MPINV_status_t MPINV_init(void);
 MPINV_status_t MPINV_set_position(MPINV_position_t position);
 
 /*******************************************************************/
-#define MPINV_exit_error(error_code) { if (mpinv_status == 0) { status = error_code; goto errors; } }
+#define MPINV_exit_error(error_code) { if (mpinv_status != MPINV_SUCCESS) { status = error_code; goto errors; } }
 
 /*******************************************************************/
-#define MPINV_stack_error(void) { if (mpinv_status == 0) { ERROR_stack_add((ERROR_BASE_MPINV * ERROR_BASE_STEP) + mpinv_status); } }
+#define MPINV_stack_error(void) { if (mpinv_status != MPINV_SUCCESS) { ERROR_stack_add((ERROR_BASE_MPINV * ERROR_BASE_STEP) + mpinv_status); } }
 
 /*******************************************************************/
 #define MPINV_stack_exit_error(error_code) { MPINV_stack_error(); MPINV_exit_error(error_code); }

@@ -50,10 +50,10 @@ ORTS_status_t ORTS_init(void);
 ORTS_status_t ORTS_process(void);
 
 /*******************************************************************/
-#define ORTS_exit_error(error_code) { if (orts_status == 0) { status = error_code; goto errors; } }
+#define ORTS_exit_error(error_code) { if (orts_status != ORTS_SUCCESS) { status = error_code; goto errors; } }
 
 /*******************************************************************/
-#define ORTS_stack_error(void) { if (orts_status == 0) { ERROR_stack_add((ERROR_BASE_ORTS * ERROR_BASE_STEP) + orts_status); } }
+#define ORTS_stack_error(void) { if (orts_status != ORTS_SUCCESS) { ERROR_stack_add((ERROR_BASE_ORTS * ERROR_BASE_STEP) + orts_status); } }
 
 /*******************************************************************/
 #define ORTS_stack_exit_error(error_code) { ORTS_stack_error(); ORTS_exit_error(error_code); }

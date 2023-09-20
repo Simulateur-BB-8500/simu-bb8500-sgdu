@@ -8,10 +8,12 @@
 #include "zvm.h"
 
 #include "error.h"
+#include "log.h"
 #include "mixer.h"
 #include "sound.h"
 #include "stdint.h"
 #include "stdio.h"
+#include "time.h"
 
 /*** ZVM local macros ***/
 
@@ -95,15 +97,18 @@ ZVM_status_t ZVM_init(void) {
 	zvm_ctx.state = ZVM_STATE_OFF;
 	zvm_ctx.internal_state = ZVM_INTERNAL_STATE_TURN_OFF;
 	// Init sounds.
-	sound_status = SOUND_init(&(zvm_ctx.sound_turn_on), "zvm_on.wav", ZVM_AUDIO_GAIN);
+	sound_status = SOUND_init(&(zvm_ctx.sound_turn_on), "zvm_turn_on.wav", ZVM_AUDIO_GAIN);
 	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_init(&(zvm_ctx.sound_on_0), "zvm.wav", ZVM_AUDIO_GAIN);
+	sound_status = SOUND_init(&(zvm_ctx.sound_on_0), "zvm_on.wav", ZVM_AUDIO_GAIN);
 	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_init(&(zvm_ctx.sound_on_1), "zvm.wav", ZVM_AUDIO_GAIN);
+	sound_status = SOUND_init(&(zvm_ctx.sound_on_1), "zvm_on.wav", ZVM_AUDIO_GAIN);
 	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_init(&(zvm_ctx.sound_turn_off), "zvm_off.wav", ZVM_AUDIO_GAIN);
+	sound_status = SOUND_init(&(zvm_ctx.sound_turn_off), "zvm_turn_off.wav", ZVM_AUDIO_GAIN);
 	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
 errors:
+#ifdef LOG_ZVM
+	LOG_STATUS(status, ZVM_SUCCESS, "OK");
+#endif
 	return status;
 }
 
@@ -119,6 +124,9 @@ ZVM_status_t ZVM_set_state(ZVM_state_t state) {
 	// Update context.
 	zvm_ctx.state = state;
 errors:
+#ifdef LOG_ZVM
+	LOG_STATUS(status, ZVM_SUCCESS, "state=%d", state);
+#endif
 	return status;
 }
 
@@ -222,5 +230,8 @@ ZVM_status_t ZVM_process(void) {
 	sound_status = SOUND_process(&(zvm_ctx.sound_turn_off));
 	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
 errors:
+#ifdef LOG_ZVM
+	LOG_STATUS(status, ZVM_SUCCESS, "OK");
+#endif
 	return status;
 }

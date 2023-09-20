@@ -66,10 +66,10 @@ FD_status_t FD_set_state(FD_state_t state);
 FD_status_t FD_process(void);
 
 /*******************************************************************/
-#define FD_exit_error(error_code) { if (fd_status == 0) { status = error_code; goto errors; } }
+#define FD_exit_error(error_code) { if (fd_status != FD_SUCCESS) { status = error_code; goto errors; } }
 
 /*******************************************************************/
-#define FD_stack_error(void) { if (fd_status == 0) { ERROR_stack_add((ERROR_BASE_FD * ERROR_BASE_STEP) + fd_status); } }
+#define FD_stack_error(void) { if (fd_status != FD_SUCCESS) { ERROR_stack_add((ERROR_BASE_FD * ERROR_BASE_STEP) + fd_status); } }
 
 /*******************************************************************/
 #define FD_stack_exit_error(error_code) { FD_stack_error(); FD_exit_error(error_code); }

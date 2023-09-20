@@ -55,10 +55,10 @@ ZDJ_status_t ZDJ_init(void);
 ZDJ_status_t ZDJ_set_state(ZDJ_state_t state);
 
 /*******************************************************************/
-#define ZDJ_exit_error(error_code) { if (zdj_status == 0) { status = error_code; goto errors; } }
+#define ZDJ_exit_error(error_code) { if (zdj_status != ZDJ_SUCCESS) { status = error_code; goto errors; } }
 
 /*******************************************************************/
-#define ZDJ_stack_error(void) { if (zdj_status == 0) { ERROR_stack_add((ERROR_BASE_ZDJ * ERROR_BASE_STEP) + zdj_status); } }
+#define ZDJ_stack_error(void) { if (zdj_status != ZDJ_SUCCESS) { ERROR_stack_add((ERROR_BASE_ZDJ * ERROR_BASE_STEP) + zdj_status); } }
 
 /*******************************************************************/
 #define ZDJ_stack_exit_error(error_code) { ZDJ_stack_error(); ZDJ_exit_error(error_code); }

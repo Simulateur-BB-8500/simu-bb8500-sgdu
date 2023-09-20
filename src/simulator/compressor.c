@@ -8,10 +8,12 @@
 #include "compressor.h"
 
 #include "error.h"
+#include "log.h"
 #include "mixer.h"
 #include "sound.h"
 #include "stdint.h"
 #include "stdio.h"
+#include "time.h"
 
 /*** COMPRESSOR local macros ***/
 
@@ -62,21 +64,24 @@ COMPRESSOR_status_t COMPRESSOR_init(void) {
 	compressor_ctx.sound_request = COMPRESSOR_SOUND_REQUEST_NONE;
 	compressor_ctx.last_request = COMPRESSOR_SOUND_REQUEST_NONE;
 	// Init sounds.
-	SOUND_init(&(compressor_ctx.sound_zca_regulation_min), "zca_regulation_min.wav", COMPRESSOR_AUDIO_GAIN);
+	sound_status = SOUND_init(&(compressor_ctx.sound_zca_regulation_min), "zca_regulation_min.wav", COMPRESSOR_AUDIO_GAIN);
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	SOUND_init(&(compressor_ctx.sound_zca_regulation_max), "zca_regulation_max.wav", COMPRESSOR_AUDIO_GAIN);
+	sound_status = SOUND_init(&(compressor_ctx.sound_zca_regulation_max), "zca_regulation_max.wav", COMPRESSOR_AUDIO_GAIN);
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	SOUND_init(&(compressor_ctx.sound_zca_turn_off), "zca_off.wav", COMPRESSOR_AUDIO_GAIN);
+	sound_status = SOUND_init(&(compressor_ctx.sound_zca_turn_off), "zca_off.wav", COMPRESSOR_AUDIO_GAIN);
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	SOUND_init(&(compressor_ctx.sound_zcd_turn_on), "zcd_on.wav", COMPRESSOR_AUDIO_GAIN);
+	sound_status = SOUND_init(&(compressor_ctx.sound_zcd_turn_on), "zcd_on.wav", COMPRESSOR_AUDIO_GAIN);
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	SOUND_init(&(compressor_ctx.sound_zcd_on_0), "zcd.wav", COMPRESSOR_AUDIO_GAIN);
+	sound_status = SOUND_init(&(compressor_ctx.sound_zcd_on_0), "zcd.wav", COMPRESSOR_AUDIO_GAIN);
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	SOUND_init(&(compressor_ctx.sound_zcd_on_1), "zcd.wav", COMPRESSOR_AUDIO_GAIN);
+	sound_status = SOUND_init(&(compressor_ctx.sound_zcd_on_1), "zcd.wav", COMPRESSOR_AUDIO_GAIN);
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	SOUND_init(&(compressor_ctx.sound_zcd_turn_off), "zcd_off.wav", COMPRESSOR_AUDIO_GAIN);
+	sound_status = SOUND_init(&(compressor_ctx.sound_zcd_turn_off), "zcd_off.wav", COMPRESSOR_AUDIO_GAIN);
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 errors:
+#ifdef LOG_COMPRESSOR
+	LOG_STATUS(status, COMPRESSOR_SUCCESS, "OK");
+#endif
 	return status;
 }
 
@@ -101,6 +106,9 @@ COMPRESSOR_status_t COMPRESSOR_set_request(COMPRESSOR_sound_request_t sound_requ
 		compressor_ctx.sound_request = COMPRESSOR_SOUND_REQUEST_NONE;
 	}
 errors:
+#ifdef LOG_COMPRESSOR
+	LOG_STATUS(status, COMPRESSOR_SUCCESS, "sound_request=%d", sound_request);
+#endif
 	return status;
 }
 
@@ -327,5 +335,8 @@ COMPRESSOR_status_t COMPRESSOR_process(void) {
 	sound_status = SOUND_process(&(compressor_ctx.sound_zcd_on_1));
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 errors:
+#ifdef LOG_COMPRESSOR
+	LOG_STATUS(status, COMPRESSOR_SUCCESS, "OK");
+#endif
 	return status;
 }

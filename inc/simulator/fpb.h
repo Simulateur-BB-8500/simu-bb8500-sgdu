@@ -66,10 +66,10 @@ FPB_status_t FPB_set_state(FPB_state_t state);
 FPB_status_t FPB_process(void);
 
 /*******************************************************************/
-#define FPB_exit_error(error_code) { if (fpb_status == 0) { status = error_code; goto errors; } }
+#define FPB_exit_error(error_code) { if (fpb_status != FPB_SUCCESS) { status = error_code; goto errors; } }
 
 /*******************************************************************/
-#define FPB_stack_error(void) { if (fpb_status == 0) { ERROR_stack_add((ERROR_BASE_FPB * ERROR_BASE_STEP) + fpb_status); } }
+#define FPB_stack_error(void) { if (fpb_status != FPB_SUCCESS) { ERROR_stack_add((ERROR_BASE_FPB * ERROR_BASE_STEP) + fpb_status); } }
 
 /*******************************************************************/
 #define FPB_stack_exit_error(error_code) { FPB_stack_error(); FPB_exit_error(error_code); }

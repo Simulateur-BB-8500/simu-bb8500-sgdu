@@ -9,9 +9,11 @@
 
 #include "error.h"
 #include "keyboard.h"
+#include "log.h"
 #include "orts_shortcut.h"
 #include "stdint.h"
 #include "stdio.h"
+#include "time.h"
 
 /*** LIGHTS local macros ***/
 
@@ -38,6 +40,9 @@ LIGHT_status_t LIGHT_init(void) {
 	// Init context.
 	light_ctx.status = 0;
 	light_ctx.overall_state = 0;
+#ifdef LOG_LIGHT
+	LOG_STATUS(status, LIGHT_SUCCESS, "OK");
+#endif
 	return status;
 }
 
@@ -77,5 +82,8 @@ LIGHT_status_t LIGHT_set_state(LIGHT_type_t type, LIGHT_state_t state) {
 		light_ctx.overall_state = 0;
 	}
 errors:
+#ifdef LOG_LIGHT
+	LOG_STATUS(status, LIGHT_SUCCESS, "type=%d state=%d", type, state);
+#endif
 	return status;
 }

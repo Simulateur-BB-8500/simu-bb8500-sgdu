@@ -68,10 +68,10 @@ LSMCU_status_t LSMCU_send(uint8_t tx_command);
 LSMCU_status_t LSMCU_process(void);
 
 /*******************************************************************/
-#define LSMCU_exit_error(error_code) { if (lsmcu_status == 0) { status = error_code; goto errors; } }
+#define LSMCU_exit_error(error_code) { if (lsmcu_status != LSMCU_SUCCESS) { status = error_code; goto errors; } }
 
 /*******************************************************************/
-#define LSMCU_stack_error(void) { if (lsmcu_status == 0) { ERROR_stack_add((ERROR_BASE_LSMCU * ERROR_BASE_STEP) + lsmcu_status); } }
+#define LSMCU_stack_error(void) { if (lsmcu_status != LSMCU_SUCCESS) { ERROR_stack_add((ERROR_BASE_LSMCU * ERROR_BASE_STEP) + lsmcu_status); } }
 
 /*******************************************************************/
 #define LSMCU_stack_exit_error(error_code) { LSMCU_stack_error(); LSMCU_exit_error(error_code); }

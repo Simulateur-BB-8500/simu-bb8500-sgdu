@@ -7,6 +7,7 @@
 
 #include "keyboard.h"
 
+#include "log.h"
 #include "stdio.h"
 #include "stdint.h"
 #include "time.h"
@@ -16,7 +17,6 @@
 
 #define KEYBOARD_BUFFER_SIZE				16
 #define KEYBOARD_IDLE_STATE_DURATION_MS		100 // Minimum delay between each key press.
-#define KEYBOARD_LOG
 
 /*** KEYBOARD local structures ***/
 
@@ -52,6 +52,9 @@ KEYBOARD_status_t KEYBOARD_init(void) {
 	keyboard_ctx.write_idx = 0;
 	keyboard_ctx.state = KEYBOARD_STATE_READY;
 	keyboard_ctx.state_switch_time = 0;
+#ifdef LOG_KEYBOARD
+	LOG_STATUS(status, KEYBOARD_SUCCESS, "OK");
+#endif
 	return status;
 }
 
@@ -72,11 +75,10 @@ KEYBOARD_status_t KEYBOARD_press(const KEYBOARD_shortcut_t* shortcut) {
 	if ((shortcut -> vk_code_1) != VK_NONE) {
 		keybd_event((shortcut -> vk_code_1), MapVirtualKey((shortcut -> vk_code_1), MAPVK_VK_TO_VSC), 0, 0);
 	}
-#ifdef KEYBOARD_LOG
-	printf("KEYBOARD *** Press shortcut [0x%x 0x%x] (%d)\n", (shortcut -> vk_code_0), (shortcut -> vk_code_1), status);
-	fflush(stdout);
-#endif
 errors:
+#ifdef LOG_KEYBOARD
+	LOG_STATUS(status, KEYBOARD_SUCCESS, "[0x%x 0x%x]", (shortcut -> vk_code_0), (shortcut -> vk_code_1));
+#endif
 	return status;
 }
 
@@ -97,11 +99,10 @@ KEYBOARD_status_t KEYBOARD_release(const KEYBOARD_shortcut_t* shortcut) {
 	if ((shortcut -> vk_code_1) != VK_NONE) {
 		keybd_event((shortcut -> vk_code_1), MapVirtualKey((shortcut -> vk_code_1), MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
 	}
-#ifdef KEYBOARD_LOG
-	printf("KEYBOARD *** Release shortcut [0x%x 0x%x]\n", (shortcut -> vk_code_0), (shortcut -> vk_code_1));
-	fflush(stdout);
-#endif
 errors:
+#ifdef LOG_KEYBOARD
+	LOG_STATUS(status, KEYBOARD_SUCCESS, "[0x%x 0x%x]", (shortcut -> vk_code_0), (shortcut -> vk_code_1));
+#endif
 	return status;
 }
 
@@ -128,6 +129,9 @@ KEYBOARD_status_t KEYBOARD_single_press(const KEYBOARD_shortcut_t* shortcut, uin
 		keyboard_ctx.write_idx = 0;
 	}
 errors:
+#ifdef LOG_KEYBOARD
+	LOG_STATUS(status, KEYBOARD_SUCCESS, "[0x%x 0x%x]", (shortcut -> vk_code_0), (shortcut -> vk_code_1));
+#endif
 	return status;
 }
 
@@ -179,5 +183,8 @@ KEYBOARD_status_t KEYBOARD_process(void) {
 		goto errors;
 	}
 errors:
+#ifdef LOG_KEYBOARD
+	LOG_STATUS(status, KEYBOARD_SUCCESS, "OK");
+#endif
 	return status;
 }

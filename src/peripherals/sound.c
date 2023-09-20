@@ -10,6 +10,7 @@
 #include "error.h"
 #include "fmod.h"
 #include "fmod_common.h"
+#include "log.h"
 #include "stddef.h"
 #include "stdint.h"
 #include "stdio.h"
@@ -21,8 +22,6 @@
 #define SOUND_FMOD_NUMBER_OF_CHANNELS			32
 #define SOUND_AUDIO_FILE_NAME_MAXIMUM_LENGTH	100
 #define SOUND_AUDIO_FILES_FOLDER_PATH			"C:/Users/User/Documents/git/ls-agiu/audio/"
-
-#define SOUND_LOG
 
 /*** SOUND local global variables ***/
 
@@ -58,6 +57,7 @@ SOUND_status_t _SOUND_set_volume(SOUND_context_t* sound_ctx, float new_volume) {
 	// Update object.
 	sound_ctx -> volume = new_volume;
 errors:
+	LOG("fmod_status=%d", fmod_status);
 	return status;
 }
 
@@ -102,6 +102,7 @@ SOUND_status_t _SOUND_play(SOUND_context_t* sound_ctx) {
 	// Play sound.
 	fmod_status = FMOD_System_PlaySound(sound_fmod_system, (sound_ctx -> fmod_sound), NULL, 0, &(sound_ctx -> fmod_channel));
 	FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
+
 errors:
 	return status;
 }
@@ -140,6 +141,9 @@ SOUND_status_t SOUND_init_fmod_system(void) {
 	fmod_status = FMOD_System_Init(sound_fmod_system, SOUND_FMOD_NUMBER_OF_CHANNELS, FMOD_INIT_NORMAL, NULL);
 	FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
 errors:
+#ifdef LOG_SOUND
+	LOG_STATUS(status, SOUND_SUCCESS, "OK");
+#endif
 	return status;
 }
 
@@ -174,13 +178,10 @@ SOUND_status_t SOUND_init(SOUND_context_t* sound_ctx, const char* audio_file_nam
 	(sound_ctx -> fade_effect).duration_ms = 0;
 	(sound_ctx -> fade_effect).start_position_ms = 0;
 	(sound_ctx -> fade_effect).start_volume = SOUND_AUDIO_VOLUME_MIN;
-	// Mute by default.
-	status = _SOUND_set_volume(sound_ctx, SOUND_AUDIO_VOLUME_MIN);
-	if (status != SOUND_SUCCESS) goto errors;
-#ifdef SOUND_LOG
-	printf("SOUND *** Opening audio file %s (%d)\n", audio_file_name, status);
-#endif
 errors:
+#ifdef LOG_SOUND
+	LOG_STATUS(status, SOUND_SUCCESS, "Audio file %s opened (length=%dms)", audio_file_name, (sound_ctx -> length_ms));
+#endif
 	return status;
 }
 
@@ -197,6 +198,9 @@ SOUND_status_t SOUND_play(SOUND_context_t* sound_ctx, uint32_t fade_duration_ms)
 	status = _SOUND_set_fade_parameters(sound_ctx, SOUND_FADE_TYPE_IN, fade_duration_ms);
 	if (status != SOUND_SUCCESS) goto errors;
 errors:
+#ifdef LOG_SOUND
+	LOG_STATUS(status, SOUND_SUCCESS, "OK");
+#endif
 	return status;
 }
 
@@ -213,6 +217,9 @@ SOUND_status_t SOUND_stop(SOUND_context_t* sound_ctx, uint32_t fade_duration_ms)
 	status = _SOUND_set_fade_parameters(sound_ctx, SOUND_FADE_TYPE_OUT, fade_duration_ms);
 	if (status != SOUND_SUCCESS) goto errors;
 errors:
+#ifdef LOG_SOUND
+	LOG_STATUS(status, SOUND_SUCCESS, "OK");
+#endif
 	return status;
 }
 
@@ -235,6 +242,9 @@ SOUND_status_t SOUND_update(SOUND_context_t* sound_ctx) {
 	fmod_status = FMOD_Channel_GetPosition((sound_ctx -> fmod_channel), &(sound_ctx -> position_ms), FMOD_TIMEUNIT_MS);
 	FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
 errors:
+#ifdef LOG_SOUND
+	LOG_STATUS(status, SOUND_SUCCESS, "OK");
+#endif
 	return status;
 }
 
@@ -306,5 +316,8 @@ SOUND_status_t SOUND_process(SOUND_context_t* sound_ctx) {
 		if (status != SOUND_SUCCESS) goto errors;
 	}
 errors:
+#ifdef LOG_SOUND
+	LOG_STATUS(status, SOUND_SUCCESS, "OK");
+#endif
 	return status;
 }

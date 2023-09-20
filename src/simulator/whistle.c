@@ -8,11 +8,13 @@
 #include "whistle.h"
 
 #include "error.h"
+#include "log.h"
 #include "mixer.h"
 #include "orts_shortcut.h"
 #include "sound.h"
 #include "stdint.h"
 #include "stdio.h"
+#include "time.h"
 
 /*** WHISTLE local macros ***/
 
@@ -52,6 +54,9 @@ WHISTLE_status_t WHISTLE_init(void) {
 	// Init context.
 	whistle_ctx.state = WHISTLE_STATE_NEUTRAL;
 errors:
+#ifdef LOG_WHISTLE
+	LOG_STATUS(status, WHISTLE_SUCCESS, "OK");
+#endif
 	return status;
 }
 
@@ -114,5 +119,8 @@ WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state) {
 	sound_status = SOUND_process(&(whistle_ctx.sound_high_tone_end));
 	SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
 errors:
+#ifdef LOG_WHISTLE
+	LOG_STATUS(status, WHISTLE_SUCCESS, "state=%d", state);
+#endif
 	return status;
 }

@@ -9,11 +9,13 @@
 
 #include "error.h"
 #include "keyboard.h"
+#include "log.h"
 #include "mixer.h"
 #include "orts_shortcut.h"
 #include "sound.h"
 #include "stdint.h"
 #include "stdio.h"
+#include "time.h"
 
 /*** MPINV local macros ***/
 
@@ -45,6 +47,9 @@ MPINV_status_t MPINV_init(void) {
 	sound_status = SOUND_init(&(mpinv_ctx.sound_forward_backward), "mpinv_forward_backward.wav", MPINV_AUDIO_GAIN);
 	SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
 errors:
+#ifdef LOG_MPINV
+	LOG_STATUS(status, MPINV_SUCCESS, "OK");
+#endif
 	return status;
 }
 
@@ -108,5 +113,8 @@ MPINV_status_t MPINV_set_position(MPINV_position_t position) {
 	sound_status = SOUND_process(&(mpinv_ctx.sound_forward_backward));
 	SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
 errors:
+#ifdef LOG_MPINV
+	LOG_STATUS(status, MPINV_SUCCESS, "position=%d", position);
+#endif
 	return status;
 }

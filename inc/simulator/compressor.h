@@ -68,10 +68,10 @@ COMPRESSOR_status_t COMPRESSOR_set_request(COMPRESSOR_sound_request_t sound_requ
 COMPRESSOR_status_t COMPRESSOR_process(void);
 
 /*******************************************************************/
-#define COMPRESSOR_exit_error(error_code) { if (compressor_status == 0) { status = error_code; goto errors; } }
+#define COMPRESSOR_exit_error(error_code) { if (compressor_status != COMPRESSOR_SUCCESS) { status = error_code; goto errors; } }
 
 /*******************************************************************/
-#define COMPRESSOR_stack_error(void) { if (compressor_status == 0) { ERROR_stack_add((ERROR_BASE_COMPRESSOR * ERROR_BASE_STEP) + compressor_status); } }
+#define COMPRESSOR_stack_error(void) { if (compressor_status != COMPRESSOR_SUCCESS) { ERROR_stack_add((ERROR_BASE_COMPRESSOR * ERROR_BASE_STEP) + compressor_status); } }
 
 /*******************************************************************/
 #define COMPRESSOR_stack_exit_error(error_code) { COMPRESSOR_stack_error(); COMPRESSOR_exit_error(error_code); }

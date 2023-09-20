@@ -22,6 +22,15 @@
 void TIME_init(void);
 
 /*!******************************************************************
+ * \fn void TIME_print(void)
+ * \brief Print current time.
+ * \param[in]  	none
+ * \param[out] 	none
+ * \retval		none
+ *******************************************************************/
+void TIME_print(void);
+
+/*!******************************************************************
  * \fn uint64_t TIME_get_milliseconds(void)
  * \brief Get program uptime.
  * \param[in]  	none

@@ -68,10 +68,10 @@ ZPT_status_t ZPT_init(void);
 ZPT_status_t ZPT_set_position(ZPT_pantograph_t pantograph, ZPT_state_t state);
 
 /*******************************************************************/
-#define ZPT_exit_error(error_code) { if (zpt_status == 0) { status = error_code; goto errors; } }
+#define ZPT_exit_error(error_code) { if (zpt_status != ZPT_SUCCESS) { status = error_code; goto errors; } }
 
 /*******************************************************************/
-#define ZPT_stack_error(void) { if (zpt_status == 0) { ERROR_stack_add((ERROR_BASE_ZPT * ERROR_BASE_STEP) + zpt_status); } }
+#define ZPT_stack_error(void) { if (zpt_status != ZPT_SUCCESS) { ERROR_stack_add((ERROR_BASE_ZPT * ERROR_BASE_STEP) + zpt_status); } }
 
 /*******************************************************************/
 #define ZPT_stack_exit_error(error_code) { ZPT_stack_error(); ZPT_exit_error(error_code); }

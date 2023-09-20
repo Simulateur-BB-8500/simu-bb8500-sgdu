@@ -9,11 +9,13 @@
 
 #include "error.h"
 #include "keyboard.h"
+#include "log.h"
 #include "mixer.h"
 #include "orts_shortcut.h"
 #include "sound.h"
 #include "stdint.h"
 #include "stdio.h"
+#include "time.h"
 
 /*** FD local macros ***/
 
@@ -46,6 +48,9 @@ FD_status_t FD_init(void) {
 	sound_status = SOUND_init(&(fd_ctx.sound_release), "fd_release.wav", FD_AUDIO_GAIN);
 	SOUND_stack_exit_error(FD_ERROR_DRIVER_SOUND);
 errors:
+#ifdef LOG_FD
+	LOG_STATUS(status, FD_SUCCESS, "OK");
+#endif
 	return status;
 }
 
@@ -105,6 +110,9 @@ FD_status_t FD_set_state(FD_state_t state) {
 	// Update local state.
 	fd_ctx.state = state;
 errors:
+#ifdef LOG_FD
+	LOG_STATUS(status, FD_SUCCESS, "state=%d", state);
+#endif
 	return status;
 }
 
@@ -119,5 +127,8 @@ FD_status_t FD_process(void) {
 	sound_status = SOUND_process(&(fd_ctx.sound_release));
 	SOUND_stack_exit_error(FD_ERROR_DRIVER_SOUND);
 errors:
+#ifdef LOG_FD
+	LOG_STATUS(status, FD_SUCCESS, "OK");
+#endif
 	return status;
 }
