@@ -7,6 +7,7 @@
 
 #include "zpt.h"
 
+#include "error.h"
 #include "keyboard.h"
 #include "mixer.h"
 #include "orts_shortcut.h"
@@ -20,13 +21,14 @@
 
 /*** ZPT local structures ***/
 
+/*******************************************************************/
 typedef struct {
-	SOUND_context_t sound_back_up;
-	SOUND_context_t sound_back_down;
-	uint8_t back_raised;
+	SOUND_context_t sound_rear_up;
+	SOUND_context_t sound_rear_down;
+	ZPT_state_t rear_state;
 	SOUND_context_t sound_front_up;
 	SOUND_context_t sound_front_down;
-	uint8_t front_raised;
+	ZPT_state_t front_state;
 } ZPT_context_t;
 
 /*** ZPT local global variables ***/
@@ -35,95 +37,97 @@ static ZPT_context_t zpt_ctx;
 
 /*** ZPT functions ***/
 
-/* INIT ZPT SOUND MODULE.
- * @param:	None.
- * @return:	None.
- */
-void ZPT_init(void) {
-	// Init sounds.
-	SOUND_init(&(zpt_ctx.sound_back_up), "zpt_up.wav", ZPT_BACK_AUDIO_GAIN);
-	SOUND_set_volume(&(zpt_ctx.sound_back_up), 1.0); // No fade effect required.
-	SOUND_init(&(zpt_ctx.sound_back_down), "zpt_down.wav", ZPT_BACK_AUDIO_GAIN);
-	SOUND_set_volume(&(zpt_ctx.sound_back_down), 1.0); // No fade effect required.
-	SOUND_init(&(zpt_ctx.sound_front_up), "zpt_up.wav", ZPT_FRONT_AUDIO_GAIN);
-	SOUND_set_volume(&(zpt_ctx.sound_front_up), 1.0); // No fade effect required.
-	SOUND_init(&(zpt_ctx.sound_front_down), "zpt_down.wav", ZPT_FRONT_AUDIO_GAIN);
-	SOUND_set_volume(&(zpt_ctx.sound_front_down), 1.0); // No fade effect required.
+/*******************************************************************/
+ZPT_status_t ZPT_init(void) {
+	// Local variables.
+	ZPT_status_t status = ZPT_SUCCESS;
+	SOUND_status_t sound_status = SOUND_SUCCESS;
 	// Init context.
-	zpt_ctx.back_raised = 0;
-	zpt_ctx.front_raised = 0;
+	zpt_ctx.rear_state = ZPT_STATE_DOWN;
+	zpt_ctx.front_state = ZPT_STATE_DOWN;
+	// Init sounds.
+	sound_status = SOUND_init(&(zpt_ctx.sound_rear_up), "zpt_up.wav", ZPT_REAR_AUDIO_GAIN);
+	SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_init(&(zpt_ctx.sound_rear_down), "zpt_down.wav", ZPT_REAR_AUDIO_GAIN);
+	SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_init(&(zpt_ctx.sound_front_up), "zpt_up.wav", ZPT_FRONT_AUDIO_GAIN);
+	SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_init(&(zpt_ctx.sound_front_down), "zpt_down.wav", ZPT_FRONT_AUDIO_GAIN);
+	SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
+errors:
+	return status;
 }
 
-/* RAISE BACK PANTOGRAPH.
- * @param:	None.
- * @eturn:	None.
- */
-void ZPT_back_up(void) {
-	// Play sound.
-	SOUND_play(&(zpt_ctx.sound_back_up));
-	// Send OpenRails shortcut if state changed.
-	if (zpt_ctx.back_raised == 0) {
-		KEYBOARD_single_press(&ORTS_SHORTCUT_ZPT_BACK_TOGGLE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+/*******************************************************************/
+ZPT_status_t ZPT_set_position(ZPT_pantograph_t pantograph, ZPT_state_t state) {
+	// Local variables.
+	ZPT_status_t status = ZPT_SUCCESS;
+	SOUND_status_t sound_status = SOUND_SUCCESS;
+	KEYBOARD_status_t keyboard_status = KEYBOARD_SUCCESS;
+	// Check parameters.
+	if (state >= ZPT_STATE_LAST) {
+		status = ZPT_ERROR_STATE;
+		goto errors;
 	}
-	zpt_ctx.back_raised = 1;
-#ifdef ZPT_LOG
-	printf("ZPT *** Back up.\n");
-	fflush(stdout);
-#endif
-}
-
-/* LOWER BACK PANTOGRAPH.
- * @param:	None.
- * @eturn:	None.
- */
-void ZPT_back_down(void) {
-	// Play sound.
-	SOUND_play(&(zpt_ctx.sound_back_down));
-	SOUND_stop(&(zpt_ctx.sound_back_up));
-	// Send OpenRails shortcut if state changed.
-	if (zpt_ctx.back_raised != 0) {
-		KEYBOARD_single_press(&ORTS_SHORTCUT_ZPT_BACK_TOGGLE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+	// Check pantograph.
+	switch (pantograph) {
+	case ZPT_PANTOGRAPH_REAR:
+		// Check state change.
+		if ((zpt_ctx.rear_state == ZPT_STATE_DOWN) && (state == ZPT_STATE_UP)) {
+			// Play sound.
+			sound_status = SOUND_play(&(zpt_ctx.sound_rear_up), 0);
+			SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
+			// Send OpenRails shortcut.
+			keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_ZPT_BACK_TOGGLE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_stack_exit_error(ZPT_ERROR_DRIVER_KEYBOARD);
+		}
+		if ((zpt_ctx.rear_state == ZPT_STATE_UP) && (state == ZPT_STATE_DOWN)) {
+			// Play and stop sounds.
+			sound_status = SOUND_play(&(zpt_ctx.sound_rear_down), 0);
+			SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_stop(&(zpt_ctx.sound_rear_up), 0);
+			SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
+			// Send OpenRails shortcut.
+			keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_ZPT_BACK_TOGGLE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_stack_exit_error(ZPT_ERROR_DRIVER_KEYBOARD);
+		}
+		// Update local state.
+		zpt_ctx.rear_state = state;
+		break;
+	case ZPT_PANTOGRAPH_FRONT:
+		// Check state change.
+		if ((zpt_ctx.front_state == ZPT_STATE_DOWN) && (state == ZPT_STATE_UP)) {
+			// Play sound.
+			sound_status = SOUND_play(&(zpt_ctx.sound_front_up), 0);
+			SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
+			// Send OpenRails shortcut.
+			keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_ZPT_FRONT_TOGGLE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_stack_exit_error(ZPT_ERROR_DRIVER_KEYBOARD);
+		}
+		if ((zpt_ctx.front_state == ZPT_STATE_UP) && (state == ZPT_STATE_DOWN)) {
+			// Play and stop sounds.
+			sound_status = SOUND_play(&(zpt_ctx.sound_front_down), 0);
+			SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_stop(&(zpt_ctx.sound_front_up), 0);
+			SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
+			// Send OpenRails shortcut.
+			keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_ZPT_FRONT_TOGGLE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_stack_exit_error(ZPT_ERROR_DRIVER_KEYBOARD);
+		}
+		break;
+	default:
+		status = ZPT_ERROR_PANTOGRAPH;
+		goto errors;
 	}
-	zpt_ctx.back_raised = 0;
-#ifdef ZPT_LOG
-	printf("ZPT *** Back down.\n");
-	fflush(stdout);
-#endif
-}
-
-/* RAISE FRONT PANTOGRAPH.
- * @param:	None.
- * @eturn:	None.
- */
-void ZPT_front_up(void) {
-	// Play sound.
-	SOUND_play(&(zpt_ctx.sound_front_up));
-	// Send OpenRails shortcut if state changed.
-	if (zpt_ctx.front_raised == 0) {
-		KEYBOARD_single_press(&ORTS_SHORTCUT_ZPT_FRONT_TOGGLE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
-	}
-	zpt_ctx.front_raised = 1;
-#ifdef ZPT_LOG
-	printf("ZPT *** Front up.\n");
-	fflush(stdout);
-#endif
-}
-
-/* LOWER FRONT PANTOGRAPH.
- * @param:	None.
- * @eturn:	None.
- */
-void ZPT_front_down(void) {
-	// Play sound.
-	SOUND_play(&(zpt_ctx.sound_front_down));
-	SOUND_stop(&(zpt_ctx.sound_front_up));
-	// Send OpenRails shortcut if state changed.
-	if (zpt_ctx.front_raised != 0) {
-		KEYBOARD_single_press(&ORTS_SHORTCUT_ZPT_FRONT_TOGGLE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
-	}
-	zpt_ctx.front_raised = 0;
-#ifdef ZPT_LOG
-	printf("ZPT *** Front down.\n");
-	fflush(stdout);
-#endif
+	// Process sounds.
+	sound_status = SOUND_process(&(zpt_ctx.sound_rear_up));
+	SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_process(&(zpt_ctx.sound_rear_down));
+	SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_process(&(zpt_ctx.sound_front_up));
+	SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_process(&(zpt_ctx.sound_front_down));
+	SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
+errors:
+	return status;
 }

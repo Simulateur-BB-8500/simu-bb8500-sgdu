@@ -12,18 +12,50 @@
 
 /*** ORTS structures ***/
 
+/*!******************************************************************
+ * \enum ORTS_status_t
+ * \brief ORTS driver error codes.
+ *******************************************************************/
 typedef enum {
+	// Driver errors.
 	ORTS_SUCCESS = 0,
 	ORTS_ERROR_NULL_PARAMETER,
 	ORTS_ERROR_CURL_INIT,
-	ORTS_ERROR_CURL_REQUEST,
 	ORTS_ERROR_DATA_PARSING,
-	ORTS_ERROR_BASE_LAST = 0x0100
+	// Low level drivers errors.
+	ORTS_ERROR_DRIVER_CURL,
+	ORTS_ERROR_DRIVER_LSMCU,
+	// Last index.
+	ORTS_ERROR_LAST
 } ORTS_status_t;
 
 /*** ORTS functions ***/
 
-ORTS_status_t ORTS_init_server(void);
-ORTS_status_t ORTS_task(void);
+/*!******************************************************************
+ * \fn ORTS_status_t ORTS_init(void)
+ * \brief Init ORTS server.
+ * \param[in]  	none
+ * \param[out] 	none
+ * \retval		Function execution status.
+ *******************************************************************/
+ORTS_status_t ORTS_init(void);
+
+/*!******************************************************************
+ * \fn ORTS_status_t ORTS_process(void)
+ * \brief Process ORTS server.
+ * \param[in]  	none
+ * \param[out] 	none
+ * \retval		Function execution status.
+ *******************************************************************/
+ORTS_status_t ORTS_process(void);
+
+/*******************************************************************/
+#define ORTS_exit_error(error_code) { if (orts_status == 0) { status = error_code; goto errors; } }
+
+/*******************************************************************/
+#define ORTS_stack_error(void) { if (orts_status == 0) { ERROR_stack_add((ERROR_BASE_ORTS * ERROR_BASE_STEP) + orts_status); } }
+
+/*******************************************************************/
+#define ORTS_stack_exit_error(error_code) { ORTS_stack_error(); ORTS_exit_error(error_code); }
 
 #endif /* __ORTS_H__ */

@@ -7,6 +7,7 @@
 
 #include "zvm.h"
 
+#include "error.h"
 #include "mixer.h"
 #include "sound.h"
 #include "stdint.h"
@@ -15,255 +16,215 @@
 /*** ZVM local macros ***/
 
 #define ZVM_FADE_DURATION_MS	1000
-#define ZVM_FADE_MARGIN_MS		1000 // Added to fade duration.
+#define ZVM_FADE_MARGIN_MS		1000
+#define ZVM_LOG
 
 /*** ZVM local structures ***/
 
+/*******************************************************************/
 typedef enum {
-	ZVM_STATE_OFF,
-	ZVM_STATE_TURNON,
-	ZVM_STATE_TURNON_TO_ON1,
-	ZVM_STATE_ON1,
-	ZVM_STATE_ON1_TO_ON2,
-	ZVM_STATE_ON2,
-	ZVM_STATE_ON2_TO_ON1,
-	ZVM_STATE_TURNOFF
-} ZVM_state_t;
+	ZVM_INTERNAL_STATE_TURN_OFF,
+	ZVM_INTERNAL_STATE_TURN_ON,
+	ZVM_INTERNAL_STATE_ON_0,
+	ZVM_INTERNAL_STATE_ON_1,
+	ZVM_INTERNAL_STATE_LAST
+} ZVM_internal_internal_state;
 
+/*******************************************************************/
 typedef struct {
-	SOUND_context_t sound_on;
-	SOUND_context_t sound_0;
-	SOUND_context_t sound_1;
-	SOUND_context_t sound_off;
-	uint8_t on;
+	SOUND_context_t sound_turn_on;
+	SOUND_context_t sound_on_0;
+	SOUND_context_t sound_on_1;
+	SOUND_context_t sound_turn_off;
 	ZVM_state_t state;
+	ZVM_internal_internal_state internal_state;
 } ZVM_Context;
 
 /*** ZVM local global variables ***/
 
 static ZVM_Context zvm_ctx;
 
+/*** ZVM local functions ***/
+
+/*******************************************************************/
+ZVM_status_t _ZVM_sound_on(void) {
+	// Local variables.
+	ZVM_status_t status = ZVM_SUCCESS;
+	SOUND_status_t sound_status = SOUND_SUCCESS;
+	// Start playing turn-on sound.
+	sound_status = SOUND_play(&(zvm_ctx.sound_turn_on), 0);
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+	// Stop all other sounds.
+	sound_status = SOUND_stop(&(zvm_ctx.sound_turn_off), ZVM_FADE_DURATION_MS);
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_stop(&(zvm_ctx.sound_on_0), ZVM_FADE_DURATION_MS);
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_stop(&(zvm_ctx.sound_on_1), ZVM_FADE_DURATION_MS);
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+errors:
+	return status;
+}
+
+/*******************************************************************/
+ZVM_status_t _ZVM_sound_off(void) {
+	// Local variables.
+	ZVM_status_t status = ZVM_SUCCESS;
+	SOUND_status_t sound_status = SOUND_SUCCESS;
+	// Start playing turn-off sound.
+	sound_status = SOUND_play(&(zvm_ctx.sound_turn_off), ZVM_FADE_DURATION_MS);
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+	// Stop all other sounds.
+	sound_status = SOUND_stop(&(zvm_ctx.sound_turn_on), ZVM_FADE_DURATION_MS);
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_stop(&(zvm_ctx.sound_on_0), ZVM_FADE_DURATION_MS);
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_stop(&(zvm_ctx.sound_on_1), ZVM_FADE_DURATION_MS);
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+errors:
+	return status;
+}
+
 /*** ZVM functions ***/
 
-/* INIT ZVM SOUND MODULE.
- * @param:	None.
- * @return:	None.
- */
-void ZVM_init(void) {
-	// Init sounds.
-	SOUND_init(&(zvm_ctx.sound_on), "zvm_on.wav", ZVM_AUDIO_GAIN);
-	SOUND_init(&(zvm_ctx.sound_0), "zvm.wav", ZVM_AUDIO_GAIN);
-	SOUND_init(&(zvm_ctx.sound_1), "zvm.wav", ZVM_AUDIO_GAIN);
-	SOUND_init(&(zvm_ctx.sound_off), "zvm_off.wav", ZVM_AUDIO_GAIN);
-	// Init state machine.
-	zvm_ctx.on = 0;
-	zvm_ctx.state = ZVM_STATE_OFF;
-}
-
-/* TURN MOTORS FANS ON.
- * @param:	None.
- * @return:	None.
- */
-void ZVM_turn_on(void) {
-	zvm_ctx.on = 1;
-	printf("ZVM *** Turn on.\n");
-	fflush(stdout);
-}
-
-/* TURN MOTORS FANS OFF.
- * @param:	None.
- * @return:	None.
- */
-void ZVM_turn_off(void) {
-	zvm_ctx.on = 0;
-	printf("ZVM *** Turn off.\n");
-	fflush(stdout);
-}
-
-/* MAIN TASK OF ZVM SOUND MODULE.
- * @param:	None.
- * @return:	None.
- */
-void ZVM_task(void) {
+/*******************************************************************/
+ZVM_status_t ZVM_init(void) {
 	// Local variables.
+	ZVM_status_t status = ZVM_SUCCESS;
+	SOUND_status_t sound_status = SOUND_SUCCESS;
+	// Init internal_state machine.
+	zvm_ctx.state = ZVM_STATE_OFF;
+	zvm_ctx.internal_state = ZVM_INTERNAL_STATE_TURN_OFF;
+	// Init sounds.
+	sound_status = SOUND_init(&(zvm_ctx.sound_turn_on), "zvm_on.wav", ZVM_AUDIO_GAIN);
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_init(&(zvm_ctx.sound_on_0), "zvm.wav", ZVM_AUDIO_GAIN);
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_init(&(zvm_ctx.sound_on_1), "zvm.wav", ZVM_AUDIO_GAIN);
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_init(&(zvm_ctx.sound_turn_off), "zvm_off.wav", ZVM_AUDIO_GAIN);
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+errors:
+	return status;
+}
+
+/*******************************************************************/
+ZVM_status_t ZVM_set_state(ZVM_state_t state) {
+	// Local variables.
+	ZVM_status_t status = ZVM_SUCCESS;
+	// Check parameter.
+	if (state >= ZVM_STATE_LAST) {
+		status = ZVM_ERROR_STATE;
+		goto errors;
+	}
+	// Update context.
+	zvm_ctx.state = state;
+errors:
+	return status;
+}
+
+/*******************************************************************/
+ZVM_status_t ZVM_process(void) {
+	// Local variables.
+	ZVM_status_t status = ZVM_SUCCESS;
+	SOUND_status_t sound_status = SOUND_SUCCESS;
 	uint8_t turn_on_fade_end = 0;
 	uint8_t on1_fade_end = 0;
 	uint8_t on2_fade_end = 0;
 	uint8_t turn_off_fade_end = 0;
-	// Perform internal state machine.
-	switch (zvm_ctx.state) {
-	case ZVM_STATE_OFF:
-		if (zvm_ctx.on != 0) {
-			// Start playing turn-on sound.
-			SOUND_set_volume(&(zvm_ctx.sound_on), 1.0); // No fade-in effect required.
-			SOUND_play(&(zvm_ctx.sound_on));
-			zvm_ctx.state = ZVM_STATE_TURNON;
+	// Update sounds positions.
+	sound_status = SOUND_update(&(zvm_ctx.sound_turn_on));
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_update(&(zvm_ctx.sound_on_0));
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_update(&(zvm_ctx.sound_on_1));
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_update(&(zvm_ctx.sound_turn_off));
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+	// Perform internal internal_state machine.
+	switch (zvm_ctx.internal_state) {
+	case ZVM_INTERNAL_STATE_TURN_OFF:
+		if (zvm_ctx.state == ZVM_STATE_ON) {
+			// Play ZVM turn on sound.
+			status = _ZVM_sound_on();
+			if (status != ZVM_SUCCESS) goto errors;
+			// Update state.
+			zvm_ctx.internal_state = ZVM_INTERNAL_STATE_TURN_ON;
 		}
 		break;
-	case ZVM_STATE_TURNON:
-		if (zvm_ctx.on == 0) {
-			// Save all other sounds volume.
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_on));
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_0));
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_1));
-			// Start playing turn-off sound.
-			SOUND_set_volume(&(zvm_ctx.sound_off), 0.0);
-			SOUND_play(&(zvm_ctx.sound_off));
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_off));
-			zvm_ctx.state = ZVM_STATE_TURNOFF;
+	case ZVM_INTERNAL_STATE_TURN_ON:
+		if (zvm_ctx.state == ZVM_STATE_OFF) {
+			// Play ZVM turn off sound.
+			status = _ZVM_sound_off();
+			if (status != ZVM_SUCCESS) goto errors;
+			// Update state.
+			zvm_ctx.internal_state = ZVM_INTERNAL_STATE_TURN_OFF;
 		}
 		else {
-			if ((SOUND_get_position_ms(&(zvm_ctx.sound_on))) > ((SOUND_get_length_ms(&(zvm_ctx.sound_on))) - ZVM_FADE_DURATION_MS - ZVM_FADE_MARGIN_MS)) {
-				// Save turn-on volume.
-				SOUND_save_fade_parameters(&(zvm_ctx.sound_on));
-				// Start playing On1 sound.
-				SOUND_set_volume(&(zvm_ctx.sound_0), 0.0);
-				SOUND_play(&(zvm_ctx.sound_0));
-				SOUND_save_fade_parameters(&(zvm_ctx.sound_0));
-				// Stop playing turn-off sound (in case it was running).
-				SOUND_stop(&(zvm_ctx.sound_off));
-				zvm_ctx.state = ZVM_STATE_TURNON_TO_ON1;
+			if ((zvm_ctx.sound_turn_on.position_ms) > (zvm_ctx.sound_turn_on.length_ms - ZVM_FADE_DURATION_MS - ZVM_FADE_MARGIN_MS)) {
+				// Perform overlap.
+				sound_status = SOUND_play(&(zvm_ctx.sound_on_0), ZVM_FADE_DURATION_MS);
+				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+				sound_status = SOUND_stop(&(zvm_ctx.sound_turn_on), ZVM_FADE_DURATION_MS);
+				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+				// Update state.
+				zvm_ctx.internal_state = ZVM_INTERNAL_STATE_ON_0;
 			}
 		}
 		break;
-	case ZVM_STATE_TURNON_TO_ON1:
-		if (zvm_ctx.on == 0) {
-			// Save all other sounds volume.
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_on));
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_0));
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_1));
-			// Start playing turn-off sound.
-			SOUND_set_volume(&(zvm_ctx.sound_off), 0.0);
-			SOUND_play(&(zvm_ctx.sound_off));
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_off));
-			zvm_ctx.state = ZVM_STATE_TURNOFF;
+	case ZVM_INTERNAL_STATE_ON_0:
+		if (zvm_ctx.state == ZVM_STATE_OFF) {
+			// Play ZVM turn off sound.
+			status = _ZVM_sound_off();
+			if (status != ZVM_SUCCESS) goto errors;
+			// Update state.
+			zvm_ctx.internal_state = ZVM_INTERNAL_STATE_TURN_OFF;
 		}
 		else {
-			// Perform turn-on fade-out and On1 fade-in.
-			on1_fade_end = SOUND_fade_in(&(zvm_ctx.sound_0), ZVM_FADE_DURATION_MS);
-			turn_on_fade_end = SOUND_fade_out(&(zvm_ctx.sound_on), ZVM_FADE_DURATION_MS);
-			// Change state when effect is complete.
-			if ((on1_fade_end > 0) && (turn_on_fade_end > 0)) {
-				// Stop turn-on sound.
-				SOUND_stop(&(zvm_ctx.sound_on));
-				zvm_ctx.state = ZVM_STATE_ON1;
+			if ((zvm_ctx.sound_on_0.position_ms) > (zvm_ctx.sound_on_0.length_ms - ZVM_FADE_DURATION_MS - ZVM_FADE_MARGIN_MS)) {
+				// Perform overlap.
+				sound_status = SOUND_play(&(zvm_ctx.sound_on_1), ZVM_FADE_DURATION_MS);
+				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+				sound_status = SOUND_stop(&(zvm_ctx.sound_on_0), ZVM_FADE_DURATION_MS);
+				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+				// Update state.
+				zvm_ctx.internal_state = ZVM_INTERNAL_STATE_ON_1;
 			}
 		}
 		break;
-	case ZVM_STATE_ON1:
-		if (zvm_ctx.on == 0) {
-			// Save all other sounds volume.
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_on));
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_0));
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_1));
-			// Start playing turn-off sound.
-			SOUND_set_volume(&(zvm_ctx.sound_off), 0.0);
-			SOUND_play(&(zvm_ctx.sound_off));
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_off));
-			zvm_ctx.state = ZVM_STATE_TURNOFF;
+	case ZVM_INTERNAL_STATE_ON_1:
+		if (zvm_ctx.state == ZVM_STATE_OFF) {
+			// Play ZVM turn off sound.
+			status = _ZVM_sound_off();
+			if (status != ZVM_SUCCESS) goto errors;
+			// Update state.
+			zvm_ctx.internal_state = ZVM_INTERNAL_STATE_TURN_OFF;
 		}
 		else {
-			if ((SOUND_get_position_ms(&(zvm_ctx.sound_0))) > ((SOUND_get_length_ms(&(zvm_ctx.sound_0))) - ZVM_FADE_DURATION_MS - ZVM_FADE_MARGIN_MS)) {
-				// Save On1 volume.
-				SOUND_save_fade_parameters(&(zvm_ctx.sound_0));
-				// Start playing On2 sound.
-				SOUND_set_volume(&(zvm_ctx.sound_1), 0.0);
-				SOUND_play(&(zvm_ctx.sound_1));
-				SOUND_save_fade_parameters(&(zvm_ctx.sound_1));
-				zvm_ctx.state = ZVM_STATE_ON1_TO_ON2;
+			if ((zvm_ctx.sound_on_1.position_ms) > (zvm_ctx.sound_on_1.length_ms - ZVM_FADE_DURATION_MS - ZVM_FADE_MARGIN_MS)) {
+				// Perform overlap.
+				sound_status = SOUND_play(&(zvm_ctx.sound_on_0), ZVM_FADE_DURATION_MS);
+				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+				sound_status = SOUND_stop(&(zvm_ctx.sound_on_1), ZVM_FADE_DURATION_MS);
+				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+				// Update state.
+				zvm_ctx.internal_state = ZVM_INTERNAL_STATE_ON_0;
 			}
-		}
-		break;
-	case ZVM_STATE_ON1_TO_ON2:
-		if (zvm_ctx.on == 0) {
-			// Save all other sounds volume.
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_on));
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_0));
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_1));
-			// Start playing turn-off sound.
-			SOUND_set_volume(&(zvm_ctx.sound_off), 0.0);
-			SOUND_play(&(zvm_ctx.sound_off));
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_off));
-			zvm_ctx.state = ZVM_STATE_TURNOFF;
-		}
-		else {
-			// Perform On1 fade-out and On2 fade-in.
-			on2_fade_end = SOUND_fade_in(&(zvm_ctx.sound_1), ZVM_FADE_DURATION_MS);
-			on1_fade_end = SOUND_fade_out(&(zvm_ctx.sound_0), ZVM_FADE_DURATION_MS);
-			// Change state when effect is complete.
-			if ((on2_fade_end > 0) && (on1_fade_end > 0)) {
-				// Stop On1 sound.
-				SOUND_stop(&(zvm_ctx.sound_0));
-				zvm_ctx.state = ZVM_STATE_ON2;
-			}
-		}
-		break;
-	case ZVM_STATE_ON2:
-		if (zvm_ctx.on == 0) {
-			// Save all other sounds volume.
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_on));
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_0));
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_1));
-			// Start playing turn-off sound.
-			SOUND_set_volume(&(zvm_ctx.sound_off), 0.0);
-			SOUND_play(&(zvm_ctx.sound_off));
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_off));
-			zvm_ctx.state = ZVM_STATE_TURNOFF;
-		}
-		else {
-			if ((SOUND_get_position_ms(&(zvm_ctx.sound_1))) > ((SOUND_get_length_ms(&(zvm_ctx.sound_1))) - ZVM_FADE_DURATION_MS - ZVM_FADE_MARGIN_MS)) {
-				// Save On2 volume.
-				SOUND_save_fade_parameters(&(zvm_ctx.sound_1));
-				// Start playing On1 sound.
-				SOUND_set_volume(&(zvm_ctx.sound_0), 0.0);
-				SOUND_play(&(zvm_ctx.sound_0));
-				SOUND_save_fade_parameters(&(zvm_ctx.sound_0));
-				zvm_ctx.state = ZVM_STATE_ON2_TO_ON1;
-			}
-		}
-		break;
-	case ZVM_STATE_ON2_TO_ON1:
-		if (zvm_ctx.on == 0) {
-			// Save all other sounds volume.
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_on));
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_0));
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_1));
-			// Start playing turn-off sound.
-			SOUND_set_volume(&(zvm_ctx.sound_off), 0.0);
-			SOUND_play(&(zvm_ctx.sound_off));
-			SOUND_save_fade_parameters(&(zvm_ctx.sound_off));
-			zvm_ctx.state = ZVM_STATE_TURNOFF;
-		}
-		else {
-			// Perform On2 fade-out and On1 fade-in.
-			on1_fade_end = SOUND_fade_in(&(zvm_ctx.sound_0), ZVM_FADE_DURATION_MS);
-			on2_fade_end = SOUND_fade_out(&(zvm_ctx.sound_1), ZVM_FADE_DURATION_MS);
-			// Change state when effect is complete.
-			if ((on1_fade_end > 0) && (on2_fade_end > 0)) {
-				// Stop On2 sound.
-				SOUND_stop(&(zvm_ctx.sound_1));
-				zvm_ctx.state = ZVM_STATE_ON1;
-			}
-		}
-		break;
-	case ZVM_STATE_TURNOFF:
-		// Perform On1, On2 and turn-on fade-out and turn-off fade-in.
-		turn_off_fade_end = SOUND_fade_in(&(zvm_ctx.sound_off), ZVM_FADE_DURATION_MS);
-		turn_on_fade_end = SOUND_fade_out(&(zvm_ctx.sound_on), ZVM_FADE_DURATION_MS);
-		on1_fade_end = SOUND_fade_out(&(zvm_ctx.sound_0), ZVM_FADE_DURATION_MS);
-		on2_fade_end = SOUND_fade_out(&(zvm_ctx.sound_1), ZVM_FADE_DURATION_MS);
-		// Change state when effect is complete.
-		if ((turn_off_fade_end > 0) && (turn_on_fade_end > 0) && (on1_fade_end > 0) && (on2_fade_end > 0)) {
-			// Stop TurnOn, On1 and On2 sounds.
-			SOUND_stop(&(zvm_ctx.sound_on));
-			SOUND_stop(&(zvm_ctx.sound_0));
-			SOUND_stop(&(zvm_ctx.sound_1));
-			zvm_ctx.state = ZVM_STATE_OFF;
 		}
 		break;
 	default:
 		// Unknown state.
-		zvm_ctx.state = ZVM_STATE_OFF;
-		break;
+		status = ZVM_ERROR_INTERNAL_STATE;
+		goto errors;
 	}
+	// Process sounds.
+	sound_status = SOUND_process(&(zvm_ctx.sound_turn_on));
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_process(&(zvm_ctx.sound_on_0));
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_process(&(zvm_ctx.sound_on_1));
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_process(&(zvm_ctx.sound_turn_off));
+	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+errors:
+	return status;
 }

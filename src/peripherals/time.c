@@ -12,6 +12,7 @@
 
 /*** TIME local structures ***/
 
+/*******************************************************************/
 typedef struct {
 	unsigned long start_ms;
 	SYSTEMTIME system_time;
@@ -23,10 +24,7 @@ static TIME_context_t time_ctx;
 
 /*** TIME functions ***/
 
-/* INIT SYSTEM TIME.
- * @param:	None.
- * @return: None.
- */
+/*******************************************************************/
 void TIME_init(void) {
 	// Set start value.
 	GetSystemTime(&(time_ctx.system_time));
@@ -36,10 +34,7 @@ void TIME_init(void) {
 						(time_ctx.system_time.wMilliseconds);
 }
 
-/* RETURN THE CURRENT PROGRAM TIME.
- * @param:	None.
- * @return:	Number of milliseconds elapsed since the program started.
- */
+/*******************************************************************/
 uint64_t TIME_get_milliseconds(void) {
 	// Local variables.
 	unsigned long now = 0;

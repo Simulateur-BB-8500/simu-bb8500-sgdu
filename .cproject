@@ -27,6 +27,7 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/inc/game&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/curl/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/fmod/api/core/inc&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/inc/applicative&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ls-mcu/inc/simulator}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ls-mcu/inc/applicative}&quot;"/>
 								</option>
@@ -45,6 +46,7 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/inc/game&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/curl/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/fmod/api/core/inc&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/inc/applicative&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ls-mcu/inc/simulator}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ls-mcu/inc/applicative}&quot;"/>
 								</option>

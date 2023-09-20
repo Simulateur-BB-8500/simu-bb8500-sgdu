@@ -16,16 +16,18 @@
 
 #define KEYBOARD_BUFFER_SIZE				16
 #define KEYBOARD_IDLE_STATE_DURATION_MS		100 // Minimum delay between each key press.
-//#define KEYBOARD_LOG
+#define KEYBOARD_LOG
 
 /*** KEYBOARD local structures ***/
 
+/*******************************************************************/
 typedef enum {
 	KEYBOARD_STATE_READY,
 	KEYBOARD_STATE_KEY_PRESSED,
 	KEYBOARD_STATE_IDLE
 } KEYBOARD_state_t;
 
+/*******************************************************************/
 typedef struct {
 	KEYBOARD_shortcut_t shortcut_buf[KEYBOARD_BUFFER_SIZE];
 	uint32_t press_duration_buf[KEYBOARD_BUFFER_SIZE];
@@ -41,23 +43,27 @@ static KEYBOARD_context_t keyboard_ctx;
 
 /*** KEYBOARD functions ***/
 
-/*** KEYBOARD MODULE INITIALIZATION.
- * @param:	None.
- * @return:	None.
- */
-void KEYBOARD_init(void) {
+/*******************************************************************/
+KEYBOARD_status_t KEYBOARD_init(void) {
+	// Local variables.
+	KEYBOARD_status_t status = KEYBOARD_SUCCESS;
 	// Init context.
 	keyboard_ctx.read_idx = 0;
 	keyboard_ctx.write_idx = 0;
 	keyboard_ctx.state = KEYBOARD_STATE_READY;
 	keyboard_ctx.state_switch_time = 0;
+	return status;
 }
 
-/* PRESS A KEYBOARD KEY.
- * @param shortcut:	Shortcut to press.
- * @return:			None.
- */
-void KEYBOARD_press(const KEYBOARD_shortcut_t* shortcut) {
+/*******************************************************************/
+KEYBOARD_status_t KEYBOARD_press(const KEYBOARD_shortcut_t* shortcut) {
+	// Local variables.
+	KEYBOARD_status_t status = KEYBOARD_SUCCESS;
+	// Check parameter.
+	if (shortcut == NULL) {
+		status = KEYBOARD_ERROR_NULL_PARAMETER;
+		goto errors;
+	}
 	// Press first key.
 	if ((shortcut -> vk_code_0) != VK_NONE) {
 		keybd_event((shortcut -> vk_code_0), MapVirtualKey((shortcut -> vk_code_0), MAPVK_VK_TO_VSC), 0, 0);
@@ -67,16 +73,22 @@ void KEYBOARD_press(const KEYBOARD_shortcut_t* shortcut) {
 		keybd_event((shortcut -> vk_code_1), MapVirtualKey((shortcut -> vk_code_1), MAPVK_VK_TO_VSC), 0, 0);
 	}
 #ifdef KEYBOARD_LOG
-	printf("KEYBOARD *** Press key 0x%x\n", (key -> KEYBOARD_key_t_code));
+	printf("KEYBOARD *** Press shortcut [0x%x 0x%x] (%d)\n", (shortcut -> vk_code_0), (shortcut -> vk_code_1), status);
 	fflush(stdout);
 #endif
+errors:
+	return status;
 }
 
-/* RELEASE A KEYBOARD KEY.
- * @param shortcut:	Shortcut to release.
- * @return:			None.
- */
-void KEYBOARD_release(const KEYBOARD_shortcut_t* shortcut) {
+/*******************************************************************/
+KEYBOARD_status_t KEYBOARD_release(const KEYBOARD_shortcut_t* shortcut) {
+	// Local variables.
+	KEYBOARD_status_t status = KEYBOARD_SUCCESS;
+	// Check parameter.
+	if (shortcut == NULL) {
+		status = KEYBOARD_ERROR_NULL_PARAMETER;
+		goto errors;
+	}
 	// Release first key.
 	if ((shortcut -> vk_code_0) != VK_NONE) {
 		keybd_event((shortcut -> vk_code_0), MapVirtualKey((shortcut -> vk_code_0), MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
@@ -86,17 +98,26 @@ void KEYBOARD_release(const KEYBOARD_shortcut_t* shortcut) {
 		keybd_event((shortcut -> vk_code_1), MapVirtualKey((shortcut -> vk_code_1), MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
 	}
 #ifdef KEYBOARD_LOG
-	printf("KEYBOARD *** Release key 0x%x\n", (key -> KEYBOARD_key_t_code));
+	printf("KEYBOARD *** Release shortcut [0x%x 0x%x]\n", (shortcut -> vk_code_0), (shortcut -> vk_code_1));
 	fflush(stdout);
 #endif
+errors:
+	return status;
 }
 
-/* APPEND A NEW KEY TO THE KEYBOARD BUFFER.
- * @param shortcut:				Shortcut to press.
- * @param press_duration_ms:	Key press duration in ms.
- * @return:						None.
- */
-void KEYBOARD_single_press(const KEYBOARD_shortcut_t* shortcut, uint32_t press_duration_ms) {
+/*******************************************************************/
+KEYBOARD_status_t KEYBOARD_single_press(const KEYBOARD_shortcut_t* shortcut, uint32_t press_duration_ms) {
+	// Local variables.
+	KEYBOARD_status_t status = KEYBOARD_SUCCESS;
+	// Check parameters.
+	if (shortcut == NULL) {
+		status = KEYBOARD_ERROR_NULL_PARAMETER;
+		goto errors;
+	}
+	if (press_duration_ms == 0) {
+		status = KEYBOARD_ERROR_PRESS_DURATION;
+		goto errors;
+	}
 	// Fill buffers.
 	keyboard_ctx.shortcut_buf[keyboard_ctx.write_idx].vk_code_0 = (shortcut -> vk_code_0);
 	keyboard_ctx.shortcut_buf[keyboard_ctx.write_idx].vk_code_1 = (shortcut -> vk_code_1);
@@ -106,20 +127,22 @@ void KEYBOARD_single_press(const KEYBOARD_shortcut_t* shortcut, uint32_t press_d
 	if (keyboard_ctx.write_idx >= KEYBOARD_BUFFER_SIZE) {
 		keyboard_ctx.write_idx = 0;
 	}
+errors:
+	return status;
 }
 
-/* MAIN TASK OF KEYBOARD MODULE.
- * @param:	None.
- * @return:	None.
- */
-void KEYBOARD_task(void) {
+/*******************************************************************/
+KEYBOARD_status_t KEYBOARD_process(void) {
+	// Local variables.
+	KEYBOARD_status_t status = KEYBOARD_SUCCESS;
 	// Perform state machine.
 	switch (keyboard_ctx.state) {
 	case KEYBOARD_STATE_READY:
 		// Check indexes.
 		if (keyboard_ctx.read_idx != keyboard_ctx.write_idx) {
 			// Press key.
-			KEYBOARD_press(&keyboard_ctx.shortcut_buf[keyboard_ctx.read_idx]);
+			status = KEYBOARD_press(&keyboard_ctx.shortcut_buf[keyboard_ctx.read_idx]);
+			if (status != KEYBOARD_SUCCESS) goto errors;
 			// Save start time.
 			keyboard_ctx.state_switch_time = TIME_get_milliseconds();
 			// Change state.
@@ -130,7 +153,8 @@ void KEYBOARD_task(void) {
 		// Check duration.
 		if (TIME_get_milliseconds() > (keyboard_ctx.state_switch_time + keyboard_ctx.press_duration_buf[keyboard_ctx.read_idx])) {
 			// Release key.
-			KEYBOARD_release(&keyboard_ctx.shortcut_buf[keyboard_ctx.read_idx]);
+			status = KEYBOARD_release(&keyboard_ctx.shortcut_buf[keyboard_ctx.read_idx]);
+			if (status != KEYBOARD_SUCCESS) goto errors;
 			// Increment index and manage rollover.
 			keyboard_ctx.read_idx++;
 			if (keyboard_ctx.read_idx >= KEYBOARD_BUFFER_SIZE) {
@@ -151,5 +175,9 @@ void KEYBOARD_task(void) {
 	default:
 		// Unknown state.
 		keyboard_ctx.state = KEYBOARD_STATE_READY;
+		status = KEYBOARD_ERROR_STATE;
+		goto errors;
 	}
+errors:
+	return status;
 }

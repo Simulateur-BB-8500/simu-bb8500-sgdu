@@ -1,18 +1,73 @@
 /*
  * mp.h
  *
- *  Created on: 9 may 2020
+ *  Created on: 09 may 2020
  *      Author: Ludo
  */
 
 #ifndef __MP_H__
 #define __MP_H__
 
+/*** MP structures ***/
+
+/*!******************************************************************
+ * \enum MP_status_t
+ * \brief MP driver error codes.
+ *******************************************************************/
+typedef enum {
+	// Drivers errors.
+	MP_SUCCESS = 0,
+	MP_ERROR_EVENT,
+	// Low level drivers errors.
+	MP_ERROR_DRIVER_KEYBOARD,
+	MP_ERROR_DRIVER_SOUND,
+	// Last index.
+	MP_ERROR_LAST
+} MP_status_t;
+
+/*!******************************************************************
+ * \enum MP_event_t
+ * \brief MP events list.
+ *******************************************************************/
+typedef enum {
+	MP_EVENT_0 = 0,
+	MP_EVENT_T_MORE,
+	MP_EVENT_T_LESS,
+	MP_EVENT_PR,
+	MP_EVENT_P,
+	MP_EVENT_F_MORE,
+	MP_EVENT_F_LESS,
+	MP_EVENT_FR,
+	MP_EVENT_LAST
+} MP_event_t;
+
 /*** MP functions ***/
 
-void MP_init(void);
-void MP_0(void);
-void MP_t_more(void);
-void MP_t_less(void);
+/*!******************************************************************
+ * \fn MP_status_t MP_init(void)
+ * \brief Init MP driver.
+ * \param[in]  	none
+ * \param[out] 	none
+ * \retval		Function execution status.
+ *******************************************************************/
+MP_status_t MP_init(void);
+
+/*!******************************************************************
+ * \fn MP_status_t MP_set_event(MP_event_t event)
+ * \brief Set throttle event.
+ * \param[in]  	none
+ * \param[out] 	none
+ * \retval		Function execution status.
+ *******************************************************************/
+MP_status_t MP_set_event(MP_event_t event);
+
+/*******************************************************************/
+#define MP_exit_error(error_code) { if (mp_status == 0) { status = error_code; goto errors; } }
+
+/*******************************************************************/
+#define MP_stack_error(void) { if (mp_status == 0) { ERROR_stack_add((ERROR_BASE_MP * ERROR_BASE_STEP) + mp_status); } }
+
+/*******************************************************************/
+#define MP_stack_exit_error(error_code) { MP_stack_error(); MP_exit_error(error_code); }
 
 #endif /* __MP_H__ */

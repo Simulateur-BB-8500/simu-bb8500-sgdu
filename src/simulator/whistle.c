@@ -1,5 +1,5 @@
 /*
- * s.c
+ * whistle.c
  *
  *  Created on: 10 may 2020
  *      Author: Ludo
@@ -7,6 +7,7 @@
 
 #include "whistle.h"
 
+#include "error.h"
 #include "mixer.h"
 #include "orts_shortcut.h"
 #include "sound.h"
@@ -19,100 +20,99 @@
 
 /*** WHISTLE local structures ***/
 
-typedef enum {
-	WHISTLE_STATE_HIGH_TONE,
-	WHISTLE_STATE_NEUTRAL,
-	WHISTLE_STATE_LOW_TONE
-} WHISTLE_state_t;
-
+/*******************************************************************/
 typedef struct {
-	// Sounds.
 	SOUND_context_t sound_low_tone;
 	SOUND_context_t sound_low_tone_end;
 	SOUND_context_t sound_high_tone;
 	SOUND_context_t sound_high_tone_end;
-	// State.
-	WHISTLE_state_t s_state;
+	WHISTLE_state_t state;
 } WHISTLE_Context;
 
 /*** WHISTLE local global variables ***/
 
-static WHISTLE_Context s_ctx;
+static WHISTLE_Context whistle_ctx;
 
 /*** WHISTLE functions ***/
 
-/* INIT WHISTLE MODULE.
- * @param:	None.
- * @return:	None.
- */
-void WHISTLE_init(void) {
+/*******************************************************************/
+WHISTLE_status_t WHISTLE_init(void) {
+	// Local variables.
+	WHISTLE_status_t status = WHISTLE_SUCCESS;
+	SOUND_status_t sound_status = SOUND_SUCCESS;
 	// Init sounds.
-	SOUND_init(&(s_ctx.sound_low_tone), "s_low_tone.wav", WHISTLE_AUDIO_GAIN);
-	SOUND_set_volume(&(s_ctx.sound_low_tone), 1.0); // No fade effect required.
-	SOUND_init(&(s_ctx.sound_low_tone_end), "s_low_tone_end.wav", WHISTLE_AUDIO_GAIN);
-	SOUND_set_volume(&(s_ctx.sound_low_tone_end), 1.0); // No fade effect required.
-	SOUND_init(&(s_ctx.sound_high_tone), "s_high_tone.wav", WHISTLE_AUDIO_GAIN);
-	SOUND_set_volume(&(s_ctx.sound_high_tone), 1.0); // No fade effect required.
-	SOUND_init(&(s_ctx.sound_high_tone_end), "s_high_tone_end.wav", WHISTLE_AUDIO_GAIN);
-	SOUND_set_volume(&(s_ctx.sound_high_tone_end), 1.0); // No fade effect required.
+	sound_status = SOUND_init(&(whistle_ctx.sound_low_tone), "whistle_low_tone.wav", WHISTLE_AUDIO_GAIN);
+	SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_init(&(whistle_ctx.sound_low_tone_end), "whistle_low_tone_end.wav", WHISTLE_AUDIO_GAIN);
+	SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_init(&(whistle_ctx.sound_high_tone), "whistle_high_tone.wav", WHISTLE_AUDIO_GAIN);
+	SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_init(&(whistle_ctx.sound_high_tone_end), "whistle_high_tone_end.wav", WHISTLE_AUDIO_GAIN);
+	SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
 	// Init context.
-	s_ctx.s_state = WHISTLE_STATE_NEUTRAL;
+	whistle_ctx.state = WHISTLE_STATE_NEUTRAL;
+errors:
+	return status;
 }
 
-/* PLAY HIGH TONE HORN.
- * @param:	None.
- * @return:	None.
- */
-void WHISTLE_high_tone(void) {
-	// Play sound.
-	SOUND_play(&(s_ctx.sound_high_tone));
-	// Update state.
-	s_ctx.s_state = WHISTLE_STATE_HIGH_TONE;
-#ifdef WHISTLE_LOG
-	printf("WHISTLE *** High tone.\n");
-	fflush(stdout);
-#endif
-}
-
-/* PLAY LOW TONE HORN.
- * @param:	None.
- * @return:	None.
- */
-void WHISTLE_low_tone(void) {
-	// Play sound.
-	SOUND_play(&(s_ctx.sound_low_tone));
-	// Update state.
-	s_ctx.s_state = WHISTLE_STATE_LOW_TONE;
-#ifdef WHISTLE_LOG
-	printf("WHISTLE *** Low tone.\n");
-	fflush(stdout);
-#endif
-}
-
-/* TURN HORN OFF.
- * @param:	None.
- * @eturn:	None.
- */
-void WHISTLE_neutral(void) {
+/*******************************************************************/
+WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state) {
+	// Local variables.
+	WHISTLE_status_t status = WHISTLE_SUCCESS;
+	SOUND_status_t sound_status = SOUND_SUCCESS;
 	// Check state.
-	switch (s_ctx.s_state) {
-	case WHISTLE_STATE_LOW_TONE:
-		// End low tone.
-		SOUND_play(&(s_ctx.sound_low_tone_end));
-		SOUND_stop(&(s_ctx.sound_low_tone));
-		break;
+	switch (state) {
 	case WHISTLE_STATE_HIGH_TONE:
-		// End high tone.
-		SOUND_play(&(s_ctx.sound_high_tone_end));
-		SOUND_stop(&(s_ctx.sound_high_tone));
+		// Check state change.
+		if (whistle_ctx.state != WHISTLE_STATE_HIGH_TONE) {
+			// Play sound.
+			sound_status = SOUND_play(&(whistle_ctx.sound_high_tone), 0);
+			SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
+		}
+		break;
+	case WHISTLE_STATE_NEUTRAL:
+		// Check state change.
+		if (whistle_ctx.state != WHISTLE_STATE_NEUTRAL) {
+			// Check previous state.
+			if (whistle_ctx.state == WHISTLE_STATE_LOW_TONE) {
+				// End low tone.
+				sound_status = SOUND_play(&(whistle_ctx.sound_low_tone_end), 0);
+				SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
+				sound_status = SOUND_stop(&(whistle_ctx.sound_low_tone), 0);
+				SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
+			}
+			if (whistle_ctx.state == WHISTLE_STATE_HIGH_TONE) {
+				// End high tone.
+				sound_status = SOUND_play(&(whistle_ctx.sound_high_tone_end), 0);
+				SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
+				sound_status = SOUND_stop(&(whistle_ctx.sound_high_tone), 0);
+				SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
+			}
+		}
+		break;
+	case WHISTLE_STATE_LOW_TONE:
+		// Check state change.
+		if (whistle_ctx.state != WHISTLE_STATE_LOW_TONE) {
+			// Play sound.
+			sound_status = SOUND_play(&(whistle_ctx.sound_low_tone), 0);
+			SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
+		}
 		break;
 	default:
-		break;
+		status = WHISTLE_ERROR_STATE;
+		goto errors;
 	}
 	// Update state.
-	s_ctx.s_state = WHISTLE_STATE_NEUTRAL;
-#ifdef WHISTLE_LOG
-	printf("WHISTLE *** Neutral.\n");
-	fflush(stdout);
-#endif
+	whistle_ctx.state = state;
+	// Process sounds.
+	sound_status = SOUND_process(&(whistle_ctx.sound_low_tone));
+	SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_process(&(whistle_ctx.sound_low_tone_end));
+	SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_process(&(whistle_ctx.sound_high_tone));
+	SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_process(&(whistle_ctx.sound_high_tone_end));
+	SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
+errors:
+	return status;
 }

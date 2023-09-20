@@ -8,6 +8,7 @@
 #include "orts.h"
 
 #include "curl/curl.h"
+#include "error.h"
 #include "lsagiu.h"
 #include "lsmcu.h"
 #include "stdint.h"
@@ -30,12 +31,14 @@
 
 /*** ORTS local structures ***/
 
+/*******************************************************************/
 typedef enum {
 	ORTS_DATA_INDEX_SPEED_KMH = 0,
 	ORTS_DATA_INDEX_SPEED_LIMIT_KMH,
 	ORTS_DATA_INDEX_LAST
 } ORTS_api_sample_t;
 
+/*******************************************************************/
 typedef struct {
 	CURL* curl;
 	char curl_data[ORTS_CURL_BUFFER_SIZE];
@@ -50,13 +53,17 @@ static ORTS_context_t orts_ctx;
 
 /*** ORTS local functions ***/
 
-/* CURL WRITE CALLBACK FUNCTION.
- * @param ptr:			Pointer to the data to store.
- * @param size:			Set to 1.
- * @param nmemb:		Number of elements to write.
- * @param user_data:	Pointer to the user data (not used here).
- * @return nmemb:		Number of elements that has been written.
- */
+/*******************************************************************/
+#define CURL_exit_error(error_code) { if (curl_status != CURLE_OK) { status = error_code; goto errors; } }
+
+/*******************************************************************/
+#define CURL_stack_error(void) { if (curl_status != CURLE_OK) { ERROR_stack_add((ERROR_BASE_CURL * ERROR_BASE_STEP) + curl_status); } }
+
+/*******************************************************************/
+#define CURL_stack_exit_error(error_code) { CURL_stack_error(); CURL_exit_error(error_code); }
+
+
+/*******************************************************************/
 size_t _ORTS_write_api_data(char* ptr, size_t size, size_t nmemb, void* user_data) {
 	// Local variables.
 	uint32_t idx = 0;
@@ -68,10 +75,7 @@ size_t _ORTS_write_api_data(char* ptr, size_t size, size_t nmemb, void* user_dat
 	return nmemb;
 }
 
-/* GET ORTS API SAMPLE.
- * @param:			None.
- * @return status:	Function execution status.
- */
+/*******************************************************************/
 ORTS_status_t _ORTS_update_data(void) {
 	// Local variables.
 	ORTS_status_t status = ORTS_SUCCESS;
@@ -117,11 +121,8 @@ errors:
 
 /*** ORTS functions ***/
 
-/* INIT ORTS SERVER INTERFACE.
- * @param:			None.
- * @return status:	Function execution status.
- */
-ORTS_status_t ORTS_init_server(void) {
+/*******************************************************************/
+ORTS_status_t ORTS_init(void) {
 	// Local variables.
 	ORTS_status_t status = ORTS_SUCCESS;
 	// Init context.
@@ -144,13 +145,11 @@ errors:
 	return status;
 }
 
-/* MAIN TASK OF ORTS SERVER INTERFACE
- * @param:			None.
- * @return status:	Function execution status.
- */
-ORTS_status_t ORTS_task(void) {
+/*******************************************************************/
+ORTS_status_t ORTS_process(void) {
 	// Local variables.
 	ORTS_status_t status = ORTS_SUCCESS;
+	LSMCU_status_t lsmcu_status = LSMCU_SUCCESS;
 	CURLcode curl_status;
 	uint32_t idx = 0;
 	// Check period.
@@ -173,14 +172,7 @@ ORTS_status_t ORTS_task(void) {
 			curl_easy_setopt(orts_ctx.curl, CURLOPT_WRITEFUNCTION, _ORTS_write_api_data);
 			// Perform request.
 			curl_status = curl_easy_perform(orts_ctx.curl);
-			// Check status.
-			if (curl_status != CURLE_OK) {
-#ifdef ORTS_LOG
-				printf("Error\n");
-#endif
-				status = ORTS_ERROR_CURL_REQUEST;
-				goto errors;
-			}
+			CURL_stack_exit_error(ORTS_ERROR_DRIVER_CURL);
 #ifdef ORTS_LOG
 			printf("OK (%d bytes received)\n", (orts_ctx.curl_data_index + 1));
 #endif
@@ -191,8 +183,10 @@ ORTS_status_t ORTS_task(void) {
 			printf("ORTS *** API data: speed = %dkm/h, speed limit = %dkm/h\n", orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH], orts_ctx.data[ORTS_DATA_INDEX_SPEED_LIMIT_KMH]);
 #endif
 			// Send data to LSMCU.
-			LSMCU_send(LSMCU_TCH_SPEED_OFFSET + orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH]);
-			LSMCU_send(LSMCU_SPEED_LIMIT_OFFSET + (orts_ctx.data[ORTS_DATA_INDEX_SPEED_LIMIT_KMH] / LSAGIU_SPEED_LIMIT_FACTOR));
+			lsmcu_status = LSMCU_send(LSMCU_TCH_SPEED_OFFSET + orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH]);
+			LSMCU_stack_exit_error(ORTS_ERROR_DRIVER_LSMCU);
+			lsmcu_status = LSMCU_send(LSMCU_SPEED_LIMIT_OFFSET + (orts_ctx.data[ORTS_DATA_INDEX_SPEED_LIMIT_KMH] / LSAGIU_SPEED_LIMIT_FACTOR));
+			LSMCU_stack_exit_error(ORTS_ERROR_DRIVER_LSMCU);
 		}
 	}
 errors:

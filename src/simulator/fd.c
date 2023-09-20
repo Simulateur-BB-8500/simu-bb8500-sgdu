@@ -1,12 +1,13 @@
 /*
  * fd.c
  *
- *  Created on: 9 may 2020
+ *  Created on: 09 may 2020
  *      Author: Ludo
  */
 
 #include "fd.h"
 
+#include "error.h"
 #include "keyboard.h"
 #include "mixer.h"
 #include "orts_shortcut.h"
@@ -16,17 +17,12 @@
 
 /*** FD local macros ***/
 
-#define FD_LOG
 #define FD_FADE_DURATION_MS		500
+#define FD_LOG
 
 /*** FD local structures ***/
 
-typedef enum {
-	FD_STATE_NEUTRAL,
-	FD_STATE_APPLY,
-	FD_STATE_RELEASE
-} FD_state_t;
-
+/*******************************************************************/
 typedef struct {
 	SOUND_context_t sound_apply;
 	SOUND_context_t sound_release;
@@ -39,84 +35,89 @@ static FD_context_t fd_ctx;
 
 /*** FD functions ***/
 
-/* INIT FD MODULE.
- * @param:	None.
- * @return:	None.
- */
-void FD_init(void) {
+/*******************************************************************/
+FD_status_t FD_init(void) {
+	// Local variables.
+	FD_status_t status = FD_SUCCESS;
+	SOUND_status_t sound_status = SOUND_SUCCESS;
 	// Init sounds.
-	SOUND_init(&(fd_ctx.sound_apply), "fd_apply.wav", FD_AUDIO_GAIN);
-	SOUND_set_volume(&(fd_ctx.sound_apply), 1.0); // No fade effect required.
-	SOUND_init(&(fd_ctx.sound_release), "fd_release.wav", FD_AUDIO_GAIN);
-	SOUND_set_volume(&(fd_ctx.sound_release), 1.0); // No fade effect required.
+	sound_status = SOUND_init(&(fd_ctx.sound_apply), "fd_apply.wav", FD_AUDIO_GAIN);
+	SOUND_stack_exit_error(FD_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_init(&(fd_ctx.sound_release), "fd_release.wav", FD_AUDIO_GAIN);
+	SOUND_stack_exit_error(FD_ERROR_DRIVER_SOUND);
+errors:
+	return status;
 }
 
-/* APPLY FD.
- * @param:	None.
- * @return:	None.
- */
-void FD_apply(void) {
-	// Play sound.
-	SOUND_play(&(fd_ctx.sound_apply));
-	// Press OpenRails shortcut.
-	KEYBOARD_press(&ORTS_SHORTCUT_FD_APPLY);
-	// Update state.
-	fd_ctx.state = FD_STATE_APPLY;
-#ifdef FD_LOG
-	printf("FD *** Apply.\n");
-#endif
-}
-
-/* RELEASE FD.
- * @param:	None.
- * @return:	None.
- */
-void FD_release(void) {
-	// Play sound.
-	SOUND_play(&(fd_ctx.sound_release));
-	// Press OpenRails shortcut.
-	KEYBOARD_press(&ORTS_SHORTCUT_FD_RELEASE);
-	// Update state.
-	fd_ctx.state = FD_STATE_RELEASE;
-#ifdef FD_LOG
-	printf("FD *** Release.\n");
-#endif
-}
-
-/* SET FD TO NEUTRAL.
- * @param:	None.
- * @return:	None.
- */
-void FD_neutral(void) {
-	// Save release sound parameter for fade-out.
-	SOUND_save_fade_parameters(&(fd_ctx.sound_release));
-	// Send accurate OpenRails shortcut.
-	switch (fd_ctx.state) {
+/*******************************************************************/
+FD_status_t FD_set_state(FD_state_t state) {
+	// Local variables.
+	FD_status_t status = FD_SUCCESS;
+	SOUND_status_t sound_status = SOUND_SUCCESS;
+	KEYBOARD_status_t keyboard_status = KEYBOARD_SUCCESS;
+	// Check state.
+	switch (state) {
 	case FD_STATE_APPLY:
-		// Previous state was forward.
-		KEYBOARD_release(&ORTS_SHORTCUT_FD_APPLY);
+		// Check state change.
+		if (fd_ctx.state != FD_STATE_APPLY) {
+			// Play sound.
+			sound_status = SOUND_play(&(fd_ctx.sound_apply), 0);
+			SOUND_stack_exit_error(FD_ERROR_DRIVER_SOUND);
+			// Press OpenRails shortcut.
+			keyboard_status = KEYBOARD_press(&ORTS_SHORTCUT_FD_APPLY);
+			KEYBOARD_stack_exit_error(FD_ERROR_DRIVER_KEYBOARD);
+		}
+		break;
+	case FD_STATE_NEUTRAL:
+		// Check state change.
+		if (fd_ctx.state != FD_STATE_APPLY) {
+			// Stop sound.
+			sound_status = SOUND_stop(&(fd_ctx.sound_apply), FD_FADE_DURATION_MS);
+			SOUND_stack_exit_error(FD_ERROR_DRIVER_SOUND);
+			// Check previous state.
+			if (fd_ctx.state == FD_STATE_APPLY) {
+				// Release shortcut.
+				keyboard_status = KEYBOARD_release(&ORTS_SHORTCUT_FD_APPLY);
+				KEYBOARD_stack_exit_error(FD_ERROR_DRIVER_KEYBOARD);
+			}
+			if (fd_ctx.state == FD_STATE_RELEASE) {
+				// Release shortcut.
+				keyboard_status = KEYBOARD_release(&ORTS_SHORTCUT_FD_RELEASE);
+				KEYBOARD_stack_exit_error(FD_ERROR_DRIVER_KEYBOARD);
+			}
+		}
 		break;
 	case FD_STATE_RELEASE:
-		// Previous state was backward.
-		KEYBOARD_release(&ORTS_SHORTCUT_FD_RELEASE);
+		// Check state change.
+		if (fd_ctx.state != FD_STATE_RELEASE) {
+			// Play sound.
+			sound_status = SOUND_play(&(fd_ctx.sound_release), 0);
+			SOUND_stack_exit_error(FD_ERROR_DRIVER_SOUND);
+			// Press OpenRails shortcut.
+			keyboard_status = KEYBOARD_press(&ORTS_SHORTCUT_FD_RELEASE);
+			KEYBOARD_stack_exit_error(FD_ERROR_DRIVER_KEYBOARD);
+		}
 		break;
 	default:
-		break;
+		status = FD_ERROR_STATE;
+		goto errors;
 	}
-	// Update state.
-	fd_ctx.state = FD_STATE_NEUTRAL;
-#ifdef FD_LOG
-	printf("FD *** Neutral.\n");
-#endif
+	// Update local state.
+	fd_ctx.state = state;
+errors:
+	return status;
 }
 
-/* MAIN TASK OF FD MODULE.
- * @param:	None.
- * @return:	None.
- */
-void FD_task(void) {
-	// Release sound fade-out.
-	if (fd_ctx.state == FD_STATE_NEUTRAL) {
-		SOUND_fade_out(&(fd_ctx.sound_release), FD_FADE_DURATION_MS);
-	}
+/*******************************************************************/
+FD_status_t FD_process(void) {
+	// Local variables.
+	FD_status_t status = FD_SUCCESS;
+	SOUND_status_t sound_status = SOUND_SUCCESS;
+	// Process sounds.
+	sound_status = SOUND_process(&(fd_ctx.sound_apply));
+	SOUND_stack_exit_error(FD_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_process(&(fd_ctx.sound_release));
+	SOUND_stack_exit_error(FD_ERROR_DRIVER_SOUND);
+errors:
+	return status;
 }

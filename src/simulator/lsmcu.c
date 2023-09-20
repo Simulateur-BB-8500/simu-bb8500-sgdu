@@ -8,10 +8,11 @@
 #include "lsmcu.h"
 
 #include "compressor.h"
+#include "error.h"
 #include "fd.h"
 #include "fpb.h"
 #include "kvb.h"
-#include "lights.h"
+#include "light.h"
 #include "lsagiu.h"
 #include "mp.h"
 #include "mpinv.h"
@@ -34,10 +35,7 @@ static SERIAL_port_t lsmcu_serial_port;
 
 /*** LSMCU functions ***/
 
-/* INIT LSMCU INTERFACE.
- * @param port:		LSMCU port number ("COMxx").
- * @return status:	Function execution status.
- */
+/*******************************************************************/
 LSMCU_status_t LSMCU_init(char* port) {
 	// Local variables.
 	LSMCU_status_t status = LSMCU_SUCCESS;
@@ -45,12 +43,14 @@ LSMCU_status_t LSMCU_init(char* port) {
 #ifdef LSMCU_LOG
 	printf("LSMCU *** Opening port %s: ", port);
 #endif
-	// Open serial port.
-	serial_status = SERIAL_open(&lsmcu_serial_port, port);
-	if (serial_status != SERIAL_SUCCESS) {
-		status = LSMCU_ERROR_SERIAL_OPEN;
+	// Check parameter.
+	if (port == NULL) {
+		status = LSMCU_ERROR_NULL_PARAMETER;
 		goto errors;
 	}
+	// Open serial port.
+	serial_status = SERIAL_open(&lsmcu_serial_port, port);
+	SERIAL_stack_exit_error(LSMCU_ERROR_DRIVER_SERIAL);
 errors:
 #ifdef LSMCU_LOG
 	printf("%s\n", ((status == LSMCU_SUCCESS) ? "OK" : "Error"));
@@ -58,153 +58,261 @@ errors:
 	return status;
 }
 
-/* SEND A COMMAND TO LSMCU.
- * @param tx_command:	Command to send (see enumeration in lsmcu.h).
- * @return:				None.
- */
-void LSMCU_send(uint8_t tx_command) {
+/*******************************************************************/
+LSMCU_status_t LSMCU_send(uint8_t tx_command) {
+	// Local variables.
+	LSMCU_status_t status = LSMCU_SUCCESS;
+	SERIAL_status_t serial_status = SERIAL_SUCCESS;
 #ifdef LSMCU_LOG
 	printf("LSMCU *** TX command = 0x%02X\n", tx_command);
 #endif
-	SERIAL_write(&lsmcu_serial_port, tx_command);
+	serial_status = SERIAL_write(&lsmcu_serial_port, tx_command);
+	SERIAL_stack_exit_error(LSMCU_ERROR_DRIVER_SERIAL);
+errors:
+	return status;
 }
 
-/* MAIN TASK OF LSMCU MANAGER.
- * @param:	None.
- * @return:	None.
- */
-void LSMCU_task(void) {
-	// Read serial port.
+/*******************************************************************/
+LSMCU_status_t LSMCU_process(void) {
+	// Local variables.
+	LSMCU_status_t status = LSMCU_SUCCESS;
+	SERIAL_status_t serial_status = SERIAL_SUCCESS;
+	KVB_status_t kvb_status = KVB_SUCCESS;
+	ZPT_status_t zpt_status = ZPT_SUCCESS;
+	ZDJ_status_t zdj_status = ZDJ_SUCCESS;
+	COMPRESSOR_status_t compressor_status = COMPRESSOR_SUCCESS;
+	FPB_status_t fpb_status = FPB_SUCCESS;
+	ZVM_status_t zvm_status = ZVM_SUCCESS;
+	MPINV_status_t mpinv_status = MPINV_SUCCESS;
+	MP_status_t mp_status = MP_SUCCESS;
+	FD_status_t fd_status = FD_SUCCESS;
+	WHISTLE_status_t whistle_status = WHISTLE_SUCCESS;
+	LIGHT_status_t light_status = LIGHT_SUCCESS;
 	uint8_t rx_command = LSMCU_OUT_NOP;
-	SERIAL_status_t rx_success = SERIAL_read(&lsmcu_serial_port, &rx_command);
-	if ((rx_success == SERIAL_SUCCESS) && (rx_command != LSMCU_OUT_NOP)) {
+	// Read serial port.
+	serial_status = SERIAL_read(&lsmcu_serial_port, &rx_command);
+	SERIAL_stack_exit_error(LSMCU_ERROR_DRIVER_SERIAL);
 #ifdef LSMCU_LOG
-		printf("LSMCU *** RX command = 0x%02X.\n", rx_command);
+	printf("LSMCU *** RX command = 0x%02X.\n", rx_command);
 #endif
-		// Decode incoming command.
-		switch (rx_command) {
-		case LSMCU_OUT_ZBA_ON:
-			// TODO
-			break;
-		case LSMCU_OUT_ZBA_OFF:
-			// TODO
-			break;
-		case LSMCU_OUT_ZDV_ON:
-			KVB_turn_on();
-			break;
-		case LSMCU_OUT_ZDV_OFF:
-			KVB_turn_off();
-			break;
-		case LSMCU_OUT_ZPT_BACK_UP:
-			ZPT_back_up();
-			break;
-		case LSMCU_OUT_ZPT_BACK_DOWN:
-			ZPT_back_down();
-			break;
-		case LSMCU_OUT_ZPT_FRONT_UP:
-			ZPT_front_up();
-			break;
-		case LSMCU_OUT_ZPT_FRONT_DOWN:
-			ZPT_front_down();
-			break;
-		case LSMCU_OUT_ZDJ_OFF:
-			ZDJ_open();
-			break;
-		case LSMCU_OUT_ZEN_ON:
-			ZDJ_lock();
-			break;
-		case LSMCU_OUT_COMPRESSOR_AUTO_REG_MIN_ON:
-			COMPRESSOR_play_zca_regulation_min();
-			break;
-		case LSMCU_OUT_COMPRESSOR_AUTO_REG_MAX_ON:
-			COMPRESSOR_play_zca_regulation_max();
-			break;
-		case LSMCU_OUT_COMPRESSOR_DIRECT_ON:
-			COMPRESSOR_play_zcd();
-			break;
-		case LSMCU_OUT_COMPRESSOR_OFF:
-			COMPRESSOR_off();
-			break;
-		case LSMCU_OUT_FPB_ON:
-			// TODO
-			break;
-		case LSMCU_OUT_FPB_OFF:
-			// TODO
-			break;
-		case LSMCU_OUT_FPB_APPLY:
-			FPB_apply();
-			break;
-		case LSMCU_OUT_FPB_NEUTRAL:
-			FPB_neutral();
-			break;
-		case LSMCU_OUT_FPB_RELEASE:
-			FPB_release();
-			break;
-		case LSMCU_OUT_ZVM_ON:
-			ZVM_turn_on();
-			break;
-		case LSMCU_OUT_ZVM_OFF:
-			ZVM_turn_off();
-			break;
-		case LSMCU_OUT_MPINV_FORWARD:
-			MPINV_forward();
-			break;
-		case LSMCU_OUT_MPINV_NEUTRAL:
-			MPINV_neutral();
-			break;
-		case LSMCU_OUT_MPINV_BACKWARD:
-			MPINV_backward();
-			break;
-		case LSMCU_OUT_MP_0:
-			MP_0();
-			break;
-		case LSMCU_OUT_MP_T_MORE:
-			MP_t_more();
-			break;
-		case LSMCU_OUT_MP_T_LESS:
-			MP_t_less();
-			break;
-		case LSMCU_OUT_FD_APPLY:
-			FD_apply();
-			break;
-		case LSMCU_OUT_FD_NEUTRAL:
-			FD_neutral();
-			break;
-		case LSMCU_OUT_FD_RELEASE:
-			FD_release();
-			break;
-		case LSMCU_OUT_WHISTLE_HIGH_TONE:
-			WHISTLE_high_tone();
-			break;
-		case LSMCU_OUT_WHISTLE_NEUTRAL:
-			WHISTLE_neutral();
-			break;
-		case LSMCU_OUT_WHISTLE_LOW_TONE:
-			WHISTLE_low_tone();
-			break;
-		case LSMCU_OUT_ZFG_ON:
-			LIGHTS_zfg_on();
-			break;
-		case LSMCU_OUT_ZFG_OFF:
-			LIGHTS_zfg_off();
-			break;
-		case LSMCU_OUT_ZFD_ON:
-			LIGHTS_zfd_on();
-			break;
-		case LSMCU_OUT_ZFD_OFF:
-			LIGHTS_zfd_off();
-			break;
-		case LSMCU_OUT_ZPR_ON:
-			LIGHTS_zpr_on();
-			break;
-		case LSMCU_OUT_ZPR_OFF:
-			LIGHTS_zpr_off();
-			break;
-		default:
-			// Unknwon command.
-			break;
-		}
+	// Decode incoming command.
+	switch (rx_command) {
+	case LSMCU_OUT_ZBA_ON:
+		// TODO
+		break;
+	case LSMCU_OUT_ZBA_OFF:
+		// TODO
+		break;
+	case LSMCU_OUT_RSEC_ON:
+		// TODO
+		break;
+	case LSMCU_OUT_RSEC_OFF:
+		// TODO
+		break;
+	case LSMCU_OUT_ZDV_ON:
+		kvb_status = KVB_set_state(KVB_STATE_ON);
+		KVB_stack_exit_error(LSMCU_ERROR_DRIVER_KVB);
+		break;
+	case LSMCU_OUT_ZDV_OFF:
+		kvb_status = KVB_set_state(KVB_STATE_OFF);
+		KVB_stack_exit_error(LSMCU_ERROR_DRIVER_KVB);
+		break;
+	case LSMCU_OUT_ZPT_REAR_UP:
+		zpt_status = ZPT_set_position(ZPT_PANTOGRAPH_REAR, ZPT_STATE_UP);
+		ZPT_stack_exit_error(LSMCU_ERROR_DRIVER_ZPT);
+		break;
+	case LSMCU_OUT_ZPT_REAR_DOWN:
+		zpt_status = ZPT_set_position(ZPT_PANTOGRAPH_REAR, ZPT_STATE_DOWN);
+		ZPT_stack_exit_error(LSMCU_ERROR_DRIVER_ZPT);
+		break;
+	case LSMCU_OUT_ZPT_FRONT_UP:
+		zpt_status = ZPT_set_position(ZPT_PANTOGRAPH_FRONT, ZPT_STATE_UP);
+		ZPT_stack_exit_error(LSMCU_ERROR_DRIVER_ZPT);
+		break;
+	case LSMCU_OUT_ZPT_FRONT_DOWN:
+		zpt_status = ZPT_set_position(ZPT_PANTOGRAPH_FRONT, ZPT_STATE_DOWN);
+		ZPT_stack_exit_error(LSMCU_ERROR_DRIVER_ZPT);
+		break;
+	case LSMCU_OUT_ZDJ_OFF:
+		zdj_status = ZDJ_set_state(ZDJ_STATE_OPEN);
+		ZDJ_stack_exit_error(LSMCU_ERROR_DRIVER_ZDJ);
+		break;
+	case LSMCU_OUT_ZEN_ON:
+		zdj_status = ZDJ_set_state(ZDJ_STATE_LOCK);
+		ZDJ_stack_exit_error(LSMCU_ERROR_DRIVER_ZDJ);
+		break;
+	case LSMCU_OUT_COMPRESSOR_AUTO_REG_MIN_ON:
+		compressor_status = COMPRESSOR_set_request(COMPRESSOR_SOUND_REQUEST_ZCA_MIN);
+		COMPRESSOR_stack_exit_error(LSMCU_ERROR_DRIVER_COMPRESSOR);
+		break;
+	case LSMCU_OUT_COMPRESSOR_AUTO_REG_MAX_ON:
+		compressor_status = COMPRESSOR_set_request(COMPRESSOR_SOUND_REQUEST_ZCA_MAX);
+		COMPRESSOR_stack_exit_error(LSMCU_ERROR_DRIVER_COMPRESSOR);
+		break;
+	case LSMCU_OUT_COMPRESSOR_DIRECT_ON:
+		compressor_status = COMPRESSOR_set_request(COMPRESSOR_SOUND_REQUEST_ZCD);
+		COMPRESSOR_stack_exit_error(LSMCU_ERROR_DRIVER_COMPRESSOR);
+		break;
+	case LSMCU_OUT_COMPRESSOR_OFF:
+		compressor_status = COMPRESSOR_set_request(COMPRESSOR_SOUND_REQUEST_OFF);
+		COMPRESSOR_stack_exit_error(LSMCU_ERROR_DRIVER_COMPRESSOR);
+		break;
+	case LSMCU_OUT_FPB_ON:
+		// TODO
+		break;
+	case LSMCU_OUT_FPB_OFF:
+		// TODO
+		break;
+	case LSMCU_OUT_FPB_APPLY:
+		fpb_status = FPB_set_state(FPB_STATE_APPLY);
+		FPB_stack_exit_error(LSMCU_ERROR_DRIVER_FPB);
+		break;
+	case LSMCU_OUT_FPB_NEUTRAL:
+		fpb_status = FPB_set_state(FPB_STATE_NEUTRAL);
+		FPB_stack_exit_error(LSMCU_ERROR_DRIVER_FPB);
+		break;
+	case LSMCU_OUT_FPB_RELEASE:
+		fpb_status = FPB_set_state(FPB_STATE_RELEASE);
+		FPB_stack_exit_error(LSMCU_ERROR_DRIVER_FPB);
+		break;
+	case LSMCU_OUT_BPGD:
+		// TODO
+		break;
+	case LSMCU_OUT_ZVM_ON:
+		zvm_status = ZVM_set_state(ZVM_STATE_ON);
+		ZVM_stack_exit_error(LSMCU_ERROR_DRIVER_ZVM);
+		break;
+	case LSMCU_OUT_ZVM_OFF:
+		zvm_status = ZVM_set_state(ZVM_STATE_OFF);
+		ZVM_stack_exit_error(LSMCU_ERROR_DRIVER_ZVM);
+		break;
+	case LSMCU_OUT_MPINV_FORWARD:
+		mpinv_status = MPINV_set_position(MPINV_POSITION_FORWARD);
+		MPINV_stack_exit_error(LSMCU_ERROR_DRIVER_MPINV);
+		break;
+	case LSMCU_OUT_MPINV_NEUTRAL:
+		mpinv_status = MPINV_set_position(MPINV_POSITION_NEUTRAL);
+		MPINV_stack_exit_error(LSMCU_ERROR_DRIVER_MPINV);
+		break;
+	case LSMCU_OUT_MPINV_BACKWARD:
+		mpinv_status = MPINV_set_position(MPINV_POSITION_BACKWARD);
+		MPINV_stack_exit_error(LSMCU_ERROR_DRIVER_MPINV);
+		break;
+	case LSMCU_OUT_MP_0:
+		mp_status = MP_set_event(MP_EVENT_0);
+		MP_stack_exit_error(LSMCU_ERROR_DRIVER_MP);
+		break;
+	case LSMCU_OUT_MP_T_MORE:
+		mp_status = MP_set_event(MP_EVENT_T_MORE);
+		MP_stack_exit_error(LSMCU_ERROR_DRIVER_MP);
+		break;
+	case LSMCU_OUT_MP_T_LESS:
+		mp_status = MP_set_event(MP_EVENT_T_LESS);
+		MP_stack_exit_error(LSMCU_ERROR_DRIVER_MP);
+		break;
+	case LSMCU_OUT_MP_P:
+		mp_status = MP_set_event(MP_EVENT_P);
+		MP_stack_exit_error(LSMCU_ERROR_DRIVER_MP);
+		break;
+	case LSMCU_OUT_MP_F_MORE:
+		mp_status = MP_set_event(MP_EVENT_F_MORE);
+		MP_stack_exit_error(LSMCU_ERROR_DRIVER_MP);
+		break;
+	case LSMCU_OUT_MP_F_LESS:
+		mp_status = MP_set_event(MP_EVENT_F_LESS);
+		MP_stack_exit_error(LSMCU_ERROR_DRIVER_MP);
+		break;
+	case LSMCU_OUT_MP_FR:
+		mp_status = MP_set_event(MP_EVENT_FR);
+		MP_stack_exit_error(LSMCU_ERROR_DRIVER_MP);
+		break;
+	case LSMCU_OUT_FD_APPLY:
+		fd_status = FD_set_state(FD_STATE_APPLY);
+		FD_stack_exit_error(LSMCU_ERROR_DRIVER_FD);
+		break;
+	case LSMCU_OUT_FD_NEUTRAL:
+		fd_status = FD_set_state(FD_STATE_NEUTRAL);
+		FD_stack_exit_error(LSMCU_ERROR_DRIVER_FD);
+		break;
+	case LSMCU_OUT_FD_RELEASE:
+		fd_status = FD_set_state(FD_STATE_RELEASE);
+		FD_stack_exit_error(LSMCU_ERROR_DRIVER_FD);
+		break;
+	case LSMCU_OUT_WHISTLE_HIGH_TONE:
+		whistle_status = WHISTLE_set_state(WHISTLE_STATE_HIGH_TONE);
+		WHISTLE_stack_exit_error(LSMCU_ERROR_DRIVER_WHISTLE);
+		break;
+	case LSMCU_OUT_WHISTLE_NEUTRAL:
+		whistle_status = WHISTLE_set_state(WHISTLE_STATE_NEUTRAL);
+		WHISTLE_stack_exit_error(LSMCU_ERROR_DRIVER_WHISTLE);
+		break;
+	case LSMCU_OUT_WHISTLE_LOW_TONE:
+		whistle_status = WHISTLE_set_state(WHISTLE_STATE_LOW_TONE);
+		WHISTLE_stack_exit_error(LSMCU_ERROR_DRIVER_WHISTLE);
+		break;
+	case LSMCU_OUT_BPEV_ON:
+		// TODO
+		break;
+	case LSMCU_OUT_BPEV_OFF:
+		// TODO
+		break;
+	case LSMCU_OUT_BPSA_ON:
+		// TODO
+		break;
+	case LSMCU_OUT_BPSA_OFF:
+		// TODO
+		break;
+	case LSMCU_OUT_ZFG_ON:
+		light_status = LIGHT_set_state(LIGHT_TYPE_ZFG, LIGHT_STATE_ON);
+		LIGHT_stack_exit_error(LSMCU_ERROR_DRIVER_LIGHT);
+		break;
+	case LSMCU_OUT_ZFG_OFF:
+		light_status = LIGHT_set_state(LIGHT_TYPE_ZFG, LIGHT_STATE_OFF);
+		LIGHT_stack_exit_error(LSMCU_ERROR_DRIVER_LIGHT);
+		break;
+	case LSMCU_OUT_ZFD_ON:
+		light_status = LIGHT_set_state(LIGHT_TYPE_ZFD, LIGHT_STATE_ON);
+		LIGHT_stack_exit_error(LSMCU_ERROR_DRIVER_LIGHT);
+		break;
+	case LSMCU_OUT_ZFD_OFF:
+		light_status = LIGHT_set_state(LIGHT_TYPE_ZFD, LIGHT_STATE_OFF);
+		LIGHT_stack_exit_error(LSMCU_ERROR_DRIVER_LIGHT);
+		break;
+	case LSMCU_OUT_ZPR_ON:
+		light_status = LIGHT_set_state(LIGHT_TYPE_ZPR, LIGHT_STATE_ON);
+		LIGHT_stack_exit_error(LSMCU_ERROR_DRIVER_LIGHT);
+		break;
+	case LSMCU_OUT_ZPR_OFF:
+		light_status = LIGHT_set_state(LIGHT_TYPE_ZPR, LIGHT_STATE_OFF);
+		LIGHT_stack_exit_error(LSMCU_ERROR_DRIVER_LIGHT);
+		break;
+	case LSMCU_OUT_ZLFRG_ON:
+		light_status = LIGHT_set_state(LIGHT_TYPE_ZLFRG, LIGHT_STATE_ON);
+		LIGHT_stack_exit_error(LSMCU_ERROR_DRIVER_LIGHT);
+		break;
+	case LSMCU_OUT_ZLFRG_OFF:
+		light_status = LIGHT_set_state(LIGHT_TYPE_ZLFRG, LIGHT_STATE_OFF);
+		LIGHT_stack_exit_error(LSMCU_ERROR_DRIVER_LIGHT);
+		break;
+	case LSMCU_OUT_ZLFRD_ON:
+		light_status = LIGHT_set_state(LIGHT_TYPE_ZLFRD, LIGHT_STATE_ON);
+		LIGHT_stack_exit_error(LSMCU_ERROR_DRIVER_LIGHT);
+		break;
+	case LSMCU_OUT_ZLFRD_OFF:
+		light_status = LIGHT_set_state(LIGHT_TYPE_ZLFRD, LIGHT_STATE_OFF);
+		LIGHT_stack_exit_error(LSMCU_ERROR_DRIVER_LIGHT);
+		break;
+	case LSMCU_OUT_URGENCY:
+		// TODO
+		break;
+	case LSMCU_OUT_NOP:
+		// Nothing to do.
+		break;
+	default:
+		// Unknown command.
+		status = LSMCU_ERROR_UNKNOWN_COMMAND;
+		goto errors;
 	}
+errors:
+	return status;
 }
-
-

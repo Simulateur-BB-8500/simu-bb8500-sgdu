@@ -6,11 +6,12 @@
  */
 
 #include "compressor.h"
+#include "error.h"
 #include "fd.h"
 #include "fpb.h"
 #include "keyboard.h"
 #include "kvb.h"
-#include "lights.h"
+#include "light.h"
 #include "lsmcu.h"
 #include "mp.h"
 #include "mpinv.h"
@@ -60,8 +61,21 @@ int main (void) {
 	printf("********************************************************************\n\n");
 	fflush(stdout);
 	// Local variables.
+	COMPRESSOR_status_t compressor_status = COMPRESSOR_SUCCESS;
+	FD_status_t fd_status = FD_SUCCESS;
+	FPB_status_t fpb_status = FPB_SUCCESS;
+	KEYBOARD_status_t keyboard_status = KEYBOARD_SUCCESS;
+	KVB_status_t kvb_status = KVB_SUCCESS;
+	LIGHT_status_t light_status = LIGHT_SUCCESS;
 	LSMCU_status_t lsmcu_status = LSMCU_SUCCESS;
+	MP_status_t mp_status = MP_SUCCESS;
+	MPINV_status_t mpinv_status = MPINV_SUCCESS;
 	ORTS_status_t orts_status = ORTS_SUCCESS;
+	SOUND_status_t sound_status = SOUND_SUCCESS;
+	WHISTLE_status_t whistle_status = WHISTLE_SUCCESS;
+	ZDJ_status_t zdj_status = ZDJ_SUCCESS;
+	ZPT_status_t zpt_status = ZPT_SUCCESS;
+	ZVM_status_t zvm_status = ZVM_SUCCESS;
 	// Init context.
 	lsagiu_ctx.state = LSAGIU_STATE_INIT;
 	lsagiu_ctx.lsmcu_connected = 0;
@@ -72,22 +86,35 @@ int main (void) {
 		// Perform state machine.
 		switch (lsagiu_ctx.state) {
 		case LSAGIU_STATE_INIT:
-			// Init time.
+			// Init peripherals.
+			keyboard_status = KEYBOARD_init();
+			KEYBOARD_stack_error();
+			sound_status = SOUND_init_fmod_system();
+			SOUND_stack_error();
 			TIME_init();
 			// Init modules.
-			SOUND_fmod_system_init();
-			COMPRESSOR_init();
-			FD_init();
-			FPB_init();
-			KEYBOARD_init();
-			KVB_init();
-			LIGHTS_init();
-			MP_init();
-			MPINV_init();
-			WHISTLE_init();
-			ZDJ_init();
-			ZPT_init();
-			ZVM_init();
+			compressor_status = COMPRESSOR_init();
+			COMPRESSOR_stack_error();
+			fd_status = FD_init();
+			FD_stack_error();
+			fpb_status = FPB_init();
+			FPB_stack_error();
+			kvb_status = KVB_init();
+			KVB_stack_error();
+			light_status = LIGHT_init();
+			LIGHT_stack_error();
+			mp_status = MP_init();
+			MP_stack_error();
+			mpinv_status = MPINV_init();
+			MPINV_stack_error();
+			whistle_status = WHISTLE_init();
+			WHISTLE_stack_error();
+			zdj_status = ZDJ_init();
+			ZDJ_stack_error();
+			zpt_status = ZPT_init();
+			ZPT_stack_error();
+			zvm_status = ZVM_init();
+			ZVM_stack_error();
 			// Compute next state.
 			lsagiu_ctx.state = LSAGIU_STATE_WAIT_INTERFACES;
 			printf("*******************************************************************\n");
@@ -100,38 +127,54 @@ int main (void) {
 				lsagiu_ctx.interfaces_polling_next_time = TIME_get_milliseconds() + LSAGIU_INTERFACES_POLLING_PERIOD_MS;
 				// Open LSMCU interface.
 				if (lsagiu_ctx.lsmcu_connected == 0) {
+					// Open serial port.
 					lsmcu_status = LSMCU_init(LSAGIU_LSMCU_COM_PORT);
+					LSMCU_stack_error();
 					// Update flag.
 					lsagiu_ctx.lsmcu_connected = (lsmcu_status == LSMCU_SUCCESS) ? 1 : 0;
 				}
 				// Open ORTS server.
 				if (lsagiu_ctx.orts_server_connected == 0) {
-					orts_status = ORTS_init_server();
+					// Open server.
+					orts_status = ORTS_init();
+					ORTS_stack_error();
 					// Update flag.
 					lsagiu_ctx.orts_server_connected = (orts_status == ORTS_SUCCESS) ? 1 : 0;
 				}
 			}
-			// Compute next state.
+			// Start program if all interface have been properly initialized.
 			if ((lsagiu_ctx.lsmcu_connected != 0) && (lsagiu_ctx.orts_server_connected != 0)) {
+				// Update state.
 				lsagiu_ctx.state = LSAGIU_STATE_RUNNING;
 				printf("*******************************************************************\n");
 			}
 			fflush(stdout);
 			break;
 		case LSAGIU_STATE_RUNNING:
-			ORTS_task();
-			COMPRESSOR_task();
-			FPB_task();
-			FD_task();
-			LIGHTS_task();
-			LSMCU_task();
-			KEYBOARD_task();
-			ZVM_task();
+			// Process interfaces.
+			orts_status = ORTS_process();
+			ORTS_stack_error();
+			lsmcu_status = LSMCU_process();
+			LSMCU_stack_error();
+			// Process modules.
+			compressor_status = COMPRESSOR_process();
+			COMPRESSOR_stack_error();
+			fpb_status = FPB_process();
+			FPB_stack_error();
+			fd_status = FD_process();
+			FD_stack_error();
+			zvm_status = ZVM_process();
+			ZVM_stack_error();
+			// Process peripherals.
+			keyboard_status = KEYBOARD_process();
+			KEYBOARD_stack_error();
+			// Print error stack.
+
 			fflush(stdout);
 			break;
 		default:
+			printf("LSAGIU *** State error.\n");
 			goto errors;
-			break;
 		}
 	}
 errors:

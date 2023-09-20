@@ -1,12 +1,13 @@
 /*
  * mpinv.c
  *
- *  Created on: 9 may 2020
+ *  Created on: 09 may 2020
  *      Author: Ludo
  */
 
 #include "mpinv.h"
 
+#include "error.h"
 #include "keyboard.h"
 #include "mixer.h"
 #include "orts_shortcut.h"
@@ -20,16 +21,11 @@
 
 /*** MPINV local structures ***/
 
-typedef enum {
-	MPINV_STATE_NEUTRAL,
-	MPINV_STATE_FORWARD,
-	MPINV_STATE_BACKWARD
-} MPINV_state_t;
-
+/*******************************************************************/
 typedef struct {
-	SOUND_context_t sound_forward_backward;
 	SOUND_context_t sound_neutral;
-	MPINV_state_t state;
+	SOUND_context_t sound_forward_backward;
+	MPINV_position_t position;
 } MPINV_context_t;
 
 /*** MPINV local global variables ***/
@@ -38,77 +34,79 @@ static MPINV_context_t mpinv_ctx;
 
 /*** MPINV functions ***/
 
-/* INIT MPINV MODULE.
- * @param:	None.
- * @return:	None.
- */
-void MPINV_init(void) {
+/*******************************************************************/
+MPINV_status_t MPINV_init(void) {
+	// Local variables.
+	MPINV_status_t status = MPINV_SUCCESS;
+	SOUND_status_t sound_status = SOUND_SUCCESS;
 	// Init sounds.
-	SOUND_init(&(mpinv_ctx.sound_forward_backward), "mpinv_forward_backward.wav", MPINV_AUDIO_GAIN);
-	SOUND_set_volume(&(mpinv_ctx.sound_forward_backward), 1.0); // No fade effect required.
-	SOUND_init(&(mpinv_ctx.sound_neutral), "mpinv_neutral.wav", MPINV_AUDIO_GAIN);
-	SOUND_set_volume(&(mpinv_ctx.sound_neutral), 1.0); // No fade effect required.
+	sound_status = SOUND_init(&(mpinv_ctx.sound_neutral), "mpinv_neutral.wav", MPINV_AUDIO_GAIN);
+	SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_init(&(mpinv_ctx.sound_forward_backward), "mpinv_forward_backward.wav", MPINV_AUDIO_GAIN);
+	SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
+errors:
+	return status;
 }
 
-/* MOVE INVERSOR TO FORWARD.
- * @param:	None.
- * @return:	None.
- */
-void MPINV_forward(void) {
-	// Play sound.
-	SOUND_play(&(mpinv_ctx.sound_forward_backward));
-	// Send OpenRails shortcut.
-	KEYBOARD_single_press(&ORTS_SHORTCUT_MPINV_FORWARD, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
-	// Update state.
-	mpinv_ctx.state = MPINV_STATE_FORWARD;
-#ifdef MPINV_LOG
-	printf("MPINV *** Forward.\n");
-	fflush(stdout);
-#endif
-}
+/*******************************************************************/
+MPINV_status_t MPINV_set_position(MPINV_position_t position) {
+	// Local variables.
+	MPINV_status_t status = MPINV_SUCCESS;
+	SOUND_status_t sound_status = SOUND_SUCCESS;
+	KEYBOARD_status_t keyboard_status = KEYBOARD_SUCCESS;
+	// Check position.
+	switch (position) {
+	case MPINV_POSITION_NEUTRAL:
+		// Check state change.
+		if (mpinv_ctx.position != MPINV_POSITION_NEUTRAL) {
+			// Play sound.
+			sound_status = SOUND_play(&(mpinv_ctx.sound_neutral), 0);
+			SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
 
-/* MOVE INVERSOR TO NEUTRAL.
- * @param:	None.
- * @return:	None.
- */
-void MPINV_neutral(void) {
-	// Play sound.
-	SOUND_play(&(mpinv_ctx.sound_neutral));
-	// Send accurate OpenRails shortcut.
-	switch (mpinv_ctx.state) {
-	case MPINV_STATE_FORWARD:
-		// Previous state was forward.
-		KEYBOARD_single_press(&ORTS_SHORTCUT_MPINV_BACKWARD, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+		}
 		break;
-	case MPINV_STATE_BACKWARD:
-		// Previous state was backward.
-		KEYBOARD_single_press(&ORTS_SHORTCUT_MPINV_FORWARD, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+	case MPINV_POSITION_FORWARD:
+		// Check state change.
+		if (mpinv_ctx.position != MPINV_POSITION_FORWARD) {
+			// Play sound.
+			sound_status = SOUND_play(&(mpinv_ctx.sound_forward_backward), 0);
+			SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
+		}
+		break;
+	case MPINV_POSITION_BACKWARD:
+		// Check state change.
+		if (mpinv_ctx.position != MPINV_POSITION_BACKWARD) {
+			// Play sound.
+			sound_status = SOUND_play(&(mpinv_ctx.sound_forward_backward), 0);
+			SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
+		}
 		break;
 	default:
-		break;
+		status = MPINV_ERROR_POSITION;
+		goto errors;
 	}
-	// UPdate state.
-	mpinv_ctx.state = MPINV_STATE_NEUTRAL;
-#ifdef MPINV_LOG
-	printf("MPINV *** Neutral.\n");
-	fflush(stdout);
-#endif
+	// Send OpenRails shortcuts.
+	while (mpinv_ctx.position < position) {
+		// Send shortcut.
+		keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_MPINV_FORWARD, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+		KEYBOARD_stack_exit_error(MPINV_ERROR_DRIVER_KEYBOARD);
+		// Increase position.
+		mpinv_ctx.position++;
+	}
+	while (mpinv_ctx.position > position) {
+		// Send shortcut.
+		keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_MPINV_BACKWARD, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+		KEYBOARD_stack_exit_error(MPINV_ERROR_DRIVER_KEYBOARD);
+		// Increase position.
+		mpinv_ctx.position--;
+	}
+	// Update local position.
+	mpinv_ctx.position = position;
+	// Process sounds.
+	sound_status = SOUND_process(&(mpinv_ctx.sound_neutral));
+	SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_process(&(mpinv_ctx.sound_forward_backward));
+	SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
+errors:
+	return status;
 }
-
-/* MOVE INVERSOR TO BACKWARD.
- * @param:	None.
- * @return:	None.
- */
-void MPINV_backward(void) {
-	// Play sound.
-	SOUND_play(&(mpinv_ctx.sound_forward_backward));
-	// Send OpenRails shortcut.
-	KEYBOARD_single_press(&ORTS_SHORTCUT_MPINV_BACKWARD, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
-	// Update state.
-	mpinv_ctx.state = MPINV_STATE_BACKWARD;
-#ifdef MPINV_LOG
-	printf("MPINV *** Backward.\n");
-	fflush(stdout);
-#endif
-}
-
