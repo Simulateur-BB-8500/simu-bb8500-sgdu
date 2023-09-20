@@ -29,9 +29,12 @@
 
 #define LSAGIU_LSMCU_COM_PORT					"COM6"
 #define LSAGIU_INTERFACES_POLLING_PERIOD_MS		1000
+#define LSAGIU_ERROR_STACK_CHECK_PERIOD_MS		10000
 
 /*** MAIN structures ***/
 
+
+/*******************************************************************/
 typedef enum {
 	LSAGIU_STATE_INIT = 0,
 	LSAGIU_STATE_WAIT_INTERFACES,
@@ -39,21 +42,52 @@ typedef enum {
 	LSAGIU_STATE_LAST
 } LSAGIU_state_t;
 
+/*******************************************************************/
 typedef struct {
 	LSAGIU_state_t state;
 	uint8_t lsmcu_connected;
 	uint8_t orts_server_connected;
 	uint64_t interfaces_polling_next_time;
+	uint64_t error_stack_check_next_time;
 } LSAGIU_context_t;
 
 /*** MAIN global variables ***/
 
 static LSAGIU_context_t lsagiu_ctx;
 
-/* MAIN FUNCTION.
- * @param:	None.
- * @return:	None.
- */
+/*** MAIN local functions ***/
+
+/*******************************************************************/
+static void _LSAGIU_print_error_stack(void) {
+	// Local variables.
+	ERROR_code_t error_code = ERROR_BASE_NONE;
+	uint32_t count = 0;
+	// Print stack.
+	printf("LSAGIU ERROR STACK [ ");
+	// Check if empty.
+	if (ERROR_stack_is_empty() == 0) {
+		do {
+			// Unstack error.
+			error_code = ERROR_stack_read();
+			printf("%d ", error_code);
+			// Manage screen width.
+			count++;
+			if (count >= 10) {
+				// Change line.
+				printf("]\n                   [ ");
+				count = 0;
+			}
+		} while (error_code != ERROR_BASE_NONE);
+	}
+	else {
+		printf("empty ");
+	}
+	printf("]\n");
+}
+
+/*** MAIN function ***/
+
+/*******************************************************************/
 int main (void) {
 	// Start print.
 	printf("********************************************************************\n");
@@ -81,6 +115,7 @@ int main (void) {
 	lsagiu_ctx.lsmcu_connected = 0;
 	lsagiu_ctx.orts_server_connected = 0;
 	lsagiu_ctx.interfaces_polling_next_time = 0;
+	lsagiu_ctx.error_stack_check_next_time = 0;
 	// Main loop.
 	while (1) {
 		// Perform state machine.
@@ -115,6 +150,8 @@ int main (void) {
 			ZPT_stack_error();
 			zvm_status = ZVM_init();
 			ZVM_stack_error();
+			// Print error stack after initialization.
+			_LSAGIU_print_error_stack();
 			// Compute next state.
 			lsagiu_ctx.state = LSAGIU_STATE_WAIT_INTERFACES;
 			printf("*******************************************************************\n");
@@ -141,6 +178,8 @@ int main (void) {
 					// Update flag.
 					lsagiu_ctx.orts_server_connected = (orts_status == ORTS_SUCCESS) ? 1 : 0;
 				}
+				// Print error stack.
+				_LSAGIU_print_error_stack();
 			}
 			// Start program if all interface have been properly initialized.
 			if ((lsagiu_ctx.lsmcu_connected != 0) && (lsagiu_ctx.orts_server_connected != 0)) {
@@ -168,8 +207,12 @@ int main (void) {
 			// Process peripherals.
 			keyboard_status = KEYBOARD_process();
 			KEYBOARD_stack_error();
-			// Print error stack.
-
+			// Check error stack period.
+			if (TIME_get_milliseconds() >= lsagiu_ctx.error_stack_check_next_time) {
+				// Update next time.
+				lsagiu_ctx.error_stack_check_next_time = TIME_get_milliseconds() + LSAGIU_ERROR_STACK_CHECK_PERIOD_MS;
+				_LSAGIU_print_error_stack();
+			}
 			fflush(stdout);
 			break;
 		default:

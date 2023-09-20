@@ -127,10 +127,6 @@ ZVM_status_t ZVM_process(void) {
 	// Local variables.
 	ZVM_status_t status = ZVM_SUCCESS;
 	SOUND_status_t sound_status = SOUND_SUCCESS;
-	uint8_t turn_on_fade_end = 0;
-	uint8_t on1_fade_end = 0;
-	uint8_t on2_fade_end = 0;
-	uint8_t turn_off_fade_end = 0;
 	// Update sounds positions.
 	sound_status = SOUND_update(&(zvm_ctx.sound_turn_on));
 	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);

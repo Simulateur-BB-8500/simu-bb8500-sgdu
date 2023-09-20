@@ -54,7 +54,7 @@ typedef enum {
  * \enum ERROR_code_t
  * \brief Board error code type.
  *******************************************************************/
-typedef uint16_t ERROR_code_t;
+typedef uint32_t ERROR_code_t;
 
 /*** ERROR functions ***/
 
