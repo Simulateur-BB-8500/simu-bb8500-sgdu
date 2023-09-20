@@ -48,7 +48,9 @@ typedef struct {
 	uint8_t lsmcu_connected;
 	uint8_t orts_server_connected;
 	uint64_t interfaces_polling_next_time;
+#ifdef LOG_ERROR_STACK
 	uint64_t error_stack_check_next_time;
+#endif
 } LSAGIU_context_t;
 
 /*** MAIN global variables ***/
@@ -57,6 +59,7 @@ static LSAGIU_context_t lsagiu_ctx;
 
 /*** MAIN local functions ***/
 
+#ifdef LOG_ERROR_STACK
 /*******************************************************************/
 static void _LSAGIU_print_error_stack(void) {
 	// Local variables.
@@ -86,7 +89,9 @@ static void _LSAGIU_print_error_stack(void) {
 		printf("empty ");
 	}
 	printf("]\n");
+	fflush(stdout);
 }
+#endif
 
 /*** MAIN function ***/
 
@@ -118,7 +123,9 @@ int main (void) {
 	lsagiu_ctx.lsmcu_connected = 0;
 	lsagiu_ctx.orts_server_connected = 0;
 	lsagiu_ctx.interfaces_polling_next_time = 0;
+#ifdef LOG_ERROR_STACK
 	lsagiu_ctx.error_stack_check_next_time = 0;
+#endif
 	// Main loop.
 	while (1) {
 		// Perform state machine.
@@ -153,8 +160,10 @@ int main (void) {
 			ZPT_stack_error();
 			zvm_status = ZVM_init();
 			ZVM_stack_error();
+#ifdef LOG_ERROR_STACK
 			// Print error stack after initialization.
 			_LSAGIU_print_error_stack();
+#endif
 			// Compute next state.
 			lsagiu_ctx.state = LSAGIU_STATE_WAIT_INTERFACES;
 			printf("*******************************************************************\n");
@@ -181,8 +190,10 @@ int main (void) {
 					// Update flag.
 					lsagiu_ctx.orts_server_connected = (orts_status == ORTS_SUCCESS) ? 1 : 0;
 				}
+#ifdef LOG_ERROR_STACK
 				// Print error stack.
 				_LSAGIU_print_error_stack();
+#endif
 			}
 			// Start program if all interface have been properly initialized.
 			if ((lsagiu_ctx.lsmcu_connected != 0) && (lsagiu_ctx.orts_server_connected != 0)) {
@@ -210,16 +221,18 @@ int main (void) {
 			// Process peripherals.
 			keyboard_status = KEYBOARD_process();
 			KEYBOARD_stack_error();
+#ifdef LOG_ERROR_STACK
 			// Check error stack period.
 			if (TIME_get_milliseconds() >= lsagiu_ctx.error_stack_check_next_time) {
 				// Update next time.
 				lsagiu_ctx.error_stack_check_next_time = TIME_get_milliseconds() + LSAGIU_ERROR_STACK_CHECK_PERIOD_MS;
 				_LSAGIU_print_error_stack();
 			}
+#endif
 			fflush(stdout);
 			break;
 		default:
-			printf("LSAGIU *** State error.\n");
+			LOG("state=UNKNOWN");
 			goto errors;
 		}
 	}

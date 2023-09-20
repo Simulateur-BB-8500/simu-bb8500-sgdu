@@ -60,6 +60,8 @@ LIGHT_status_t LIGHT_set_state(LIGHT_type_t type, LIGHT_state_t state) {
 		status = LIGHT_ERROR_STATE;
 		goto errors;
 	}
+	// Print parameters.
+	LOG("type=%d state=%d", type, state);
 	// Update bitfield.
 	light_ctx.status |= (0b1 << type);
 	// Check status.
@@ -83,7 +85,7 @@ LIGHT_status_t LIGHT_set_state(LIGHT_type_t type, LIGHT_state_t state) {
 	}
 errors:
 #ifdef LOG_LIGHT
-	LOG_STATUS(status, LIGHT_SUCCESS, "type=%d state=%d", type, state);
+	LOG_STATUS(status, LIGHT_SUCCESS, "OK");
 #endif
 	return status;
 }

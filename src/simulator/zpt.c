@@ -79,6 +79,8 @@ ZPT_status_t ZPT_set_position(ZPT_pantograph_t pantograph, ZPT_state_t state) {
 	case ZPT_PANTOGRAPH_REAR:
 		// Check state change.
 		if ((zpt_ctx.rear_state == ZPT_STATE_DOWN) && (state == ZPT_STATE_UP)) {
+			// Log action.
+			LOG("pantograph=ZPT_PANTOGRAPH_REAR state=ZPT_STATE_UP");
 			// Play sound.
 			sound_status = SOUND_play(&(zpt_ctx.sound_rear_up), 0);
 			SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
@@ -87,6 +89,8 @@ ZPT_status_t ZPT_set_position(ZPT_pantograph_t pantograph, ZPT_state_t state) {
 			KEYBOARD_stack_exit_error(ZPT_ERROR_DRIVER_KEYBOARD);
 		}
 		if ((zpt_ctx.rear_state == ZPT_STATE_UP) && (state == ZPT_STATE_DOWN)) {
+			// Log action.
+			LOG("pantograph=ZPT_PANTOGRAPH_REAR state=ZPT_STATE_DOWN");
 			// Play and stop sounds.
 			sound_status = SOUND_play(&(zpt_ctx.sound_rear_down), 0);
 			SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
@@ -102,6 +106,8 @@ ZPT_status_t ZPT_set_position(ZPT_pantograph_t pantograph, ZPT_state_t state) {
 	case ZPT_PANTOGRAPH_FRONT:
 		// Check state change.
 		if ((zpt_ctx.front_state == ZPT_STATE_DOWN) && (state == ZPT_STATE_UP)) {
+			// Log action.
+			LOG("pantograph=ZPT_PANTOGRAPH_FRONT state=ZPT_STATE_UP");
 			// Play sound.
 			sound_status = SOUND_play(&(zpt_ctx.sound_front_up), 0);
 			SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
@@ -110,6 +116,8 @@ ZPT_status_t ZPT_set_position(ZPT_pantograph_t pantograph, ZPT_state_t state) {
 			KEYBOARD_stack_exit_error(ZPT_ERROR_DRIVER_KEYBOARD);
 		}
 		if ((zpt_ctx.front_state == ZPT_STATE_UP) && (state == ZPT_STATE_DOWN)) {
+			// Log action.
+			LOG("pantograph=ZPT_PANTOGRAPH_FRONT state=ZPT_STATE_DOWN");
 			// Play and stop sounds.
 			sound_status = SOUND_play(&(zpt_ctx.sound_front_down), 0);
 			SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
@@ -135,7 +143,7 @@ ZPT_status_t ZPT_set_position(ZPT_pantograph_t pantograph, ZPT_state_t state) {
 	SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
 errors:
 #ifdef LOG_ZPT
-	LOG_STATUS(status, ZPT_SUCCESS, "pantograph=%d state=%d", pantograph, state);
+	LOG_STATUS(status, ZPT_SUCCESS, "OK");
 #endif
 	return status;
 }

@@ -64,6 +64,8 @@ MPINV_status_t MPINV_set_position(MPINV_position_t position) {
 	case MPINV_POSITION_NEUTRAL:
 		// Check state change.
 		if (mpinv_ctx.position != MPINV_POSITION_NEUTRAL) {
+			// Log action.
+			LOG("position=MPINV_POSITION_NEUTRAL");
 			// Play sound.
 			sound_status = SOUND_play(&(mpinv_ctx.sound_neutral), 0);
 			SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
@@ -73,6 +75,8 @@ MPINV_status_t MPINV_set_position(MPINV_position_t position) {
 	case MPINV_POSITION_FORWARD:
 		// Check state change.
 		if (mpinv_ctx.position != MPINV_POSITION_FORWARD) {
+			// Log action.
+			LOG("position=MPINV_POSITION_FORWARD");
 			// Play sound.
 			sound_status = SOUND_play(&(mpinv_ctx.sound_forward_backward), 0);
 			SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
@@ -81,6 +85,8 @@ MPINV_status_t MPINV_set_position(MPINV_position_t position) {
 	case MPINV_POSITION_BACKWARD:
 		// Check state change.
 		if (mpinv_ctx.position != MPINV_POSITION_BACKWARD) {
+			// Log action.
+			LOG("position=MPINV_POSITION_BACKWARD");
 			// Play sound.
 			sound_status = SOUND_play(&(mpinv_ctx.sound_forward_backward), 0);
 			SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
@@ -114,7 +120,7 @@ MPINV_status_t MPINV_set_position(MPINV_position_t position) {
 	SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
 errors:
 #ifdef LOG_MPINV
-	LOG_STATUS(status, MPINV_SUCCESS, "position=%d", position);
+	LOG_STATUS(status, MPINV_SUCCESS, "OK");
 #endif
 	return status;
 }

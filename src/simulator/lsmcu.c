@@ -58,12 +58,14 @@ LSMCU_status_t LSMCU_send(uint8_t tx_command) {
 	// Local variables.
 	LSMCU_status_t status = LSMCU_SUCCESS;
 	SERIAL_status_t serial_status = SERIAL_SUCCESS;
+	// Print command.
+	LOG("tx_command=%d", tx_command);
 	// Write on serial port.
 	serial_status = SERIAL_write(&lsmcu_serial_port, tx_command);
 	SERIAL_stack_exit_error(LSMCU_ERROR_DRIVER_SERIAL);
 errors:
 #ifdef LOG_LSMCU
-	LOG_STATUS(status, LSMCU_SUCCESS, "tx_command=0x%02X", tx_command);
+	LOG_STATUS(status, LSMCU_SUCCESS, "OK");
 #endif
 	return status;
 }
@@ -88,6 +90,10 @@ LSMCU_status_t LSMCU_process(void) {
 	// Read serial port.
 	serial_status = SERIAL_read(&lsmcu_serial_port, &rx_command);
 	SERIAL_stack_exit_error(LSMCU_ERROR_DRIVER_SERIAL);
+	// Print RX command.
+	if (rx_command != LSMCU_OUT_NOP) {
+		LOG("rx_command=0x%02X", rx_command);
+	}
 	// Decode incoming command.
 	switch (rx_command) {
 	case LSMCU_OUT_ZBA_ON:
@@ -308,7 +314,7 @@ LSMCU_status_t LSMCU_process(void) {
 	}
 errors:
 #ifdef LOG_LSMCU
-	LOG_STATUS(status, LSMCU_SUCCESS, "rx_command=0x%02X", rx_command);
+	LOG_STATUS(status, LSMCU_SUCCESS, "OK");
 #endif
 	return status;
 }

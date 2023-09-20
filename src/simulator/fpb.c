@@ -65,6 +65,8 @@ FPB_status_t FPB_set_state(FPB_state_t state) {
 	case FPB_STATE_APPLY:
 		// Check state change.
 		if (fpb_ctx.state != FPB_STATE_APPLY) {
+			// Log action.
+			LOG("state=FPB_STATE_APPLY");
 			// Play sound.
 			sound_status = SOUND_play(&(fpb_ctx.sound_apply), 0);
 			SOUND_stack_exit_error(FPB_ERROR_DRIVER_SOUND);
@@ -75,9 +77,13 @@ FPB_status_t FPB_set_state(FPB_state_t state) {
 		break;
 	case FPB_STATE_NEUTRAL:
 		// Check state change.
-		if (fpb_ctx.state != FPB_STATE_APPLY) {
+		if (fpb_ctx.state != FPB_STATE_NEUTRAL) {
+			// Log action.
+			LOG("state=FPB_STATE_NEUTRAL");
 			// Stop sound.
 			sound_status = SOUND_stop(&(fpb_ctx.sound_apply), FPB_FADE_DURATION_MS);
+			SOUND_stack_exit_error(FPB_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_stop(&(fpb_ctx.sound_release), FPB_FADE_DURATION_MS);
 			SOUND_stack_exit_error(FPB_ERROR_DRIVER_SOUND);
 			// Check previous state.
 			if (fpb_ctx.state == FPB_STATE_APPLY) {
@@ -95,6 +101,8 @@ FPB_status_t FPB_set_state(FPB_state_t state) {
 	case FPB_STATE_RELEASE:
 		// Check state change.
 		if (fpb_ctx.state != FPB_STATE_RELEASE) {
+			// Log action.
+			LOG("state=FPB_STATE_RELEASE");
 			// Play sound.
 			sound_status = SOUND_play(&(fpb_ctx.sound_release), 0);
 			SOUND_stack_exit_error(FPB_ERROR_DRIVER_SOUND);
@@ -111,7 +119,7 @@ FPB_status_t FPB_set_state(FPB_state_t state) {
 	fpb_ctx.state = state;
 errors:
 #ifdef LOG_FPB
-	LOG_STATUS(status, FPB_SUCCESS, "state=%d", state);
+	LOG_STATUS(status, FPB_SUCCESS, "OK");
 #endif
 	return status;
 }

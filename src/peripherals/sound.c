@@ -22,6 +22,7 @@
 #define SOUND_FMOD_NUMBER_OF_CHANNELS			32
 #define SOUND_AUDIO_FILE_NAME_MAXIMUM_LENGTH	100
 #define SOUND_AUDIO_FILES_FOLDER_PATH			"C:/Users/User/Documents/git/ls-agiu/audio/"
+#define SOUND_FADE_IN_START_OFFSET				0.01
 
 /*** SOUND local global variables ***/
 
@@ -52,12 +53,15 @@ SOUND_status_t _SOUND_set_volume(SOUND_context_t* sound_ctx, float new_volume) {
 		status = SOUND_ERROR_VOLUME_OVERFLOW;
 		goto errors;
 	}
-	fmod_status = FMOD_Channel_SetVolume((sound_ctx -> fmod_channel), (new_volume * (sound_ctx -> gain)));
-	FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
+	// Check flag.
+	if ((sound_ctx -> is_playing) != 0) {
+		// Set channel volume.
+		fmod_status = FMOD_Channel_SetVolume((sound_ctx -> fmod_channel), (new_volume * (sound_ctx -> gain)));
+		FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
+	}
 	// Update object.
 	sound_ctx -> volume = new_volume;
 errors:
-	LOG("fmod_status=%d", fmod_status);
 	return status;
 }
 
@@ -96,13 +100,14 @@ SOUND_status_t _SOUND_play(SOUND_context_t* sound_ctx) {
 		status = SOUND_ERROR_NULL_PARAMETER;
 		goto errors;
 	}
-	// Reset parameters.
-	(sound_ctx -> position_ms) = 0;
-	(sound_ctx-> volume) = SOUND_AUDIO_VOLUME_MIN;
-	// Play sound.
-	fmod_status = FMOD_System_PlaySound(sound_fmod_system, (sound_ctx -> fmod_sound), NULL, 0, &(sound_ctx -> fmod_channel));
-	FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
-
+	// Check flag.
+	if ((sound_ctx -> is_playing == 0)) {
+		// Play sound.
+		fmod_status = FMOD_System_PlaySound(sound_fmod_system, (sound_ctx -> fmod_sound), NULL, 0, &(sound_ctx -> fmod_channel));
+		FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
+	}
+	// Update parameters.
+	(sound_ctx -> is_playing) = 1;
 errors:
 	return status;
 }
@@ -117,12 +122,14 @@ SOUND_status_t _SOUND_stop(SOUND_context_t* sound_ctx) {
 		status = SOUND_ERROR_NULL_PARAMETER;
 		goto errors;
 	}
-	// Reset parameters.
-	(sound_ctx -> position_ms) = 0;
-	(sound_ctx-> volume) = SOUND_AUDIO_VOLUME_MIN;
-	// Play sound.
-	fmod_status = FMOD_Channel_Stop(sound_ctx -> fmod_channel);
-	FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
+	// Check flag.
+	if ((sound_ctx -> is_playing != 0)) {
+		// Stop sound.
+		fmod_status = FMOD_Channel_Stop(sound_ctx -> fmod_channel);
+		FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
+	}
+	// Update flag.
+	(sound_ctx -> is_playing) = 0;
 errors:
 	return status;
 }
@@ -162,6 +169,16 @@ SOUND_status_t SOUND_init(SOUND_context_t* sound_ctx, const char* audio_file_nam
 		status = SOUND_ERROR_AUDIO_GAIN;
 		goto errors;
 	}
+	// Init object.
+	(sound_ctx -> is_playing) = 0;
+	(sound_ctx -> length_ms) = 0;
+	(sound_ctx -> position_ms) = 0;
+	(sound_ctx -> volume) = SOUND_AUDIO_VOLUME_MIN;
+	(sound_ctx -> gain) = audio_gain;
+	(sound_ctx -> fade_effect).type = SOUND_FADE_TYPE_OUT;
+	(sound_ctx -> fade_effect).duration_ms = 0;
+	(sound_ctx -> fade_effect).start_position_ms = 0;
+	(sound_ctx -> fade_effect).start_volume = SOUND_AUDIO_VOLUME_MIN;
 	// Create full name.
 	strcat(audio_file_full_name, audio_file_name);
 	// Structure initialization.
@@ -170,14 +187,6 @@ SOUND_status_t SOUND_init(SOUND_context_t* sound_ctx, const char* audio_file_nam
 	// Read audio length.
 	fmod_status = FMOD_Sound_GetLength((sound_ctx -> fmod_sound), &(sound_ctx -> length_ms), FMOD_TIMEUNIT_MS);
 	FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
-	// Init object.
-	(sound_ctx -> position_ms) = 0;
-	(sound_ctx -> volume) = SOUND_AUDIO_VOLUME_MIN;
-	(sound_ctx -> gain) = audio_gain;
-	(sound_ctx -> fade_effect).type = SOUND_FADE_TYPE_LAST;
-	(sound_ctx -> fade_effect).duration_ms = 0;
-	(sound_ctx -> fade_effect).start_position_ms = 0;
-	(sound_ctx -> fade_effect).start_volume = SOUND_AUDIO_VOLUME_MIN;
 errors:
 #ifdef LOG_SOUND
 	LOG_STATUS(status, SOUND_SUCCESS, "Audio file %s opened (length=%dms)", audio_file_name, (sound_ctx -> length_ms));
@@ -228,19 +237,19 @@ SOUND_status_t SOUND_update(SOUND_context_t* sound_ctx) {
 	// Local variables.
 	SOUND_status_t status = SOUND_SUCCESS;
 	FMOD_RESULT fmod_status = FMOD_OK;
-	FMOD_BOOL channel_is_playing = 0;
 	// Check parameters.
 	if (sound_ctx == NULL) {
 		status = SOUND_ERROR_NULL_PARAMETER;
 		goto errors;
 	}
-	// Update playing flag.
-	fmod_status = FMOD_Channel_IsPlaying((sound_ctx -> fmod_channel), &channel_is_playing);
-	FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
-	(sound_ctx -> is_playing) = (channel_is_playing == 0) ? 0 : 1;
 	// Read current position.
-	fmod_status = FMOD_Channel_GetPosition((sound_ctx -> fmod_channel), &(sound_ctx -> position_ms), FMOD_TIMEUNIT_MS);
-	FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
+	if ((sound_ctx -> is_playing) != 0) {
+		fmod_status = FMOD_Channel_GetPosition((sound_ctx -> fmod_channel), &(sound_ctx -> position_ms), FMOD_TIMEUNIT_MS);
+		FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
+	}
+	else {
+		(sound_ctx -> position_ms) = 0;
+	}
 errors:
 #ifdef LOG_SOUND
 	LOG_STATUS(status, SOUND_SUCCESS, "OK");
@@ -290,6 +299,10 @@ SOUND_status_t SOUND_process(SOUND_context_t* sound_ctx) {
 			// Compute fade volume.
 			switch ((sound_ctx -> fade_effect).type) {
 			case SOUND_FADE_TYPE_IN:
+				// Add offset to ensure first computed volume is not 0.
+				if (alpha == 0) {
+					alpha = SOUND_FADE_IN_START_OFFSET;
+				}
 				new_volume = alpha + (((SOUND_AUDIO_VOLUME_MAX - alpha) * (p - beta)) / (gamma));
 				break;
 			case SOUND_FADE_TYPE_OUT:
@@ -302,19 +315,18 @@ SOUND_status_t SOUND_process(SOUND_context_t* sound_ctx) {
 		}
 		// Note: nothing to do if the current position is before the start position.
 	}
-	// Set volume.
-	status = _SOUND_set_volume(sound_ctx, new_volume);
-	if (status != SOUND_SUCCESS) goto errors;
-	// Stop sound if needed.
-	if ((new_volume == SOUND_AUDIO_VOLUME_MIN) && ((sound_ctx -> is_playing) != 0)) {
-		status = _SOUND_stop(sound_ctx);
-		if (status != SOUND_SUCCESS) goto errors;
-	}
-	// Start sound if needed.
-	if ((new_volume > SOUND_AUDIO_VOLUME_MIN) && ((sound_ctx -> is_playing) == 0)) {
+	// Start or stop depending on volume.
+	if (new_volume > SOUND_AUDIO_VOLUME_MIN) {
 		status = _SOUND_play(sound_ctx);
 		if (status != SOUND_SUCCESS) goto errors;
 	}
+	else {
+		status = _SOUND_stop(sound_ctx);
+		if (status != SOUND_SUCCESS) goto errors;
+	}
+	// Set volume.
+	status = _SOUND_set_volume(sound_ctx, new_volume);
+	if (status != SOUND_SUCCESS) goto errors;
 errors:
 #ifdef LOG_SOUND
 	LOG_STATUS(status, SOUND_SUCCESS, "OK");

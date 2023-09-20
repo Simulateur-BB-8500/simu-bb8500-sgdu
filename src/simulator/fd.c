@@ -65,6 +65,8 @@ FD_status_t FD_set_state(FD_state_t state) {
 	case FD_STATE_APPLY:
 		// Check state change.
 		if (fd_ctx.state != FD_STATE_APPLY) {
+			// Log action.
+			LOG("state=FD_STATE_APPLY");
 			// Play sound.
 			sound_status = SOUND_play(&(fd_ctx.sound_apply), 0);
 			SOUND_stack_exit_error(FD_ERROR_DRIVER_SOUND);
@@ -75,9 +77,13 @@ FD_status_t FD_set_state(FD_state_t state) {
 		break;
 	case FD_STATE_NEUTRAL:
 		// Check state change.
-		if (fd_ctx.state != FD_STATE_APPLY) {
-			// Stop sound.
+		if (fd_ctx.state != FD_STATE_NEUTRAL) {
+			// Log action.
+			LOG("state=FD_STATE_NEUTRAL");
+			// Stop sounds.
 			sound_status = SOUND_stop(&(fd_ctx.sound_apply), FD_FADE_DURATION_MS);
+			SOUND_stack_exit_error(FD_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_stop(&(fd_ctx.sound_release), FD_FADE_DURATION_MS);
 			SOUND_stack_exit_error(FD_ERROR_DRIVER_SOUND);
 			// Check previous state.
 			if (fd_ctx.state == FD_STATE_APPLY) {
@@ -95,6 +101,8 @@ FD_status_t FD_set_state(FD_state_t state) {
 	case FD_STATE_RELEASE:
 		// Check state change.
 		if (fd_ctx.state != FD_STATE_RELEASE) {
+			// Log action.
+			LOG("state=FD_STATE_RELEASE");
 			// Play sound.
 			sound_status = SOUND_play(&(fd_ctx.sound_release), 0);
 			SOUND_stack_exit_error(FD_ERROR_DRIVER_SOUND);
@@ -111,7 +119,7 @@ FD_status_t FD_set_state(FD_state_t state) {
 	fd_ctx.state = state;
 errors:
 #ifdef LOG_FD
-	LOG_STATUS(status, FD_SUCCESS, "state=%d", state);
+	LOG_STATUS(status, FD_SUCCESS, "OK");
 #endif
 	return status;
 }

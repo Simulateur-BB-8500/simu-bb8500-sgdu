@@ -121,11 +121,18 @@ ZVM_status_t ZVM_set_state(ZVM_state_t state) {
 		status = ZVM_ERROR_STATE;
 		goto errors;
 	}
+	// Print state.
+	if (state == ZVM_STATE_ON) {
+		LOG("state=ZVM_STATE_ON");
+	}
+	else {
+		LOG("state=ZVM_STATE_OFF");
+	}
 	// Update context.
 	zvm_ctx.state = state;
 errors:
 #ifdef LOG_ZVM
-	LOG_STATUS(status, ZVM_SUCCESS, "state=%d", state);
+	LOG_STATUS(status, ZVM_SUCCESS, "OK");
 #endif
 	return status;
 }
@@ -165,6 +172,8 @@ ZVM_status_t ZVM_process(void) {
 		}
 		else {
 			if ((zvm_ctx.sound_turn_on.position_ms) > (zvm_ctx.sound_turn_on.length_ms - ZVM_FADE_DURATION_MS - ZVM_FADE_MARGIN_MS)) {
+
+				LOG("turn_on_position_ms=%d START OVERLAP", (zvm_ctx.sound_turn_on.position_ms));
 				// Perform overlap.
 				sound_status = SOUND_play(&(zvm_ctx.sound_on_0), ZVM_FADE_DURATION_MS);
 				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);

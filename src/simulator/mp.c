@@ -65,18 +65,27 @@ MP_status_t MP_set_event(MP_event_t event) {
 	// Check event.
 	switch (event) {
 	case MP_EVENT_0:
+		// Log action.
+		LOG("event=MP_EVENT_0");
+		// Send OpenRails shortcut.
 		keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_MP_0, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 		KEYBOARD_stack_exit_error(MP_ERROR_DRIVER_KEYBOARD);
 		break;
 	case MP_EVENT_T_MORE:
+		// Log action.
+		LOG("event=MP_EVENT_T_MORE");
+		// Send OpenRails shortcut.
 		keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_MP_T_MORE, ORTS_SHORTCUT_PRESS_DURATION_MS_MP);
 		KEYBOARD_stack_exit_error(MP_ERROR_DRIVER_KEYBOARD);
 		// Increase step count.
 		mp_ctx.variator_step_count++;
 		break;
 	case MP_EVENT_T_LESS:
+		// Log action.
+		LOG("event=MP_EVENT_T_LESS");
 		// Check step count.
 		if (mp_ctx.variator_step_count > 0) {
+			// Send OpenRails shortcut.
 			keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_MP_T_LESS, ORTS_SHORTCUT_PRESS_DURATION_MS_MP);
 			KEYBOARD_stack_exit_error(MP_ERROR_DRIVER_KEYBOARD);
 			// Decrease step count.
@@ -84,18 +93,28 @@ MP_status_t MP_set_event(MP_event_t event) {
 		}
 		break;
 	case MP_EVENT_PR:
+		// Log action.
+		LOG("event=MP_EVENT_PR");
 		// TODO
 		break;
 	case MP_EVENT_P:
+		// Log action.
+		LOG("event=MP_EVENT_P");
 		// TODO
 		break;
 	case MP_EVENT_F_MORE:
+		// Log action.
+		LOG("event=MP_EVENT_F_MORE");
 		// TODO
 		break;
 	case MP_EVENT_F_LESS:
+		// Log action.
+		LOG("event=MP_EVENT_F_LESS");
 		// TODO
 		break;
 	case MP_EVENT_FR:
+		// Log action.
+		LOG("event=MP_EVENT_FR");
 		// TODO
 		break;
 	default:
@@ -104,7 +123,7 @@ MP_status_t MP_set_event(MP_event_t event) {
 	}
 errors:
 #ifdef LOG_MP
-	LOG_STATUS(status, MP_SUCCESS, "event=%d", event);
+	LOG_STATUS(status, MP_SUCCESS, "OK");
 #endif
 	return status;
 }

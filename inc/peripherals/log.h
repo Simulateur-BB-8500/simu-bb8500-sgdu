@@ -11,24 +11,26 @@
 /*** LOG macros ***/
 
 // Peripherals.
-#define LOG_KEYBOARD
-#define LOG_SERIAL
-#define LOG_SOUND
+//#define LOG_KEYBOARD
+//#define LOG_SERIAL
+//#define LOG_SOUND
 // Simulator.
-#define LOG_COMPRESSOR
-#define LOG_FD
-#define LOG_FPB
-#define LOG_KVB
-#define LOG_LIGHT
-#define LOG_LSMCU
-#define LOG_MP
-#define LOG_MPINV
-#define LOG_WHISTLE
-#define LOG_ZDJ
-#define LOG_ZPT
-#define LOG_ZVM
+//#define LOG_COMPRESSOR
+//#define LOG_FD
+//#define LOG_FPB
+//#define LOG_KVB
+//#define LOG_LIGHT
+//#define LOG_LSMCU
+//#define LOG_MP
+//#define LOG_MPINV
+//#define LOG_WHISTLE
+//#define LOG_ZDJ
+//#define LOG_ZPT
+//#define LOG_ZVM
 // Game.
-#define LOG_ORTS
+//#define LOG_ORTS
+// Applicative
+//#define LOG_ERROR_STACK
 
 /*** LOG functions ***/
 

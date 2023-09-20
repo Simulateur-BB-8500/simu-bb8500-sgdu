@@ -70,6 +70,8 @@ WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state) {
 	case WHISTLE_STATE_HIGH_TONE:
 		// Check state change.
 		if (whistle_ctx.state != WHISTLE_STATE_HIGH_TONE) {
+			// Log action.
+			LOG("state=WHISTLE_STATE_HIGH_TONE");
 			// Play sound.
 			sound_status = SOUND_play(&(whistle_ctx.sound_high_tone), 0);
 			SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
@@ -78,6 +80,8 @@ WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state) {
 	case WHISTLE_STATE_NEUTRAL:
 		// Check state change.
 		if (whistle_ctx.state != WHISTLE_STATE_NEUTRAL) {
+			// Log action.
+			LOG("state=WHISTLE_STATE_NEUTRAL");
 			// Check previous state.
 			if (whistle_ctx.state == WHISTLE_STATE_LOW_TONE) {
 				// End low tone.
@@ -98,6 +102,8 @@ WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state) {
 	case WHISTLE_STATE_LOW_TONE:
 		// Check state change.
 		if (whistle_ctx.state != WHISTLE_STATE_LOW_TONE) {
+			// Log action.
+			LOG("state=WHISTLE_STATE_LOW_TONE");
 			// Play sound.
 			sound_status = SOUND_play(&(whistle_ctx.sound_low_tone), 0);
 			SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
@@ -120,7 +126,7 @@ WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state) {
 	SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
 errors:
 #ifdef LOG_WHISTLE
-	LOG_STATUS(status, WHISTLE_SUCCESS, "state=%d", state);
+	LOG_STATUS(status, WHISTLE_SUCCESS, "OK");
 #endif
 	return status;
 }

@@ -54,12 +54,16 @@ ZDJ_status_t ZDJ_set_state(ZDJ_state_t state) {
 	// Check state.
 	switch (state) {
 	case ZDJ_STATE_OPEN:
+		// Log action.
+		LOG("state=ZDJ_STATE_OPEN");
+		// Play sound.
 		sound_status = SOUND_play(&(zdj_ctx.sound_open), 0);
-		SOUND_stack_exit_error(ZDJ_ERROR_DRIVER_SOUND);
-		sound_status = SOUND_stop(&(zdj_ctx.sound_lock), 0);
 		SOUND_stack_exit_error(ZDJ_ERROR_DRIVER_SOUND);
 		break;
 	case ZDJ_STATE_LOCK:
+		// Log action.
+		LOG("state=ZDJ_STATE_LOCK");
+		// Play sound.
 		sound_status = SOUND_play(&(zdj_ctx.sound_lock), 0);
 		SOUND_stack_exit_error(ZDJ_ERROR_DRIVER_SOUND);
 		break;
@@ -74,7 +78,7 @@ ZDJ_status_t ZDJ_set_state(ZDJ_state_t state) {
 	SOUND_stack_exit_error(ZDJ_ERROR_DRIVER_SOUND);
 errors:
 #ifdef LOG_ZDJ
-	LOG_STATUS(status, ZDJ_SUCCESS, "state=%d", state);
+	LOG_STATUS(status, ZDJ_SUCCESS, "OK");
 #endif
 	return status;
 }

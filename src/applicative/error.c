@@ -18,7 +18,7 @@
 /*******************************************************************/
 typedef struct {
 	ERROR_code_t stack[ERROR_STACK_DEPTH];
-	uint8_t stack_idx;
+	uint32_t stack_idx;
 } ERROR_context_t;
 
 /*** ERROR local global variables ***/
@@ -62,7 +62,7 @@ ERROR_code_t ERROR_stack_read(void) {
 uint8_t ERROR_stack_is_empty(void) {
 	// Local variables.
 	uint8_t is_empty = 1;
-	uint8_t idx = 0;
+	uint32_t idx = 0;
 	// Loop on stack.
 	for (idx=0 ; idx<ERROR_STACK_DEPTH ; idx++) {
 		if (error_ctx.stack[idx] != ERROR_BASE_NONE) {

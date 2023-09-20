@@ -129,7 +129,7 @@ SERIAL_status_t SERIAL_write(SERIAL_port_t* serial_port, uint8_t tx_byte) {
 	WINDOWS_stack_exit_error(SERIAL_ERROR_DRIVER_WINDOWS);
 errors:
 #ifdef LOG_SERIAL
-	LOG_STATUS(status, SERIAL_SUCCESS, "TX byte = 0x%02X", tx_byte);
+	LOG_STATUS(status, SERIAL_SUCCESS, "tx_byte=%d", tx_byte);
 #endif
 	return status;
 }
@@ -155,7 +155,7 @@ SERIAL_status_t SERIAL_read(SERIAL_port_t* serial_port, uint8_t* rx_byte) {
 	WINDOWS_stack_exit_error(SERIAL_ERROR_DRIVER_WINDOWS);
 errors:
 #ifdef LOG_SERIAL
-	LOG_STATUS(status, SERIAL_SUCCESS, "RX byte = 0x%02X", (*rx_byte));
+	LOG_STATUS(status, SERIAL_SUCCESS, "rx_byte=%d", (*rx_byte));
 #endif
 	return status;
 }

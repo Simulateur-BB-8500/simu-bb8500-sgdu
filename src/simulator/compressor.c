@@ -38,11 +38,10 @@ typedef enum {
 typedef struct {
 	SOUND_context_t sound_zca_regulation_min;
 	SOUND_context_t sound_zca_regulation_max;
-	SOUND_context_t sound_zca_turn_off;
 	SOUND_context_t sound_zcd_turn_on;
 	SOUND_context_t sound_zcd_on_0;
 	SOUND_context_t sound_zcd_on_1;
-	SOUND_context_t sound_zcd_turn_off;
+	SOUND_context_t sound_zcx_turn_off;
 	COMPRESSOR_sound_request_t sound_request;
 	COMPRESSOR_sound_request_t last_request;
 	COMPRESSOR_internal_state_t internal_state;
@@ -68,15 +67,13 @@ COMPRESSOR_status_t COMPRESSOR_init(void) {
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 	sound_status = SOUND_init(&(compressor_ctx.sound_zca_regulation_max), "zca_regulation_max.wav", COMPRESSOR_AUDIO_GAIN);
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_init(&(compressor_ctx.sound_zca_turn_off), "zca_off.wav", COMPRESSOR_AUDIO_GAIN);
+	sound_status = SOUND_init(&(compressor_ctx.sound_zcd_turn_on), "zcd_turn_on.wav", COMPRESSOR_AUDIO_GAIN);
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_init(&(compressor_ctx.sound_zcd_turn_on), "zcd_on.wav", COMPRESSOR_AUDIO_GAIN);
+	sound_status = SOUND_init(&(compressor_ctx.sound_zcd_on_0), "zcd_on.wav", COMPRESSOR_AUDIO_GAIN);
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_init(&(compressor_ctx.sound_zcd_on_0), "zcd.wav", COMPRESSOR_AUDIO_GAIN);
+	sound_status = SOUND_init(&(compressor_ctx.sound_zcd_on_1), "zcd_on.wav", COMPRESSOR_AUDIO_GAIN);
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_init(&(compressor_ctx.sound_zcd_on_1), "zcd.wav", COMPRESSOR_AUDIO_GAIN);
-	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_init(&(compressor_ctx.sound_zcd_turn_off), "zcd_off.wav", COMPRESSOR_AUDIO_GAIN);
+	sound_status = SOUND_init(&(compressor_ctx.sound_zcx_turn_off), "zcx_turn_off.wav", COMPRESSOR_AUDIO_GAIN);
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 errors:
 #ifdef LOG_COMPRESSOR
@@ -101,13 +98,15 @@ COMPRESSOR_status_t COMPRESSOR_set_request(COMPRESSOR_sound_request_t sound_requ
 		// Register request.
 		compressor_ctx.sound_request = sound_request;
 		compressor_ctx.last_request = sound_request;
+		// Print request.
+		LOG("sound_request=%d", sound_request);
 	}
 	else {
 		compressor_ctx.sound_request = COMPRESSOR_SOUND_REQUEST_NONE;
 	}
 errors:
 #ifdef LOG_COMPRESSOR
-	LOG_STATUS(status, COMPRESSOR_SUCCESS, "sound_request=%d", sound_request);
+	LOG_STATUS(status, COMPRESSOR_SUCCESS, "OK");
 #endif
 	return status;
 }
@@ -130,15 +129,13 @@ COMPRESSOR_status_t COMPRESSOR_process(void) {
 			// Stop all other sounds.
 			sound_status = SOUND_stop(&(compressor_ctx.sound_zca_regulation_max), COMPRESSOR_FADE_DURATION_MS);
 			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-			sound_status = SOUND_stop(&(compressor_ctx.sound_zca_turn_off), COMPRESSOR_FADE_DURATION_MS);
-			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 			sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_turn_on), COMPRESSOR_FADE_DURATION_MS);
-			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-			sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_turn_off), COMPRESSOR_FADE_DURATION_MS);
 			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 			sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_on_0), COMPRESSOR_FADE_DURATION_MS);
 			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 			sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_on_1), COMPRESSOR_FADE_DURATION_MS);
+			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_stop(&(compressor_ctx.sound_zcx_turn_off), COMPRESSOR_FADE_DURATION_MS);
 			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 			// Update state.
 			compressor_ctx.internal_state = COMPRESSOR_INTERNAL_STATE_ZCA_MIN;
@@ -153,15 +150,13 @@ COMPRESSOR_status_t COMPRESSOR_process(void) {
 			// Stop all other sounds.
 			sound_status = SOUND_stop(&(compressor_ctx.sound_zca_regulation_min), COMPRESSOR_FADE_DURATION_MS);
 			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-			sound_status = SOUND_stop(&(compressor_ctx.sound_zca_turn_off), COMPRESSOR_FADE_DURATION_MS);
-			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 			sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_turn_on), COMPRESSOR_FADE_DURATION_MS);
-			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-			sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_turn_off), COMPRESSOR_FADE_DURATION_MS);
 			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 			sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_on_0), COMPRESSOR_FADE_DURATION_MS);
 			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 			sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_on_1), COMPRESSOR_FADE_DURATION_MS);
+			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_stop(&(compressor_ctx.sound_zcx_turn_off), COMPRESSOR_FADE_DURATION_MS);
 			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 			// Update state.
 			compressor_ctx.internal_state = COMPRESSOR_INTERNAL_STATE_ZCA_MAX;
@@ -178,13 +173,11 @@ COMPRESSOR_status_t COMPRESSOR_process(void) {
 			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 			sound_status = SOUND_stop(&(compressor_ctx.sound_zca_regulation_max), COMPRESSOR_FADE_DURATION_MS);
 			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-			sound_status = SOUND_stop(&(compressor_ctx.sound_zca_turn_off), COMPRESSOR_FADE_DURATION_MS);
-			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-			sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_turn_off), COMPRESSOR_FADE_DURATION_MS);
-			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 			sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_on_0), COMPRESSOR_FADE_DURATION_MS);
 			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 			sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_on_1), COMPRESSOR_FADE_DURATION_MS);
+			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_stop(&(compressor_ctx.sound_zcx_turn_off), COMPRESSOR_FADE_DURATION_MS);
 			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 			// Update state.
 			compressor_ctx.internal_state = COMPRESSOR_INTERNAL_STATE_ZCD_TURN_ON;
@@ -193,50 +186,20 @@ COMPRESSOR_status_t COMPRESSOR_process(void) {
 	case COMPRESSOR_SOUND_REQUEST_OFF:
 		// Check state.
 		if (compressor_ctx.internal_state != COMPRESSOR_INTERNAL_STATE_TURN_OFF) {
-			// Play stop sound according to current state.
-			switch (compressor_ctx.internal_state) {
-			case COMPRESSOR_INTERNAL_STATE_ZCA_MIN:
-			case COMPRESSOR_INTERNAL_STATE_ZCA_MAX:
-				// Play sound.
-				sound_status = SOUND_play(&(compressor_ctx.sound_zca_turn_off), COMPRESSOR_FADE_DURATION_MS);
-				SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-				// Stop all other sounds.
-				sound_status = SOUND_stop(&(compressor_ctx.sound_zca_regulation_min), COMPRESSOR_FADE_DURATION_MS);
-				SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-				sound_status = SOUND_stop(&(compressor_ctx.sound_zca_regulation_max), COMPRESSOR_FADE_DURATION_MS);
-				SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-				sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_turn_on), COMPRESSOR_FADE_DURATION_MS);
-				SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-				sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_turn_off), COMPRESSOR_FADE_DURATION_MS);
-				SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-				sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_on_0), COMPRESSOR_FADE_DURATION_MS);
-				SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-				sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_on_1), COMPRESSOR_FADE_DURATION_MS);
-				SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-
-				break;
-			case COMPRESSOR_INTERNAL_STATE_ZCD_ON_0:
-			case COMPRESSOR_INTERNAL_STATE_ZCD_ON_1:
-				// Play sound.
-				sound_status = SOUND_play(&(compressor_ctx.sound_zcd_turn_off), COMPRESSOR_FADE_DURATION_MS);
-				SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-				// Stop all other sounds.
-				sound_status = SOUND_stop(&(compressor_ctx.sound_zca_regulation_min), COMPRESSOR_FADE_DURATION_MS);
-				SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-				sound_status = SOUND_stop(&(compressor_ctx.sound_zca_regulation_max), COMPRESSOR_FADE_DURATION_MS);
-				SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-				sound_status = SOUND_stop(&(compressor_ctx.sound_zca_turn_off), COMPRESSOR_FADE_DURATION_MS);
-				SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-				sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_turn_on), COMPRESSOR_FADE_DURATION_MS);
-				SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-				sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_on_0), COMPRESSOR_FADE_DURATION_MS);
-				SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-				sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_on_1), COMPRESSOR_FADE_DURATION_MS);
-				SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-				break;
-			default:
-				break;
-			}
+			// Play sound.
+			sound_status = SOUND_play(&(compressor_ctx.sound_zcx_turn_off), COMPRESSOR_FADE_DURATION_MS);
+			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
+			// Stop all other sounds.
+			sound_status = SOUND_stop(&(compressor_ctx.sound_zca_regulation_min), COMPRESSOR_FADE_DURATION_MS);
+			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_stop(&(compressor_ctx.sound_zca_regulation_max), COMPRESSOR_FADE_DURATION_MS);
+			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_turn_on), COMPRESSOR_FADE_DURATION_MS);
+			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_on_0), COMPRESSOR_FADE_DURATION_MS);
+			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_stop(&(compressor_ctx.sound_zcd_on_1), COMPRESSOR_FADE_DURATION_MS);
+			SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 			// Update state.
 			compressor_ctx.internal_state = COMPRESSOR_INTERNAL_STATE_TURN_OFF;
 		}
@@ -250,15 +213,13 @@ COMPRESSOR_status_t COMPRESSOR_process(void) {
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 	sound_status = SOUND_update(&(compressor_ctx.sound_zca_regulation_max));
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_update(&(compressor_ctx.sound_zca_turn_off));
-	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 	sound_status = SOUND_update(&(compressor_ctx.sound_zcd_turn_on));
-	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_update(&(compressor_ctx.sound_zcd_turn_off));
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 	sound_status = SOUND_update(&(compressor_ctx.sound_zcd_on_0));
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 	sound_status = SOUND_update(&(compressor_ctx.sound_zcd_on_1));
+	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_update(&(compressor_ctx.sound_zcx_turn_off));
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 	// Perform state machine.
 	switch (compressor_ctx.internal_state) {
@@ -324,15 +285,13 @@ COMPRESSOR_status_t COMPRESSOR_process(void) {
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 	sound_status = SOUND_process(&(compressor_ctx.sound_zca_regulation_max));
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_process(&(compressor_ctx.sound_zca_turn_off));
-	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 	sound_status = SOUND_process(&(compressor_ctx.sound_zcd_turn_on));
-	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_process(&(compressor_ctx.sound_zcd_turn_off));
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 	sound_status = SOUND_process(&(compressor_ctx.sound_zcd_on_0));
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 	sound_status = SOUND_process(&(compressor_ctx.sound_zcd_on_1));
+	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
+	sound_status = SOUND_process(&(compressor_ctx.sound_zcx_turn_off));
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 errors:
 #ifdef LOG_COMPRESSOR

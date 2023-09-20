@@ -176,9 +176,11 @@ ORTS_status_t ORTS_process(void) {
 			LSMCU_stack_exit_error(ORTS_ERROR_DRIVER_LSMCU);
 		}
 	}
+	// Log data.
+	LOG("speed=%dkm/h speed_limit=%dkm/h", orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH], orts_ctx.data[ORTS_DATA_INDEX_SPEED_LIMIT_KMH]);
 errors:
 #ifdef LOG_ORTS
-	LOG_STATUS(status, ORTS_SUCCESS, "OK (%d API data bytes received). speed=%dkm/h, speed_limit=%dkm/h)", (orts_ctx.curl_data_index + 1), orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH], orts_ctx.data[ORTS_DATA_INDEX_SPEED_LIMIT_KMH]);
+	LOG_STATUS(status, ORTS_SUCCESS, "OK");
 #endif
 	return status;
 }
