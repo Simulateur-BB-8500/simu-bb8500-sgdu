@@ -23,6 +23,7 @@
 //#define LOG_LSMCU
 //#define LOG_MP
 //#define LOG_MPINV
+//#define LOG_PBL2
 //#define LOG_WHISTLE
 //#define LOG_ZDJ
 //#define LOG_ZPT

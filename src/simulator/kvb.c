@@ -73,10 +73,10 @@ KVB_status_t KVB_set_state(KVB_state_t state) {
 		// Log action.
 		LOG("state=KVB_STATE_OFF");
 		// Play and stop sounds.
-		sound_status = SOUND_play(&(kvb_ctx.sound_on), 0);
-		SOUND_stack_exit_error(KVB_ERROR_DRIVER_SOUND);
-//		sound_status = SOUND_stop(&(kvb_ctx.sound_off), 0);
+//		sound_status = SOUND_play(&(kvb_ctx.sound_off), 0);
 //		SOUND_stack_exit_error(KVB_ERROR_DRIVER_SOUND);
+		sound_status = SOUND_stop(&(kvb_ctx.sound_on), 0);
+		SOUND_stack_exit_error(KVB_ERROR_DRIVER_SOUND);
 		break;
 	default:
 		status = KVB_ERROR_STATE;

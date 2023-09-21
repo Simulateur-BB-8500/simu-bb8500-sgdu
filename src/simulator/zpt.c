@@ -45,8 +45,8 @@ ZPT_status_t ZPT_init(void) {
 	ZPT_status_t status = ZPT_SUCCESS;
 	SOUND_status_t sound_status = SOUND_SUCCESS;
 	// Init context.
-	zpt_ctx.rear_state = ZPT_STATE_DOWN;
-	zpt_ctx.front_state = ZPT_STATE_DOWN;
+	zpt_ctx.rear_state = ZPT_STATE_LAST;
+	zpt_ctx.front_state = ZPT_STATE_LAST;
 	// Init sounds.
 	sound_status = SOUND_init(&(zpt_ctx.sound_rear_up), "zpt_up.wav", ZPT_REAR_AUDIO_GAIN);
 	SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
@@ -78,17 +78,19 @@ ZPT_status_t ZPT_set_position(ZPT_pantograph_t pantograph, ZPT_state_t state) {
 	switch (pantograph) {
 	case ZPT_PANTOGRAPH_REAR:
 		// Check state change.
-		if ((zpt_ctx.rear_state == ZPT_STATE_DOWN) && (state == ZPT_STATE_UP)) {
+		if ((zpt_ctx.rear_state != ZPT_STATE_UP) && (state == ZPT_STATE_UP)) {
 			// Log action.
 			LOG("pantograph=ZPT_PANTOGRAPH_REAR state=ZPT_STATE_UP");
-			// Play sound.
+			// Play and stop sounds.
 			sound_status = SOUND_play(&(zpt_ctx.sound_rear_up), 0);
+			SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_stop(&(zpt_ctx.sound_rear_down), 0);
 			SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
 			// Send OpenRails shortcut.
 			keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_ZPT_BACK_TOGGLE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 			KEYBOARD_stack_exit_error(ZPT_ERROR_DRIVER_KEYBOARD);
 		}
-		if ((zpt_ctx.rear_state == ZPT_STATE_UP) && (state == ZPT_STATE_DOWN)) {
+		if ((zpt_ctx.rear_state != ZPT_STATE_DOWN) && (state == ZPT_STATE_DOWN)) {
 			// Log action.
 			LOG("pantograph=ZPT_PANTOGRAPH_REAR state=ZPT_STATE_DOWN");
 			// Play and stop sounds.
@@ -105,17 +107,19 @@ ZPT_status_t ZPT_set_position(ZPT_pantograph_t pantograph, ZPT_state_t state) {
 		break;
 	case ZPT_PANTOGRAPH_FRONT:
 		// Check state change.
-		if ((zpt_ctx.front_state == ZPT_STATE_DOWN) && (state == ZPT_STATE_UP)) {
+		if ((zpt_ctx.front_state != ZPT_STATE_UP) && (state == ZPT_STATE_UP)) {
 			// Log action.
 			LOG("pantograph=ZPT_PANTOGRAPH_FRONT state=ZPT_STATE_UP");
-			// Play sound.
+			// Play and stop sounds.
 			sound_status = SOUND_play(&(zpt_ctx.sound_front_up), 0);
+			SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_stop(&(zpt_ctx.sound_front_down), 0);
 			SOUND_stack_exit_error(ZPT_ERROR_DRIVER_SOUND);
 			// Send OpenRails shortcut.
 			keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_ZPT_FRONT_TOGGLE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 			KEYBOARD_stack_exit_error(ZPT_ERROR_DRIVER_KEYBOARD);
 		}
-		if ((zpt_ctx.front_state == ZPT_STATE_UP) && (state == ZPT_STATE_DOWN)) {
+		if ((zpt_ctx.front_state != ZPT_STATE_DOWN) && (state == ZPT_STATE_DOWN)) {
 			// Log action.
 			LOG("pantograph=ZPT_PANTOGRAPH_FRONT state=ZPT_STATE_DOWN");
 			// Play and stop sounds.

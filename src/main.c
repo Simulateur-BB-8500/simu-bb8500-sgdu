@@ -17,6 +17,7 @@
 #include "mp.h"
 #include "mpinv.h"
 #include "orts.h"
+#include "pbl2.h"
 #include "sound.h"
 #include "stdint.h"
 #include "stdio.h"
@@ -113,6 +114,7 @@ int main (void) {
 	MP_status_t mp_status = MP_SUCCESS;
 	MPINV_status_t mpinv_status = MPINV_SUCCESS;
 	ORTS_status_t orts_status = ORTS_SUCCESS;
+	PBL2_status_t pbl2_status = PBL2_SUCCESS;
 	SOUND_status_t sound_status = SOUND_SUCCESS;
 	WHISTLE_status_t whistle_status = WHISTLE_SUCCESS;
 	ZDJ_status_t zdj_status = ZDJ_SUCCESS;
@@ -152,6 +154,8 @@ int main (void) {
 			MP_stack_error();
 			mpinv_status = MPINV_init();
 			MPINV_stack_error();
+			pbl2_status = PBL2_init();
+			PBL2_stack_error();
 			whistle_status = WHISTLE_init();
 			WHISTLE_stack_error();
 			zdj_status = ZDJ_init();
@@ -161,7 +165,6 @@ int main (void) {
 			zvm_status = ZVM_init();
 			ZVM_stack_error();
 #ifdef LOG_ERROR_STACK
-			// Print error stack after initialization.
 			_LSAGIU_print_error_stack();
 #endif
 			// Compute next state.
@@ -191,7 +194,6 @@ int main (void) {
 					lsagiu_ctx.orts_server_connected = (orts_status == ORTS_SUCCESS) ? 1 : 0;
 				}
 #ifdef LOG_ERROR_STACK
-				// Print error stack.
 				_LSAGIU_print_error_stack();
 #endif
 			}
@@ -216,6 +218,8 @@ int main (void) {
 			FPB_stack_error();
 			fd_status = FD_process();
 			FD_stack_error();
+			pbl2_status = PBL2_process();
+			PBL2_stack_error();
 			zvm_status = ZVM_process();
 			ZVM_stack_error();
 			// Process peripherals.

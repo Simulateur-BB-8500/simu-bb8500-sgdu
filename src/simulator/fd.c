@@ -20,7 +20,6 @@
 /*** FD local macros ***/
 
 #define FD_FADE_DURATION_MS		500
-#define FD_LOG
 
 /*** FD local structures ***/
 
@@ -42,6 +41,8 @@ FD_status_t FD_init(void) {
 	// Local variables.
 	FD_status_t status = FD_SUCCESS;
 	SOUND_status_t sound_status = SOUND_SUCCESS;
+	// Init context.
+	fd_ctx.state = FD_STATE_LAST;
 	// Init sounds.
 	sound_status = SOUND_init(&(fd_ctx.sound_apply), "fd_apply.wav", FD_AUDIO_GAIN);
 	SOUND_stack_exit_error(FD_ERROR_DRIVER_SOUND);
@@ -67,8 +68,10 @@ FD_status_t FD_set_state(FD_state_t state) {
 		if (fd_ctx.state != FD_STATE_APPLY) {
 			// Log action.
 			LOG("state=FD_STATE_APPLY");
-			// Play sound.
+			// Play and stop sounds.
 			sound_status = SOUND_play(&(fd_ctx.sound_apply), 0);
+			SOUND_stack_exit_error(FD_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_stop(&(fd_ctx.sound_release), FD_FADE_DURATION_MS);
 			SOUND_stack_exit_error(FD_ERROR_DRIVER_SOUND);
 			// Press OpenRails shortcut.
 			keyboard_status = KEYBOARD_press(&ORTS_SHORTCUT_FD_APPLY);
@@ -103,8 +106,10 @@ FD_status_t FD_set_state(FD_state_t state) {
 		if (fd_ctx.state != FD_STATE_RELEASE) {
 			// Log action.
 			LOG("state=FD_STATE_RELEASE");
-			// Play sound.
+			// Play and stop sounds.
 			sound_status = SOUND_play(&(fd_ctx.sound_release), 0);
+			SOUND_stack_exit_error(FD_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_stop(&(fd_ctx.sound_apply), FD_FADE_DURATION_MS);
 			SOUND_stack_exit_error(FD_ERROR_DRIVER_SOUND);
 			// Press OpenRails shortcut.
 			keyboard_status = KEYBOARD_press(&ORTS_SHORTCUT_FD_RELEASE);

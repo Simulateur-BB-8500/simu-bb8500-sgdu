@@ -16,6 +16,7 @@
 #define KVB_AUDIO_GAIN			1.0
 #define MP_AUDIO_GAIN			1.0
 #define MPINV_AUDIO_GAIN		1.0
+#define PBL2_AUDIO_GAIN			1.0
 #define ZDJ_AUDIO_GAIN			1.0
 #define ZVM_AUDIO_GAIN			1.0
 #define ZPT_FRONT_AUDIO_GAIN	1.0

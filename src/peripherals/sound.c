@@ -11,6 +11,7 @@
 #include "fmod.h"
 #include "fmod_common.h"
 #include "log.h"
+#include "math.h"
 #include "stddef.h"
 #include "stdint.h"
 #include "stdio.h"
@@ -22,7 +23,11 @@
 #define SOUND_FMOD_NUMBER_OF_CHANNELS			32
 #define SOUND_AUDIO_FILE_NAME_MAXIMUM_LENGTH	100
 #define SOUND_AUDIO_FILES_FOLDER_PATH			"C:/Users/User/Documents/git/ls-agiu/audio/"
+
 #define SOUND_FADE_IN_START_OFFSET				0.01
+//#define SOUND_FADE_EQUATION_LINEAR
+#define SOUND_FADE_EQUATION_TRIGONOMETRIC
+//#define SOUND_FADE_EQUATION_ELLIPTIC
 
 /*** SOUND local global variables ***/
 
@@ -261,11 +266,11 @@ errors:
 SOUND_status_t SOUND_process(SOUND_context_t* sound_ctx) {
 	// Local variables.
 	SOUND_status_t status = SOUND_SUCCESS;
-	float new_volume = 0.0;
-	float alpha = 0.0;
-	float beta = 0.0;
-	float gamma = 0.0;
-	float p = 0.0;
+	double new_volume = 0.0;
+	double alpha = 0.0;
+	double beta = 0.0;
+	double gamma = 0.0;
+	double p = 0.0;
 	// Check parameter.
 	if (sound_ctx == NULL) {
 		status = SOUND_ERROR_NULL_PARAMETER;
@@ -299,14 +304,32 @@ SOUND_status_t SOUND_process(SOUND_context_t* sound_ctx) {
 			// Compute fade volume.
 			switch ((sound_ctx -> fade_effect).type) {
 			case SOUND_FADE_TYPE_IN:
+				// Compute new volume.
+#ifdef SOUND_FADE_EQUATION_LINEAR
+				new_volume = alpha + ((SOUND_AUDIO_VOLUME_MAX - alpha) * ((p - beta)) / (gamma));
+#endif
+#ifdef SOUND_FADE_EQUATION_TRIGONOMETRIC
+				new_volume = alpha + ((SOUND_AUDIO_VOLUME_MAX - alpha) * sin((M_PI * (p - beta)) / (2 * gamma)));
+#endif
+#ifdef SOUND_FADE_EQUATION_ELLIPTIC
+				new_volume = alpha + ((SOUND_AUDIO_VOLUME_MAX - alpha) * sqrt(1.0 - pow(((p - beta - gamma) / (gamma)), 2.0)));
+#endif
 				// Add offset to ensure first computed volume is not 0.
-				if (alpha == 0) {
-					alpha = SOUND_FADE_IN_START_OFFSET;
+				if (new_volume == 0.0) {
+					new_volume = SOUND_FADE_IN_START_OFFSET;
 				}
-				new_volume = alpha + (((SOUND_AUDIO_VOLUME_MAX - alpha) * (p - beta)) / (gamma));
 				break;
 			case SOUND_FADE_TYPE_OUT:
-				new_volume = alpha - ((alpha * (p - beta)) / (gamma));
+				// Compute new volume.
+#ifdef SOUND_FADE_EQUATION_LINEAR
+				new_volume = alpha - (((alpha - SOUND_AUDIO_VOLUME_MIN) * (p - beta)) / (gamma));
+#endif
+#ifdef SOUND_FADE_EQUATION_TRIGONOMETRIC
+				new_volume = SOUND_AUDIO_VOLUME_MIN + ((alpha - SOUND_AUDIO_VOLUME_MIN) * cos((M_PI * (p - beta)) / (2 * gamma)));
+#endif
+#ifdef SOUND_FADE_EQUATION_ELLIPTIC
+				new_volume = SOUND_AUDIO_VOLUME_MIN + ((alpha - SOUND_AUDIO_VOLUME_MIN) * sqrt(1.0 - pow(((p - beta) / (gamma)), 2.0)));
+#endif
 				break;
 			default:
 				status = SOUND_ERROR_FADE_TYPE;
@@ -325,7 +348,7 @@ SOUND_status_t SOUND_process(SOUND_context_t* sound_ctx) {
 		if (status != SOUND_SUCCESS) goto errors;
 	}
 	// Set volume.
-	status = _SOUND_set_volume(sound_ctx, new_volume);
+	status = _SOUND_set_volume(sound_ctx, (float) new_volume);
 	if (status != SOUND_SUCCESS) goto errors;
 errors:
 #ifdef LOG_SOUND

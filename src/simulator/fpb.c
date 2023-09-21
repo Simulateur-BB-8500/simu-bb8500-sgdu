@@ -42,6 +42,8 @@ FPB_status_t FPB_init(void) {
 	// Local variables.
 	FPB_status_t status = FPB_SUCCESS;
 	SOUND_status_t sound_status = SOUND_SUCCESS;
+	// Init state.
+	fpb_ctx.state = FPB_STATE_LAST;
 	// Init sounds.
 	sound_status = SOUND_init(&(fpb_ctx.sound_apply), "fpb_apply.wav", FPB_AUDIO_GAIN);
 	SOUND_stack_exit_error(FPB_ERROR_DRIVER_SOUND);
@@ -67,8 +69,10 @@ FPB_status_t FPB_set_state(FPB_state_t state) {
 		if (fpb_ctx.state != FPB_STATE_APPLY) {
 			// Log action.
 			LOG("state=FPB_STATE_APPLY");
-			// Play sound.
+			// Play and stop sounds.
 			sound_status = SOUND_play(&(fpb_ctx.sound_apply), 0);
+			SOUND_stack_exit_error(FPB_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_stop(&(fpb_ctx.sound_release), FPB_FADE_DURATION_MS);
 			SOUND_stack_exit_error(FPB_ERROR_DRIVER_SOUND);
 			// Press OpenRails shortcut.
 			keyboard_status = KEYBOARD_press(&ORTS_SHORTCUT_FPB_APPLY);
@@ -103,8 +107,10 @@ FPB_status_t FPB_set_state(FPB_state_t state) {
 		if (fpb_ctx.state != FPB_STATE_RELEASE) {
 			// Log action.
 			LOG("state=FPB_STATE_RELEASE");
-			// Play sound.
+			// Play and stop sounds.
 			sound_status = SOUND_play(&(fpb_ctx.sound_release), 0);
+			SOUND_stack_exit_error(FPB_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_stop(&(fpb_ctx.sound_apply), FPB_FADE_DURATION_MS);
 			SOUND_stack_exit_error(FPB_ERROR_DRIVER_SOUND);
 			// Press OpenRails shortcut.
 			keyboard_status = KEYBOARD_press(&ORTS_SHORTCUT_FPB_RELEASE);

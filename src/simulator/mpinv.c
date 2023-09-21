@@ -41,6 +41,8 @@ MPINV_status_t MPINV_init(void) {
 	// Local variables.
 	MPINV_status_t status = MPINV_SUCCESS;
 	SOUND_status_t sound_status = SOUND_SUCCESS;
+	// Init context.
+	mpinv_ctx.position = MPINV_POSITION_LAST;
 	// Init sounds.
 	sound_status = SOUND_init(&(mpinv_ctx.sound_neutral), "mpinv_neutral.wav", MPINV_AUDIO_GAIN);
 	SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
@@ -61,6 +63,23 @@ MPINV_status_t MPINV_set_position(MPINV_position_t position) {
 	KEYBOARD_status_t keyboard_status = KEYBOARD_SUCCESS;
 	// Check position.
 	switch (position) {
+	case MPINV_POSITION_FORWARD:
+			// Check state change.
+			if (mpinv_ctx.position != MPINV_POSITION_FORWARD) {
+				// Log action.
+				LOG("position=MPINV_POSITION_FORWARD");
+				// Play sound.
+				sound_status = SOUND_play(&(mpinv_ctx.sound_forward_backward), 0);
+				SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
+				sound_status = SOUND_stop(&(mpinv_ctx.sound_neutral), 0);
+				SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
+				// Send OpenRails shortcuts.
+				keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_MPINV_FORWARD, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+				KEYBOARD_stack_exit_error(MPINV_ERROR_DRIVER_KEYBOARD);
+				keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_MPINV_FORWARD, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+				KEYBOARD_stack_exit_error(MPINV_ERROR_DRIVER_KEYBOARD);
+			}
+			break;
 	case MPINV_POSITION_NEUTRAL:
 		// Check state change.
 		if (mpinv_ctx.position != MPINV_POSITION_NEUTRAL) {
@@ -69,17 +88,22 @@ MPINV_status_t MPINV_set_position(MPINV_position_t position) {
 			// Play sound.
 			sound_status = SOUND_play(&(mpinv_ctx.sound_neutral), 0);
 			SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
-
-		}
-		break;
-	case MPINV_POSITION_FORWARD:
-		// Check state change.
-		if (mpinv_ctx.position != MPINV_POSITION_FORWARD) {
-			// Log action.
-			LOG("position=MPINV_POSITION_FORWARD");
-			// Play sound.
-			sound_status = SOUND_play(&(mpinv_ctx.sound_forward_backward), 0);
+			sound_status = SOUND_stop(&(mpinv_ctx.sound_forward_backward), 0);
 			SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
+			// Send OpenRails shortcuts.
+			switch (mpinv_ctx.position) {
+			case MPINV_POSITION_FORWARD:
+				keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_MPINV_BACKWARD, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+				KEYBOARD_stack_exit_error(MPINV_ERROR_DRIVER_KEYBOARD);
+				break;
+			case MPINV_POSITION_BACKWARD:
+				keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_MPINV_FORWARD, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+				KEYBOARD_stack_exit_error(MPINV_ERROR_DRIVER_KEYBOARD);
+				break;
+			default:
+				status = MPINV_ERROR_POSITION;
+				goto errors;
+			}
 		}
 		break;
 	case MPINV_POSITION_BACKWARD:
@@ -87,29 +111,21 @@ MPINV_status_t MPINV_set_position(MPINV_position_t position) {
 		if (mpinv_ctx.position != MPINV_POSITION_BACKWARD) {
 			// Log action.
 			LOG("position=MPINV_POSITION_BACKWARD");
-			// Play sound.
+			// Play and stop sound.
 			sound_status = SOUND_play(&(mpinv_ctx.sound_forward_backward), 0);
 			SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_stop(&(mpinv_ctx.sound_neutral), 0);
+			SOUND_stack_exit_error(MPINV_ERROR_DRIVER_SOUND);
+			// Send OpenRails shortcuts.
+			keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_MPINV_BACKWARD, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_stack_exit_error(MPINV_ERROR_DRIVER_KEYBOARD);
+			keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_MPINV_BACKWARD, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_stack_exit_error(MPINV_ERROR_DRIVER_KEYBOARD);
 		}
 		break;
 	default:
 		status = MPINV_ERROR_POSITION;
 		goto errors;
-	}
-	// Send OpenRails shortcuts.
-	while (mpinv_ctx.position < position) {
-		// Send shortcut.
-		keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_MPINV_FORWARD, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
-		KEYBOARD_stack_exit_error(MPINV_ERROR_DRIVER_KEYBOARD);
-		// Increase position.
-		mpinv_ctx.position++;
-	}
-	while (mpinv_ctx.position > position) {
-		// Send shortcut.
-		keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_MPINV_BACKWARD, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
-		KEYBOARD_stack_exit_error(MPINV_ERROR_DRIVER_KEYBOARD);
-		// Increase position.
-		mpinv_ctx.position--;
 	}
 	// Update local position.
 	mpinv_ctx.position = position;

@@ -18,7 +18,7 @@
 /*** ZVM local macros ***/
 
 #define ZVM_FADE_DURATION_MS	1000
-#define ZVM_FADE_MARGIN_MS		1000
+#define ZVM_FADE_MARGIN_MS		100
 #define ZVM_LOG
 
 /*** ZVM local structures ***/
@@ -94,7 +94,7 @@ ZVM_status_t ZVM_init(void) {
 	ZVM_status_t status = ZVM_SUCCESS;
 	SOUND_status_t sound_status = SOUND_SUCCESS;
 	// Init internal_state machine.
-	zvm_ctx.state = ZVM_STATE_OFF;
+	zvm_ctx.state = ZVM_STATE_LAST;
 	zvm_ctx.internal_state = ZVM_INTERNAL_STATE_TURN_OFF;
 	// Init sounds.
 	sound_status = SOUND_init(&(zvm_ctx.sound_turn_on), "zvm_turn_on.wav", ZVM_AUDIO_GAIN);
@@ -172,12 +172,14 @@ ZVM_status_t ZVM_process(void) {
 		}
 		else {
 			if ((zvm_ctx.sound_turn_on.position_ms) > (zvm_ctx.sound_turn_on.length_ms - ZVM_FADE_DURATION_MS - ZVM_FADE_MARGIN_MS)) {
-
-				LOG("turn_on_position_ms=%d START OVERLAP", (zvm_ctx.sound_turn_on.position_ms));
 				// Perform overlap.
 				sound_status = SOUND_play(&(zvm_ctx.sound_on_0), ZVM_FADE_DURATION_MS);
 				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
 				sound_status = SOUND_stop(&(zvm_ctx.sound_turn_on), ZVM_FADE_DURATION_MS);
+				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+				sound_status = SOUND_stop(&(zvm_ctx.sound_on_1), ZVM_FADE_DURATION_MS);
+				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+				sound_status = SOUND_stop(&(zvm_ctx.sound_turn_off), ZVM_FADE_DURATION_MS);
 				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
 				// Update state.
 				zvm_ctx.internal_state = ZVM_INTERNAL_STATE_ON_0;
@@ -199,6 +201,10 @@ ZVM_status_t ZVM_process(void) {
 				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
 				sound_status = SOUND_stop(&(zvm_ctx.sound_on_0), ZVM_FADE_DURATION_MS);
 				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+				sound_status = SOUND_stop(&(zvm_ctx.sound_turn_on), ZVM_FADE_DURATION_MS);
+				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+				sound_status = SOUND_stop(&(zvm_ctx.sound_turn_off), ZVM_FADE_DURATION_MS);
+				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
 				// Update state.
 				zvm_ctx.internal_state = ZVM_INTERNAL_STATE_ON_1;
 			}
@@ -218,6 +224,10 @@ ZVM_status_t ZVM_process(void) {
 				sound_status = SOUND_play(&(zvm_ctx.sound_on_0), ZVM_FADE_DURATION_MS);
 				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
 				sound_status = SOUND_stop(&(zvm_ctx.sound_on_1), ZVM_FADE_DURATION_MS);
+				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+				sound_status = SOUND_stop(&(zvm_ctx.sound_turn_on), ZVM_FADE_DURATION_MS);
+				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
+				sound_status = SOUND_stop(&(zvm_ctx.sound_turn_off), ZVM_FADE_DURATION_MS);
 				SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
 				// Update state.
 				zvm_ctx.internal_state = ZVM_INTERNAL_STATE_ON_0;

@@ -17,6 +17,7 @@
 #include "lsagiu.h"
 #include "mp.h"
 #include "mpinv.h"
+#include "pbl2.h"
 #include "serial.h"
 #include "stdint.h"
 #include "stdio.h"
@@ -74,18 +75,19 @@ errors:
 LSMCU_status_t LSMCU_process(void) {
 	// Local variables.
 	LSMCU_status_t status = LSMCU_SUCCESS;
-	SERIAL_status_t serial_status = SERIAL_SUCCESS;
-	KVB_status_t kvb_status = KVB_SUCCESS;
-	ZPT_status_t zpt_status = ZPT_SUCCESS;
-	ZDJ_status_t zdj_status = ZDJ_SUCCESS;
 	COMPRESSOR_status_t compressor_status = COMPRESSOR_SUCCESS;
-	FPB_status_t fpb_status = FPB_SUCCESS;
-	ZVM_status_t zvm_status = ZVM_SUCCESS;
-	MPINV_status_t mpinv_status = MPINV_SUCCESS;
-	MP_status_t mp_status = MP_SUCCESS;
 	FD_status_t fd_status = FD_SUCCESS;
-	WHISTLE_status_t whistle_status = WHISTLE_SUCCESS;
+	FPB_status_t fpb_status = FPB_SUCCESS;
+	KVB_status_t kvb_status = KVB_SUCCESS;
 	LIGHT_status_t light_status = LIGHT_SUCCESS;
+	MP_status_t mp_status = MP_SUCCESS;
+	MPINV_status_t mpinv_status = MPINV_SUCCESS;
+	PBL2_status_t pbl2_status = PBL2_SUCCESS;
+	SERIAL_status_t serial_status = SERIAL_SUCCESS;
+	WHISTLE_status_t whistle_status = WHISTLE_SUCCESS;
+	ZDJ_status_t zdj_status = ZDJ_SUCCESS;
+	ZPT_status_t zpt_status = ZPT_SUCCESS;
+	ZVM_status_t zvm_status = ZVM_SUCCESS;
 	uint8_t rx_command = LSMCU_OUT_NOP;
 	// Read serial port.
 	serial_status = SERIAL_read(&lsmcu_serial_port, &rx_command);
@@ -140,26 +142,31 @@ LSMCU_status_t LSMCU_process(void) {
 		zdj_status = ZDJ_set_state(ZDJ_STATE_LOCK);
 		ZDJ_stack_exit_error(LSMCU_ERROR_DRIVER_ZDJ);
 		break;
-	case LSMCU_OUT_COMPRESSOR_AUTO_REG_MIN_ON:
-		compressor_status = COMPRESSOR_set_request(COMPRESSOR_SOUND_REQUEST_ZCA_MIN);
+	case LSMCU_OUT_ZCA_REGULATION_MIN:
+		compressor_status = COMPRESSOR_set_request(COMPRESSOR_REQUEST_ZCA_REGULATION_MIN);
 		COMPRESSOR_stack_exit_error(LSMCU_ERROR_DRIVER_COMPRESSOR);
 		break;
-	case LSMCU_OUT_COMPRESSOR_AUTO_REG_MAX_ON:
-		compressor_status = COMPRESSOR_set_request(COMPRESSOR_SOUND_REQUEST_ZCA_MAX);
+	case LSMCU_OUT_ZCA_REGULATION_MAX:
+		compressor_status = COMPRESSOR_set_request(COMPRESSOR_REQUEST_ZCA_REGULATION_MAX);
 		COMPRESSOR_stack_exit_error(LSMCU_ERROR_DRIVER_COMPRESSOR);
 		break;
-	case LSMCU_OUT_COMPRESSOR_DIRECT_ON:
-		compressor_status = COMPRESSOR_set_request(COMPRESSOR_SOUND_REQUEST_ZCD);
+	case LSMCU_OUT_ZCD_ON:
+		compressor_status = COMPRESSOR_set_request(COMPRESSOR_REQUEST_ZCD_ON);
 		COMPRESSOR_stack_exit_error(LSMCU_ERROR_DRIVER_COMPRESSOR);
 		break;
-	case LSMCU_OUT_COMPRESSOR_OFF:
-		compressor_status = COMPRESSOR_set_request(COMPRESSOR_SOUND_REQUEST_OFF);
+	case LSMCU_OUT_ZCX_OFF:
+		compressor_status = COMPRESSOR_set_request(COMPRESSOR_REQUEST_ZCX_OFF);
 		COMPRESSOR_stack_exit_error(LSMCU_ERROR_DRIVER_COMPRESSOR);
 		break;
-	case LSMCU_OUT_FPB_ON:
-		// TODO
+	case LSMCU_OUT_PBL2_ON:
+		pbl2_status = PBL2_set_state(PBL2_STATE_ON);
+		PBL2_stack_exit_error(LSMCU_ERROR_DRIVER_PBL2);
 		break;
-	case LSMCU_OUT_FPB_OFF:
+	case LSMCU_OUT_PBL2_OFF:
+		pbl2_status = PBL2_set_state(PBL2_STATE_OFF);
+		PBL2_stack_exit_error(LSMCU_ERROR_DRIVER_PBL2);
+		break;
+	case LSMCU_OUT_BPGD:
 		// TODO
 		break;
 	case LSMCU_OUT_FPB_APPLY:
@@ -173,9 +180,6 @@ LSMCU_status_t LSMCU_process(void) {
 	case LSMCU_OUT_FPB_RELEASE:
 		fpb_status = FPB_set_state(FPB_STATE_RELEASE);
 		FPB_stack_exit_error(LSMCU_ERROR_DRIVER_FPB);
-		break;
-	case LSMCU_OUT_BPGD:
-		// TODO
 		break;
 	case LSMCU_OUT_ZVM_ON:
 		zvm_status = ZVM_set_state(ZVM_STATE_ON);
@@ -301,7 +305,7 @@ LSMCU_status_t LSMCU_process(void) {
 		light_status = LIGHT_set_state(LIGHT_TYPE_ZLFRD, LIGHT_STATE_OFF);
 		LIGHT_stack_exit_error(LSMCU_ERROR_DRIVER_LIGHT);
 		break;
-	case LSMCU_OUT_URGENCY:
+	case LSMCU_OUT_EMERGENCY:
 		// TODO
 		break;
 	case LSMCU_OUT_NOP:
