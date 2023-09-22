@@ -70,6 +70,7 @@ typedef struct {
 	uint32_t length_ms;
 	uint32_t position_ms;
 	float volume;
+	float mixer_gain;
 	float gain;
 	SOUND_fade_effect_t fade_effect;
 } SOUND_context_t;
@@ -86,15 +87,15 @@ typedef struct {
 SOUND_status_t SOUND_init_fmod_system(void);
 
 /*!******************************************************************
- * \fn SOUND_status_t SOUND_init(SOUND_context_t* sound_ctx, const char* audio_file_path, float maximum_volume)
+ * \fn SOUND_status_t SOUND_init(SOUND_context_t* sound_ctx, const char* audio_file_path, float mixer_gain)
  * \brief Init sound object.
  * \param[in]  	sound_ctx: Sound to initialize.
  * \param[in]	audio_file_name: Audio file name.
- * \param[in]	audio_gain: Normalized audio gain (0.0 to 1.0).
+ * \param[in]	mixer_gain: Normalized static mixer gain (0.0 to 1.0).
  * \param[out] 	none
  * \retval		Function execution status.
  *******************************************************************/
-SOUND_status_t SOUND_init(SOUND_context_t* sound_ctx, const char* audio_file_name, float audio_gain);
+SOUND_status_t SOUND_init(SOUND_context_t* sound_ctx, const char* audio_file_name, float mixer_gain);
 
 /*!******************************************************************
  * \fn SOUND_status_t SOUND_play(SOUND_context_t* sound_ctx)
@@ -115,6 +116,16 @@ SOUND_status_t SOUND_play(SOUND_context_t* sound_ctx, uint32_t fade_duration_ms)
  * \retval		Function execution status.
  *******************************************************************/
 SOUND_status_t SOUND_stop(SOUND_context_t* sound_ctx, uint32_t fade_duration_ms);
+
+/*!******************************************************************
+ * \fn SOUND_status_t SOUND_set_gain(SOUND_context_t* sound_ctx, float gain)
+ * \brief Stop sound dynamic gain.
+ * \param[in]  	sound_ctx: Sound to stop.
+ * \param[in]	gain: New gain to apply.
+ * \param[out] 	none
+ * \retval		Function execution status.
+ *******************************************************************/
+SOUND_status_t SOUND_set_gain(SOUND_context_t* sound_ctx, float gain);
 
 /*!******************************************************************
  * \fn SOUND_status_t SOUND_update(SOUND_context_t* sound_ctx)

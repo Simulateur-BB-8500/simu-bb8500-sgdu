@@ -19,7 +19,6 @@
 
 #define ZVM_FADE_DURATION_MS	1000
 #define ZVM_FADE_MARGIN_MS		100
-#define ZVM_LOG
 
 /*** ZVM local structures ***/
 
@@ -30,7 +29,7 @@ typedef enum {
 	ZVM_INTERNAL_STATE_ON_0,
 	ZVM_INTERNAL_STATE_ON_1,
 	ZVM_INTERNAL_STATE_LAST
-} ZVM_internal_internal_state;
+} ZVM_internal_state;
 
 /*******************************************************************/
 typedef struct {
@@ -39,7 +38,7 @@ typedef struct {
 	SOUND_context_t sound_on_1;
 	SOUND_context_t sound_turn_off;
 	ZVM_state_t state;
-	ZVM_internal_internal_state internal_state;
+	ZVM_internal_state internal_state;
 } ZVM_Context;
 
 /*** ZVM local global variables ***/

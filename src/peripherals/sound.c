@@ -61,7 +61,7 @@ SOUND_status_t _SOUND_set_volume(SOUND_context_t* sound_ctx, float new_volume) {
 	// Check flag.
 	if ((sound_ctx -> is_playing) != 0) {
 		// Set channel volume.
-		fmod_status = FMOD_Channel_SetVolume((sound_ctx -> fmod_channel), (new_volume * (sound_ctx -> gain)));
+		fmod_status = FMOD_Channel_SetVolume((sound_ctx -> fmod_channel), (new_volume * (sound_ctx -> mixer_gain) * (sound_ctx -> gain)));
 		FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
 	}
 	// Update object.
@@ -160,7 +160,7 @@ errors:
 }
 
 /*******************************************************************/
-SOUND_status_t SOUND_init(SOUND_context_t* sound_ctx, const char* audio_file_name, float audio_gain) {
+SOUND_status_t SOUND_init(SOUND_context_t* sound_ctx, const char* audio_file_name, float mixer_gain) {
 	// Local variables.
 	SOUND_status_t status = SOUND_SUCCESS;
 	FMOD_RESULT fmod_status = FMOD_OK;
@@ -170,7 +170,7 @@ SOUND_status_t SOUND_init(SOUND_context_t* sound_ctx, const char* audio_file_nam
 		status = SOUND_ERROR_NULL_PARAMETER;
 		goto errors;
 	}
-	if (audio_gain > SOUND_AUDIO_GAIN_MAX) {
+	if (mixer_gain > SOUND_AUDIO_GAIN_MAX) {
 		status = SOUND_ERROR_AUDIO_GAIN;
 		goto errors;
 	}
@@ -179,7 +179,8 @@ SOUND_status_t SOUND_init(SOUND_context_t* sound_ctx, const char* audio_file_nam
 	(sound_ctx -> length_ms) = 0;
 	(sound_ctx -> position_ms) = 0;
 	(sound_ctx -> volume) = SOUND_AUDIO_VOLUME_MIN;
-	(sound_ctx -> gain) = audio_gain;
+	(sound_ctx -> mixer_gain) = mixer_gain;
+	(sound_ctx -> gain) = SOUND_AUDIO_GAIN_MAX;
 	(sound_ctx -> fade_effect).type = SOUND_FADE_TYPE_OUT;
 	(sound_ctx -> fade_effect).duration_ms = 0;
 	(sound_ctx -> fade_effect).start_position_ms = 0;
@@ -234,6 +235,20 @@ errors:
 #ifdef LOG_SOUND
 	LOG_STATUS(status, SOUND_SUCCESS, "OK");
 #endif
+	return status;
+}
+
+/*******************************************************************/
+SOUND_status_t SOUND_set_gain(SOUND_context_t* sound_ctx, float gain) {
+	// Local variables.
+	SOUND_status_t status = SOUND_SUCCESS;
+	// Check parameter.
+	if (gain > SOUND_AUDIO_GAIN_MAX) {
+		status = SOUND_ERROR_AUDIO_GAIN;
+		goto errors;
+	}
+	(sound_ctx -> gain) = gain;
+errors:
 	return status;
 }
 

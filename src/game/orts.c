@@ -15,6 +15,7 @@
 #include "stdint.h"
 #include "string.h"
 #include "time.h"
+#include "track.h"
 
 /*** ORTS macros ***/
 
@@ -146,6 +147,7 @@ ORTS_status_t ORTS_process(void) {
 	// Local variables.
 	ORTS_status_t status = ORTS_SUCCESS;
 	LSMCU_status_t lsmcu_status = LSMCU_SUCCESS;
+	TRACK_status_t track_status = TRACK_SUCCESS;
 	CURLcode curl_status;
 	uint32_t idx = 0;
 	// Check period.
@@ -174,13 +176,14 @@ ORTS_status_t ORTS_process(void) {
 			LSMCU_stack_exit_error(ORTS_ERROR_DRIVER_LSMCU);
 			lsmcu_status = LSMCU_send(LSMCU_SPEED_LIMIT_OFFSET + (orts_ctx.data[ORTS_DATA_INDEX_SPEED_LIMIT_KMH] / LSAGIU_SPEED_LIMIT_FACTOR));
 			LSMCU_stack_exit_error(ORTS_ERROR_DRIVER_LSMCU);
+			// Send data to track module.
+			track_status = TRACK_set_speed(orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH]);
+			TRACK_stack_exit_error(ORTS_ERROR_DRIVER_TRACK);
 		}
 	}
-	// Log data.
-	LOG("speed=%dkm/h speed_limit=%dkm/h", orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH], orts_ctx.data[ORTS_DATA_INDEX_SPEED_LIMIT_KMH]);
 errors:
 #ifdef LOG_ORTS
-	LOG_STATUS(status, ORTS_SUCCESS, "OK");
+	LOG_STATUS(status, ORTS_SUCCESS, "speed=%dkm/h speed_limit=%dkm/h", orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH], orts_ctx.data[ORTS_DATA_INDEX_SPEED_LIMIT_KMH]);
 #endif
 	return status;
 }

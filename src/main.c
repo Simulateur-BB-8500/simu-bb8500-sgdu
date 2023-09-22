@@ -22,6 +22,7 @@
 #include "stdint.h"
 #include "stdio.h"
 #include "time.h"
+#include "track.h"
 #include "whistle.h"
 #include "zdj.h"
 #include "zpt.h"
@@ -116,6 +117,7 @@ int main (void) {
 	ORTS_status_t orts_status = ORTS_SUCCESS;
 	PBL2_status_t pbl2_status = PBL2_SUCCESS;
 	SOUND_status_t sound_status = SOUND_SUCCESS;
+	TRACK_status_t track_status = TRACK_SUCCESS;
 	WHISTLE_status_t whistle_status = WHISTLE_SUCCESS;
 	ZDJ_status_t zdj_status = ZDJ_SUCCESS;
 	ZPT_status_t zpt_status = ZPT_SUCCESS;
@@ -156,6 +158,8 @@ int main (void) {
 			MPINV_stack_error();
 			pbl2_status = PBL2_init();
 			PBL2_stack_error();
+			track_status = TRACK_init();
+			TRACK_stack_error();
 			whistle_status = WHISTLE_init();
 			WHISTLE_stack_error();
 			zdj_status = ZDJ_init();
@@ -220,6 +224,8 @@ int main (void) {
 			FD_stack_error();
 			pbl2_status = PBL2_process();
 			PBL2_stack_error();
+			track_status = TRACK_process();
+			TRACK_stack_error();
 			zvm_status = ZVM_process();
 			ZVM_stack_error();
 			// Process peripherals.
