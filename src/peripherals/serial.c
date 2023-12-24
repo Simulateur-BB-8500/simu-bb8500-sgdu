@@ -21,7 +21,7 @@
 #define SERIAL_PORT_TIMEOUT_MS			10
 #define SERIAL_PATH_HEADER				"\\\\.\\"
 #define SERIAL_PORT_NAME_MAX_LENGTH		5 // Maximum length = "COMxx" = 5.
-#define SERIAL_PORT_BAUD_RATE			9600
+#define SERIAL_PORT_BAUD_RATE			115200
 
 /*** SERIAL local functions ***/
 
