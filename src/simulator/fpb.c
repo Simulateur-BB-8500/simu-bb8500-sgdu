@@ -20,7 +20,6 @@
 /*** FPB local macros ***/
 
 #define FPB_FADE_DURATION_MS	500
-#define FPB_LOG
 
 /*** FPB local structures ***/
 

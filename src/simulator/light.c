@@ -15,10 +15,6 @@
 #include "stdio.h"
 #include "time.h"
 
-/*** LIGHTS local macros ***/
-
-#define LIGHTS_LOG
-
 /*** LIGHTS local structures ***/
 
 /*******************************************************************/

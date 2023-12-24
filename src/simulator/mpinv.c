@@ -17,10 +17,6 @@
 #include "stdio.h"
 #include "time.h"
 
-/*** MPINV local macros ***/
-
-#define MPINV_LOG
-
 /*** MPINV local structures ***/
 
 /*******************************************************************/

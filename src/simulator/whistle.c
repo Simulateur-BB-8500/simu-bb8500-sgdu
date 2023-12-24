@@ -16,10 +16,6 @@
 #include "stdio.h"
 #include "time.h"
 
-/*** WHISTLE local macros ***/
-
-#define WHISTLE_LOG
-
 /*** WHISTLE local structures ***/
 
 /*******************************************************************/
@@ -78,11 +74,11 @@ WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state) {
 			sound_status = SOUND_play(&(whistle_ctx.sound_high_tone), 0);
 			SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
 			// Stop all other sounds.
-			sound_status = SOUND_stop(&(whistle_ctx.sound_low_tone), 0);
+			sound_status = SOUND_stop(&(whistle_ctx.sound_low_tone), 50);
 			SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
-			sound_status = SOUND_stop(&(whistle_ctx.sound_low_tone_end), 0);
+			sound_status = SOUND_stop(&(whistle_ctx.sound_low_tone_end), 50);
 			SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
-			sound_status = SOUND_stop(&(whistle_ctx.sound_high_tone_end), 0);
+			sound_status = SOUND_stop(&(whistle_ctx.sound_high_tone_end), 50);
 			SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
 		}
 		break;
@@ -97,11 +93,11 @@ WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state) {
 				sound_status = SOUND_play(&(whistle_ctx.sound_low_tone_end), 0);
 				SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
 				// Stop all other sounds.
-				sound_status = SOUND_stop(&(whistle_ctx.sound_low_tone), 0);
+				sound_status = SOUND_stop(&(whistle_ctx.sound_low_tone), 50);
 				SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
-				sound_status = SOUND_stop(&(whistle_ctx.sound_high_tone), 0);
+				sound_status = SOUND_stop(&(whistle_ctx.sound_high_tone), 50);
 				SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
-				sound_status = SOUND_stop(&(whistle_ctx.sound_high_tone_end), 0);
+				sound_status = SOUND_stop(&(whistle_ctx.sound_high_tone_end), 50);
 				SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
 			}
 			if (whistle_ctx.state == WHISTLE_STATE_HIGH_TONE) {
@@ -109,11 +105,11 @@ WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state) {
 				sound_status = SOUND_play(&(whistle_ctx.sound_high_tone_end), 0);
 				SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
 				// Stop all other sounds.
-				sound_status = SOUND_stop(&(whistle_ctx.sound_low_tone), 0);
+				sound_status = SOUND_stop(&(whistle_ctx.sound_low_tone), 50);
 				SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
-				sound_status = SOUND_stop(&(whistle_ctx.sound_low_tone_end), 0);
+				sound_status = SOUND_stop(&(whistle_ctx.sound_low_tone_end), 50);
 				SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
-				sound_status = SOUND_stop(&(whistle_ctx.sound_high_tone), 0);
+				sound_status = SOUND_stop(&(whistle_ctx.sound_high_tone), 50);
 				SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
 			}
 		}
@@ -127,11 +123,11 @@ WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state) {
 			sound_status = SOUND_play(&(whistle_ctx.sound_low_tone), 0);
 			SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
 			// Stop all other sounds.
-			sound_status = SOUND_stop(&(whistle_ctx.sound_low_tone_end), 0);
+			sound_status = SOUND_stop(&(whistle_ctx.sound_low_tone_end), 50);
 			SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
-			sound_status = SOUND_stop(&(whistle_ctx.sound_high_tone), 0);
+			sound_status = SOUND_stop(&(whistle_ctx.sound_high_tone), 50);
 			SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
-			sound_status = SOUND_stop(&(whistle_ctx.sound_high_tone_end), 0);
+			sound_status = SOUND_stop(&(whistle_ctx.sound_high_tone_end), 50);
 			SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
 		}
 		break;
@@ -141,6 +137,18 @@ WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state) {
 	}
 	// Update state.
 	whistle_ctx.state = state;
+errors:
+#ifdef LOG_WHISTLE
+	LOG_STATUS(status, WHISTLE_SUCCESS, "OK");
+#endif
+	return status;
+}
+
+/*******************************************************************/
+WHISTLE_status_t WHISTLE_process(void) {
+	// Local variables.
+	WHISTLE_status_t status = WHISTLE_SUCCESS;
+	SOUND_status_t sound_status = SOUND_SUCCESS;
 	// Process sounds.
 	sound_status = SOUND_process(&(whistle_ctx.sound_low_tone));
 	SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);

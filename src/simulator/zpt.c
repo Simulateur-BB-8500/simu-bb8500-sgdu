@@ -17,10 +17,6 @@
 #include "stdio.h"
 #include "time.h"
 
-/*** ZPT local macros ***/
-
-#define ZPT_LOG
-
 /*** ZPT local structures ***/
 
 /*******************************************************************/

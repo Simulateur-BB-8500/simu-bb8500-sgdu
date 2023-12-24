@@ -55,6 +55,15 @@ WHISTLE_status_t WHISTLE_init(void);
  *******************************************************************/
 WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state);
 
+/*!******************************************************************
+ * \fn WHISTLE_status_t WHISTLE_process(void)
+ * \brief Main process of WHISTLE driver.
+ * \param[in]  	none
+ * \param[out] 	none
+ * \retval		Function execution status.
+ *******************************************************************/
+WHISTLE_status_t WHISTLE_process(void);
+
 /*******************************************************************/
 #define WHISTLE_exit_error(error_code) { if (whistle_status != WHISTLE_SUCCESS) { status = error_code; goto errors; } }
 

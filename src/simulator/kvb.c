@@ -15,10 +15,6 @@
 #include "stdio.h"
 #include "time.h"
 
-/*** KVB local macros ***/
-
-#define KVB_LOG
-
 /*** KVB local structures ***/
 
 /*******************************************************************/

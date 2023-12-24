@@ -20,7 +20,6 @@
 /*** MP local macros ***/
 
 #define MP_NUMBER_OF_VARIATOR_SOUNDS	10
-#define MP_LOG
 
 /*** MP local structures ***/
 

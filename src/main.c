@@ -226,6 +226,8 @@ int main (void) {
 			PBL2_stack_error();
 			track_status = TRACK_process();
 			TRACK_stack_error();
+			whistle_status = WHISTLE_process();
+			WHISTLE_stack_error();
 			zvm_status = ZVM_process();
 			ZVM_stack_error();
 			// Process peripherals.
