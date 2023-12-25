@@ -5,6 +5,7 @@
  *      Author: Ludo
  */
 
+#include "bpgd.h"
 #include "compressor.h"
 #include "error.h"
 #include "fd.h"
@@ -105,6 +106,7 @@ int main (void) {
 	printf("********************************************************************\n\n");
 	fflush(stdout);
 	// Local variables.
+	BPGD_status_t bpgd_status = BPGD_SUCCESS;
 	COMPRESSOR_status_t compressor_status = COMPRESSOR_SUCCESS;
 	FD_status_t fd_status = FD_SUCCESS;
 	FPB_status_t fpb_status = FPB_SUCCESS;
@@ -142,6 +144,8 @@ int main (void) {
 			SOUND_stack_error();
 			TIME_init();
 			// Init modules.
+			bpgd_status = BPGD_init();
+			BPGD_stack_error();
 			compressor_status = COMPRESSOR_init();
 			COMPRESSOR_stack_error();
 			fd_status = FD_init();
@@ -216,6 +220,8 @@ int main (void) {
 			lsmcu_status = LSMCU_process();
 			LSMCU_stack_error();
 			// Process modules.
+			bpgd_status = BPGD_process();
+			BPGD_stack_error();
 			compressor_status = COMPRESSOR_process();
 			COMPRESSOR_stack_error();
 			fpb_status = FPB_process();

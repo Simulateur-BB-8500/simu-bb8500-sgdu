@@ -25,6 +25,7 @@ typedef enum {
 	// Low level drivers errors.
 	ORTS_ERROR_DRIVER_CURL,
 	ORTS_ERROR_DRIVER_LSMCU,
+	ORTS_ERROR_DRIVER_FPB,
 	ORTS_ERROR_DRIVER_TRACK,
 	// Last index.
 	ORTS_ERROR_LAST

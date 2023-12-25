@@ -8,6 +8,8 @@
 #ifndef __FPB_H__
 #define __FPB_H__
 
+#include "stdint.h"
+
 /*** FPB structures ***/
 
 /*!******************************************************************
@@ -55,6 +57,15 @@ FPB_status_t FPB_init(void);
  * \retval		Function execution status.
  *******************************************************************/
 FPB_status_t FPB_set_state(FPB_state_t state);
+
+/*!******************************************************************
+ * \fn FPB_status_t FPB_set_state(FPB_state_t state)
+ * \brief Set current speed.
+ * \param[in]  	speed_kmh: Current speed in km/h.
+ * \param[out] 	none
+ * \retval		Function execution status.
+ *******************************************************************/
+FPB_status_t FPB_set_speed(uint8_t speed_kmh);
 
 /*!******************************************************************
  * \fn FPB_status_t FPB_process(void)

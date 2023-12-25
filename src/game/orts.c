@@ -9,6 +9,7 @@
 
 #include "curl/curl.h"
 #include "error.h"
+#include "fpb.h"
 #include "log.h"
 #include "lsagiu.h"
 #include "lsmcu.h"
@@ -147,6 +148,7 @@ ORTS_status_t ORTS_process(void) {
 	// Local variables.
 	ORTS_status_t status = ORTS_SUCCESS;
 	LSMCU_status_t lsmcu_status = LSMCU_SUCCESS;
+	FPB_status_t fpb_status = FPB_SUCCESS;
 	TRACK_status_t track_status = TRACK_SUCCESS;
 	CURLcode curl_status;
 	uint32_t idx = 0;
@@ -176,9 +178,11 @@ ORTS_status_t ORTS_process(void) {
 			LSMCU_stack_exit_error(ORTS_ERROR_DRIVER_LSMCU);
 			lsmcu_status = LSMCU_send(LSMCU_SPEED_LIMIT_OFFSET + (orts_ctx.data[ORTS_DATA_INDEX_SPEED_LIMIT_KMH] / LSAGIU_SPEED_LIMIT_FACTOR));
 			LSMCU_stack_exit_error(ORTS_ERROR_DRIVER_LSMCU);
-			// Send data to track module.
+			// Send data to other modules.
 			track_status = TRACK_set_speed(orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH]);
 			TRACK_stack_exit_error(ORTS_ERROR_DRIVER_TRACK);
+			fpb_status = FPB_set_speed(orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH]);
+			FPB_stack_exit_error(ORTS_ERROR_DRIVER_TRACK);
 		}
 	}
 errors:

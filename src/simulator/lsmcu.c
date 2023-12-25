@@ -7,6 +7,7 @@
 
 #include "lsmcu.h"
 
+#include "bpgd.h"
 #include "compressor.h"
 #include "error.h"
 #include "fd.h"
@@ -75,6 +76,7 @@ errors:
 LSMCU_status_t LSMCU_process(void) {
 	// Local variables.
 	LSMCU_status_t status = LSMCU_SUCCESS;
+	BPGD_status_t bpgd_status = BPGD_SUCCESS;
 	COMPRESSOR_status_t compressor_status = COMPRESSOR_SUCCESS;
 	FD_status_t fd_status = FD_SUCCESS;
 	FPB_status_t fpb_status = FPB_SUCCESS;
@@ -167,7 +169,8 @@ LSMCU_status_t LSMCU_process(void) {
 		PBL2_stack_exit_error(LSMCU_ERROR_DRIVER_PBL2);
 		break;
 	case LSMCU_OUT_BPGD:
-		// TODO
+		bpgd_status = BPGD_set_state(BPGD_STATE_ON);
+		BPGD_stack_exit_error(LSMCU_ERROR_DRIVER_BPGD);
 		break;
 	case LSMCU_OUT_FPB_APPLY:
 		fpb_status = FPB_set_state(FPB_STATE_APPLY);

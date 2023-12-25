@@ -119,7 +119,7 @@ SOUND_status_t SOUND_stop(SOUND_context_t* sound_ctx, uint32_t fade_duration_ms)
 
 /*!******************************************************************
  * \fn SOUND_status_t SOUND_set_gain(SOUND_context_t* sound_ctx, float gain)
- * \brief Stop sound dynamic gain.
+ * \brief Set sound dynamic gain.
  * \param[in]  	sound_ctx: Sound to stop.
  * \param[in]	gain: New gain to apply.
  * \param[out] 	none
