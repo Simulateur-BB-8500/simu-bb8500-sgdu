@@ -58,7 +58,7 @@ BPGD_status_t BPGD_set_state(BPGD_state_t state) {
 		if (bpgd_ctx.state != BPGD_STATE_ON) {
 			// Log action.
 			LOG("state=BPGD_STATE_ON");
-			// Play and stop sounds.
+			// Play sound.
 			sound_status = SOUND_play(&(bpgd_ctx.sound_turn_on), 0);
 			SOUND_stack_exit_error(BPGD_ERROR_DRIVER_SOUND);
 		}

@@ -7,6 +7,7 @@
 
 #include "bpgd.h"
 #include "compressor.h"
+#include "emergency.h"
 #include "error.h"
 #include "fd.h"
 #include "fpb.h"
@@ -108,6 +109,7 @@ int main (void) {
 	// Local variables.
 	BPGD_status_t bpgd_status = BPGD_SUCCESS;
 	COMPRESSOR_status_t compressor_status = COMPRESSOR_SUCCESS;
+	EMERGENCY_status_t emergency_status = EMERGENCY_SUCCESS;
 	FD_status_t fd_status = FD_SUCCESS;
 	FPB_status_t fpb_status = FPB_SUCCESS;
 	KEYBOARD_status_t keyboard_status = KEYBOARD_SUCCESS;
@@ -148,6 +150,8 @@ int main (void) {
 			BPGD_stack_error();
 			compressor_status = COMPRESSOR_init();
 			COMPRESSOR_stack_error();
+			emergency_status = EMERGENCY_init();
+			EMERGENCY_stack_error();
 			fd_status = FD_init();
 			FD_stack_error();
 			fpb_status = FPB_init();
@@ -224,6 +228,8 @@ int main (void) {
 			BPGD_stack_error();
 			compressor_status = COMPRESSOR_process();
 			COMPRESSOR_stack_error();
+			emergency_status = EMERGENCY_process();
+			EMERGENCY_stack_error();
 			fpb_status = FPB_process();
 			FPB_stack_error();
 			fd_status = FD_process();

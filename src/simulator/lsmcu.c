@@ -9,6 +9,7 @@
 
 #include "bpgd.h"
 #include "compressor.h"
+#include "emergency.h"
 #include "error.h"
 #include "fd.h"
 #include "fpb.h"
@@ -78,6 +79,7 @@ LSMCU_status_t LSMCU_process(void) {
 	LSMCU_status_t status = LSMCU_SUCCESS;
 	BPGD_status_t bpgd_status = BPGD_SUCCESS;
 	COMPRESSOR_status_t compressor_status = COMPRESSOR_SUCCESS;
+	EMERGENCY_status_t emergency_status = EMERGENCY_SUCCESS;
 	FD_status_t fd_status = FD_SUCCESS;
 	FPB_status_t fpb_status = FPB_SUCCESS;
 	KVB_status_t kvb_status = KVB_SUCCESS;
@@ -309,7 +311,8 @@ LSMCU_status_t LSMCU_process(void) {
 		LIGHT_stack_exit_error(LSMCU_ERROR_DRIVER_LIGHT);
 		break;
 	case LSMCU_OUT_EMERGENCY:
-		// TODO
+		EMERGENCY_set_state(EMERGENCY_STATE_ON);
+		EMERGENCY_stack_exit_error(LSMCU_ERROR_DRIVER_EMERGENCY);
 		break;
 	case LSMCU_OUT_NOP:
 		// Nothing to do.
