@@ -133,9 +133,10 @@ SOUND_status_t _SOUND_stop(SOUND_context_t* sound_ctx) {
 		fmod_status = FMOD_Channel_Stop(sound_ctx -> fmod_channel);
 		FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
 	}
-	// Update flag.
-	(sound_ctx -> is_playing) = 0;
 errors:
+	// Update flags.
+	(sound_ctx -> is_playing) = 0;
+	(sound_ctx -> play_request) = 0;
 	return status;
 }
 
@@ -175,6 +176,7 @@ SOUND_status_t SOUND_init(SOUND_context_t* sound_ctx, const char* audio_file_nam
 		goto errors;
 	}
 	// Init object.
+	(sound_ctx -> play_request) = 0;
 	(sound_ctx -> is_playing) = 0;
 	(sound_ctx -> length_ms) = 0;
 	(sound_ctx -> position_ms) = 0;
@@ -209,6 +211,8 @@ SOUND_status_t SOUND_play(SOUND_context_t* sound_ctx, uint32_t fade_duration_ms)
 		status = SOUND_ERROR_NULL_PARAMETER;
 		goto errors;
 	}
+	// Set request flag.
+	(sound_ctx -> play_request) = 1;
 	// Set fade parameters.
 	status = _SOUND_set_fade_parameters(sound_ctx, SOUND_FADE_TYPE_IN, fade_duration_ms);
 	if (status != SOUND_SUCCESS) goto errors;
@@ -291,6 +295,8 @@ SOUND_status_t SOUND_process(SOUND_context_t* sound_ctx) {
 		status = SOUND_ERROR_NULL_PARAMETER;
 		goto errors;
 	}
+	// Nothing to do if request flag is not set.
+	if ((sound_ctx -> play_request) == 0) goto errors;
 	// Update sound data.
 	status = SOUND_update(sound_ctx);
 	if (status != SOUND_SUCCESS) goto errors;
@@ -300,58 +306,63 @@ SOUND_status_t SOUND_process(SOUND_context_t* sound_ctx) {
 	gamma = (float) ((sound_ctx -> fade_effect).duration_ms);
 	p = (float) (sound_ctx -> position_ms);
 	// Check current position.
-	if ((p >= (beta + gamma)) || (p >= (sound_ctx -> length_ms))) {
-		// Clamp volume.
-		switch ((sound_ctx -> fade_effect).type) {
-		case SOUND_FADE_TYPE_IN:
-			new_volume = SOUND_AUDIO_VOLUME_MAX;
-			break;
-		case SOUND_FADE_TYPE_OUT:
-			new_volume = SOUND_AUDIO_VOLUME_MIN;
-			break;
-		default:
-			status = SOUND_ERROR_FADE_TYPE;
-			goto errors;
-		}
+	if (p >= (sound_ctx -> length_ms)) {
+		new_volume = 0.0;
 	}
 	else {
-		if (p >= beta) {
-			// Compute fade volume.
+		if (p >= (beta + gamma)) {
+			// Clamp volume.
 			switch ((sound_ctx -> fade_effect).type) {
 			case SOUND_FADE_TYPE_IN:
-				// Compute new volume.
-#ifdef SOUND_FADE_EQUATION_LINEAR
-				new_volume = alpha + ((SOUND_AUDIO_VOLUME_MAX - alpha) * ((p - beta)) / (gamma));
-#endif
-#ifdef SOUND_FADE_EQUATION_TRIGONOMETRIC
-				new_volume = alpha + ((SOUND_AUDIO_VOLUME_MAX - alpha) * sin((M_PI * (p - beta)) / (2 * gamma)));
-#endif
-#ifdef SOUND_FADE_EQUATION_ELLIPTIC
-				new_volume = alpha + ((SOUND_AUDIO_VOLUME_MAX - alpha) * sqrt(1.0 - pow(((p - beta - gamma) / (gamma)), 2.0)));
-#endif
-				// Add offset to ensure first computed volume is not 0.
-				if (new_volume == 0.0) {
-					new_volume = SOUND_FADE_IN_START_OFFSET;
-				}
+				new_volume = SOUND_AUDIO_VOLUME_MAX;
 				break;
 			case SOUND_FADE_TYPE_OUT:
-				// Compute new volume.
-#ifdef SOUND_FADE_EQUATION_LINEAR
-				new_volume = alpha - (((alpha - SOUND_AUDIO_VOLUME_MIN) * (p - beta)) / (gamma));
-#endif
-#ifdef SOUND_FADE_EQUATION_TRIGONOMETRIC
-				new_volume = SOUND_AUDIO_VOLUME_MIN + ((alpha - SOUND_AUDIO_VOLUME_MIN) * cos((M_PI * (p - beta)) / (2 * gamma)));
-#endif
-#ifdef SOUND_FADE_EQUATION_ELLIPTIC
-				new_volume = SOUND_AUDIO_VOLUME_MIN + ((alpha - SOUND_AUDIO_VOLUME_MIN) * sqrt(1.0 - pow(((p - beta) / (gamma)), 2.0)));
-#endif
+				new_volume = SOUND_AUDIO_VOLUME_MIN;
 				break;
 			default:
 				status = SOUND_ERROR_FADE_TYPE;
 				goto errors;
 			}
 		}
-		// Note: nothing to do if the current position is before the start position.
+		else {
+			if (p >= beta) {
+				// Compute fade volume.
+				switch ((sound_ctx -> fade_effect).type) {
+				case SOUND_FADE_TYPE_IN:
+					// Compute new volume.
+	#ifdef SOUND_FADE_EQUATION_LINEAR
+					new_volume = alpha + ((SOUND_AUDIO_VOLUME_MAX - alpha) * ((p - beta)) / (gamma));
+	#endif
+	#ifdef SOUND_FADE_EQUATION_TRIGONOMETRIC
+					new_volume = alpha + ((SOUND_AUDIO_VOLUME_MAX - alpha) * sin((M_PI * (p - beta)) / (2 * gamma)));
+	#endif
+	#ifdef SOUND_FADE_EQUATION_ELLIPTIC
+					new_volume = alpha + ((SOUND_AUDIO_VOLUME_MAX - alpha) * sqrt(1.0 - pow(((p - beta - gamma) / (gamma)), 2.0)));
+	#endif
+					// Add offset to ensure first computed volume is not 0.
+					if (new_volume == 0.0) {
+						new_volume = SOUND_FADE_IN_START_OFFSET;
+					}
+					break;
+				case SOUND_FADE_TYPE_OUT:
+					// Compute new volume.
+	#ifdef SOUND_FADE_EQUATION_LINEAR
+					new_volume = alpha - (((alpha - SOUND_AUDIO_VOLUME_MIN) * (p - beta)) / (gamma));
+	#endif
+	#ifdef SOUND_FADE_EQUATION_TRIGONOMETRIC
+					new_volume = SOUND_AUDIO_VOLUME_MIN + ((alpha - SOUND_AUDIO_VOLUME_MIN) * cos((M_PI * (p - beta)) / (2 * gamma)));
+	#endif
+	#ifdef SOUND_FADE_EQUATION_ELLIPTIC
+					new_volume = SOUND_AUDIO_VOLUME_MIN + ((alpha - SOUND_AUDIO_VOLUME_MIN) * sqrt(1.0 - pow(((p - beta) / (gamma)), 2.0)));
+	#endif
+					break;
+				default:
+					status = SOUND_ERROR_FADE_TYPE;
+					goto errors;
+				}
+			}
+			// Note: nothing to do if the current position is before the start position.
+		}
 	}
 	// Start or stop depending on volume.
 	if (new_volume > SOUND_AUDIO_VOLUME_MIN) {

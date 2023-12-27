@@ -66,6 +66,7 @@ typedef struct {
 typedef struct {
 	FMOD_CHANNEL* fmod_channel;
 	FMOD_SOUND* fmod_sound;
+	uint8_t play_request;
 	uint8_t is_playing;
 	uint32_t length_ms;
 	uint32_t position_ms;
