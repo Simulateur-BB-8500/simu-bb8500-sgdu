@@ -64,6 +64,18 @@ EMERGENCY_status_t EMERGENCY_set_state(EMERGENCY_state_t state) {
 			// Play sound.
 			sound_status = SOUND_play(&(emergency_ctx.sound_turn_on), 0);
 			SOUND_stack_exit_error(EMERGENCY_ERROR_DRIVER_SOUND);
+			sound_status = SOUND_process(&(emergency_ctx.sound_turn_on));
+			SOUND_stack_exit_error(EMERGENCY_ERROR_DRIVER_SOUND);
+			// Press OpenRails shortcut.
+			keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_BPURG, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
+			KEYBOARD_stack_exit_error(EMERGENCY_ERROR_DRIVER_KEYBOARD);
+		}
+		break;
+	case EMERGENCY_STATE_OFF:
+		// Check state change.
+		if (emergency_ctx.state != EMERGENCY_STATE_OFF) {
+			// Log action.
+			LOG("state=EMERGENCY_STATE_OFF");
 			// Press OpenRails shortcut.
 			keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_BPURG, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 			KEYBOARD_stack_exit_error(EMERGENCY_ERROR_DRIVER_KEYBOARD);
@@ -81,24 +93,3 @@ errors:
 #endif
 	return status;
 }
-
-/*******************************************************************/
-EMERGENCY_status_t EMERGENCY_process(void) {
-	// Local variables.
-	EMERGENCY_status_t status = EMERGENCY_SUCCESS;
-	SOUND_status_t sound_status = SOUND_SUCCESS;
-	// Process sounds.
-	sound_status = SOUND_process(&(emergency_ctx.sound_turn_on));
-	SOUND_stack_exit_error(EMERGENCY_ERROR_DRIVER_SOUND);
-	// Automatically come back to off state when the sound is finished.
-	if ((emergency_ctx.state == EMERGENCY_STATE_ON) && (emergency_ctx.sound_turn_on.is_playing == 0)) {
-		emergency_ctx.state = EMERGENCY_STATE_OFF;
-	}
-errors:
-#ifdef LOG_EMERGENCY
-	LOG_STATUS(status, EMERGENCY_SUCCESS, "OK");
-#endif
-	return status;
-}
-
-

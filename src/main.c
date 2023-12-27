@@ -228,8 +228,6 @@ int main (void) {
 			BPGD_stack_error();
 			compressor_status = COMPRESSOR_process();
 			COMPRESSOR_stack_error();
-			emergency_status = EMERGENCY_process();
-			EMERGENCY_stack_error();
 			fpb_status = FPB_process();
 			FPB_stack_error();
 			fd_status = FD_process();

@@ -310,8 +310,12 @@ LSMCU_status_t LSMCU_process(void) {
 		light_status = LIGHT_set_state(LIGHT_TYPE_ZLFRD, LIGHT_STATE_OFF);
 		LIGHT_stack_exit_error(LSMCU_ERROR_DRIVER_LIGHT);
 		break;
-	case LSMCU_OUT_EMERGENCY:
+	case LSMCU_OUT_EMERGENCY_ON:
 		EMERGENCY_set_state(EMERGENCY_STATE_ON);
+		EMERGENCY_stack_exit_error(LSMCU_ERROR_DRIVER_EMERGENCY);
+		break;
+	case LSMCU_OUT_EMERGENCY_OFF:
+		EMERGENCY_set_state(EMERGENCY_STATE_OFF);
 		EMERGENCY_stack_exit_error(LSMCU_ERROR_DRIVER_EMERGENCY);
 		break;
 	case LSMCU_OUT_NOP:

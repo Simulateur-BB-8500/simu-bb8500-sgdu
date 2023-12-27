@@ -55,15 +55,6 @@ EMERGENCY_status_t EMERGENCY_init(void);
  *******************************************************************/
 EMERGENCY_status_t EMERGENCY_set_state(EMERGENCY_state_t state);
 
-/*!******************************************************************
- * \fn EMERGENCY_status_t EMERGENCY_process(void)
- * \brief Main process of EMERGENCY driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
- *******************************************************************/
-EMERGENCY_status_t EMERGENCY_process(void);
-
 /*******************************************************************/
 #define EMERGENCY_exit_error(error_code) { if (emergency_status != EMERGENCY_SUCCESS) { status = error_code; goto errors; } }
 
