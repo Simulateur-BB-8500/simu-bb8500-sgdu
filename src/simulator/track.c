@@ -19,11 +19,16 @@
 
 /*** TRACK local macros ***/
 
-#define TRACK_FADE_ON_OFF_DURATION_MS	1000
-#define TRACK_FADE_DURATION_MS			10000
-#define TRACK_FADE_MARGIN_MS			100
+#define TRACK_FADE_ON_OFF_DURATION_MS		1000
+#define TRACK_FADE_DURATION_MS				10000
+#define TRACK_FADE_MARGIN_MS				100
 
-#define TRACK_SPEED_RANGE_NUMBER		5
+#define TRACK_SPEED_RANGE_NUMBER			5
+
+#define TRACK_STOP_SPEED_HISTORY_SIZE		5
+#define TRACK_STOP_SPEED_THRESHOLD_KMH		8
+#define TRACK_STOP_VARIATION_THRESHOLD_KMH	(-2)
+#define TRACK_STOP_FADE_DURATION_MS			1000
 
 /*** TRACK local structures ***/
 
@@ -48,7 +53,11 @@ typedef struct {
 /*******************************************************************/
 typedef struct {
 	uint8_t speed_kmh;
+	uint8_t speed_history_kmh[TRACK_STOP_SPEED_HISTORY_SIZE];
+	uint8_t speed_history_idx;
 	TRACK_speed_range_t speed_range[TRACK_SPEED_RANGE_NUMBER];
+	SOUND_context_t sound_stop;
+	uint8_t sound_stop_enable;
 } TRACK_Context;
 
 /*** TRACK local global variables ***/
@@ -72,6 +81,9 @@ TRACK_status_t TRACK_init(void) {
 	uint8_t idx = 0;
 	// Init context.
 	track_ctx.speed_kmh = 0;
+	for (idx=0 ; idx<TRACK_STOP_SPEED_HISTORY_SIZE ; idx++) track_ctx.speed_history_kmh[idx] = 0;
+	track_ctx.speed_history_idx = 0;
+	track_ctx.sound_stop_enable = 0;
 	// Init speed ranges.
 	for (idx=0 ; idx<TRACK_SPEED_RANGE_NUMBER ; idx++) {
 		// Init state.
@@ -97,6 +109,8 @@ TRACK_status_t TRACK_init(void) {
 		sound_status = SOUND_init(&(track_ctx.speed_range[idx].sound_1), audio_file_name, TRACK_AUDIO_GAIN);
 		SOUND_stack_exit_error(TRACK_ERROR_DRIVER_SOUND);
 	}
+	sound_status = SOUND_init(&(track_ctx.sound_stop), "track_stop.wav", (TRACK_AUDIO_GAIN / 2.0));
+	SOUND_stack_exit_error(TRACK_ERROR_DRIVER_SOUND);
 errors:
 #ifdef LOG_TRACK
 	LOG_STATUS(status, TRACK_SUCCESS, "OK");
@@ -110,6 +124,9 @@ TRACK_status_t TRACK_set_speed(uint8_t speed_kmh) {
 	TRACK_status_t status = TRACK_SUCCESS;
 	// Update local context.
 	track_ctx.speed_kmh = speed_kmh;
+	// Add new sample in history.
+	track_ctx.speed_history_kmh[track_ctx.speed_history_idx] = speed_kmh;
+	track_ctx.speed_history_idx = (track_ctx.speed_history_idx + 1) % TRACK_STOP_SPEED_HISTORY_SIZE;
 #ifdef LOG_TRACK
 	LOG_STATUS(status, TRACK_SUCCESS, "OK");
 #endif
@@ -127,6 +144,7 @@ TRACK_status_t TRACK_process(void) {
 	float gain = 0.0;
 	uint8_t idx = 0;
 	uint8_t speed_in_range_flag = 0;
+	int32_t speed_variation_kmh = 0;
 	// Ranges loop.
 	for (idx=0 ; idx<TRACK_SPEED_RANGE_NUMBER ; idx++) {
 		// Update sounds.
@@ -230,6 +248,36 @@ TRACK_status_t TRACK_process(void) {
 		sound_status = SOUND_process(&(track_ctx.speed_range[idx].sound_1));
 		SOUND_stack_exit_error(TRACK_ERROR_DRIVER_SOUND);
 	}
+	// Compute speed variation.
+	idx = (track_ctx.speed_history_idx == 0) ? (TRACK_STOP_SPEED_HISTORY_SIZE - 1) : (track_ctx.speed_history_idx - 1);
+	speed_variation_kmh = ((int32_t) track_ctx.speed_history_kmh[idx] - (int32_t) track_ctx.speed_history_kmh[track_ctx.speed_history_idx]);
+	// Manage stop sound.
+	if (track_ctx.speed_kmh == 0) {
+		// Stop sound when train stops.
+		sound_status = SOUND_stop(&(track_ctx.sound_stop), TRACK_STOP_FADE_DURATION_MS);
+		SOUND_stack_exit_error(TRACK_ERROR_DRIVER_SOUND);
+		// Reset flag.
+		track_ctx.sound_stop_enable = 0;
+	}
+	else {
+		// Check speed variation.
+		if ((track_ctx.speed_kmh < TRACK_STOP_SPEED_THRESHOLD_KMH) && (speed_variation_kmh <= TRACK_STOP_VARIATION_THRESHOLD_KMH) && (track_ctx.sound_stop_enable != 0)) {
+			// Play sound.
+			sound_status = SOUND_play(&(track_ctx.sound_stop), TRACK_STOP_FADE_DURATION_MS);
+			SOUND_stack_exit_error(TRACK_ERROR_DRIVER_SOUND);
+			// Reset flag.
+			track_ctx.sound_stop_enable = 0;
+		}
+		if (speed_variation_kmh >= 0) {
+			// Stop sound when speed in stable.
+			sound_status = SOUND_stop(&(track_ctx.sound_stop), TRACK_STOP_FADE_DURATION_MS);
+			SOUND_stack_exit_error(TRACK_ERROR_DRIVER_SOUND);
+			// Enable replay.
+			track_ctx.sound_stop_enable = 1;
+		}
+	}
+	sound_status = SOUND_process(&(track_ctx.sound_stop));
+	SOUND_stack_exit_error(TRACK_ERROR_DRIVER_SOUND);
 errors:
 #ifdef LOG_TRACK
 	LOG_STATUS(status, TRACK_SUCCESS, "OK");
