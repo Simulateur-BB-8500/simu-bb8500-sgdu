@@ -203,6 +203,23 @@ errors:
 }
 
 /*******************************************************************/
+SOUND_status_t SOUND_single_play(SOUND_context_t* sound_ctx) {
+	// Local variables.
+	SOUND_status_t status = SOUND_SUCCESS;
+	FMOD_RESULT fmod_status = FMOD_OK;
+	// Stop sound.
+	FMOD_Channel_Stop(sound_ctx -> fmod_channel);
+	// Play sound.
+	fmod_status = FMOD_System_PlaySound(sound_fmod_system, (sound_ctx -> fmod_sound), NULL, 0, &(sound_ctx -> fmod_channel));
+	FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
+	// Set default volume.
+	fmod_status = FMOD_Channel_SetVolume((sound_ctx -> fmod_channel), (SOUND_AUDIO_VOLUME_MAX * (sound_ctx -> mixer_gain) * (sound_ctx -> gain)));
+	FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
+errors:
+	return status;
+}
+
+/*******************************************************************/
 SOUND_status_t SOUND_play(SOUND_context_t* sound_ctx, uint32_t fade_duration_ms) {
 	// Local variables.
 	SOUND_status_t status = SOUND_SUCCESS;

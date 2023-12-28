@@ -99,6 +99,15 @@ SOUND_status_t SOUND_init_fmod_system(void);
 SOUND_status_t SOUND_init(SOUND_context_t* sound_ctx, const char* audio_file_name, float mixer_gain);
 
 /*!******************************************************************
+ * \fn SOUND_status_t SOUND_single_play(SOUND_context_t* sound_ctx)
+ * \brief Play sound.
+ * \param[in]  	sound_ctx: Sound to play.
+ * \param[out] 	none
+ * \retval		Function execution status.
+ *******************************************************************/
+SOUND_status_t SOUND_single_play(SOUND_context_t* sound_ctx);
+
+/*!******************************************************************
  * \fn SOUND_status_t SOUND_play(SOUND_context_t* sound_ctx)
  * \brief Play sound.
  * \param[in]  	sound_ctx: Sound to play.

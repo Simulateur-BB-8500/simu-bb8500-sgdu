@@ -161,6 +161,7 @@ TRACK_status_t TRACK_process(void) {
 				gain = SOUND_AUDIO_VOLUME_MIN + (((SOUND_AUDIO_VOLUME_MAX - SOUND_AUDIO_VOLUME_MIN) * ((float) track_ctx.speed_kmh - (float) start)) / ((float) median - (float) start));
 			}
 			else {
+				// Clamp for last sound.
 				if (idx == (TRACK_SPEED_RANGE_NUMBER - 1)) {
 					gain = SOUND_AUDIO_VOLUME_MAX;
 				}
