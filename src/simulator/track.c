@@ -24,6 +24,7 @@
 #define TRACK_FADE_MARGIN_MS				100
 
 #define TRACK_SPEED_RANGE_NUMBER			5
+#define TRACK_SPEED_RANGE_KMH				40
 
 #define TRACK_STOP_SPEED_HISTORY_SIZE		5
 #define TRACK_STOP_SPEED_THRESHOLD_KMH		8
@@ -62,9 +63,6 @@ typedef struct {
 
 /*** TRACK local global variables ***/
 
-static const uint8_t track_start_threshold_kmh[TRACK_SPEED_RANGE_NUMBER] = {0,  20, 40, 60, 80};
-static const uint8_t track_stop_threshold_kmh[TRACK_SPEED_RANGE_NUMBER] =  {40, 60, 80, 100, 255};
-
 static TRACK_Context track_ctx;
 
 /*** TRACK functions ***/
@@ -89,9 +87,9 @@ TRACK_status_t TRACK_init(void) {
 		// Init state.
 		track_ctx.speed_range[idx].state = TRACK_INTERNAL_STATE_OFF;
 		// Init thresholds and median speed.
-		track_ctx.speed_range[idx].start_threshold_kmh = track_start_threshold_kmh[idx];
-		track_ctx.speed_range[idx].stop_threshold_kmh = track_stop_threshold_kmh[idx];
-		track_ctx.speed_range[idx].median_speed_kmh = (uint8_t) ((((uint32_t)  track_start_threshold_kmh[idx]) + ((uint32_t)  track_stop_threshold_kmh[idx])) / (2));
+		track_ctx.speed_range[idx].start_threshold_kmh = ((TRACK_SPEED_RANGE_KMH / 2) * idx);
+		track_ctx.speed_range[idx].stop_threshold_kmh = (track_ctx.speed_range[idx].start_threshold_kmh + TRACK_SPEED_RANGE_KMH);
+		track_ctx.speed_range[idx].median_speed_kmh = (uint8_t) (((uint32_t) track_ctx.speed_range[idx].start_threshold_kmh + (uint32_t) track_ctx.speed_range[idx].stop_threshold_kmh) / (2));
 		// Copy base name.
 		strcpy(audio_file_name, audio_file_name_base);
 		// Build audio file name.
@@ -109,7 +107,7 @@ TRACK_status_t TRACK_init(void) {
 		sound_status = SOUND_init(&(track_ctx.speed_range[idx].sound_1), audio_file_name, TRACK_AUDIO_GAIN);
 		SOUND_stack_exit_error(TRACK_ERROR_DRIVER_SOUND);
 	}
-	sound_status = SOUND_init(&(track_ctx.sound_stop), "track_stop.wav", (TRACK_AUDIO_GAIN / 2.0));
+	sound_status = SOUND_init(&(track_ctx.sound_stop), "track_stop.wav", (TRACK_AUDIO_GAIN / 3.0));
 	SOUND_stack_exit_error(TRACK_ERROR_DRIVER_SOUND);
 errors:
 #ifdef LOG_TRACK
@@ -160,10 +158,16 @@ TRACK_status_t TRACK_process(void) {
 		if ((track_ctx.speed_kmh > start) && (track_ctx.speed_kmh < stop)) {
 			// Compute triangular equation.
 			if (track_ctx.speed_kmh < median) {
-				gain = SOUND_AUDIO_VOLUME_MIN + (((SOUND_AUDIO_VOLUME_MAX - SOUND_AUDIO_VOLUME_MIN) * (track_ctx.speed_kmh - start)) / (median - start));
+				gain = SOUND_AUDIO_VOLUME_MIN + (((SOUND_AUDIO_VOLUME_MAX - SOUND_AUDIO_VOLUME_MIN) * ((float) track_ctx.speed_kmh - (float) start)) / ((float) median - (float) start));
 			}
 			else {
-				gain = SOUND_AUDIO_VOLUME_MIN + (((SOUND_AUDIO_VOLUME_MIN - SOUND_AUDIO_VOLUME_MAX) * (track_ctx.speed_kmh - stop)) / (stop - median));
+				if (idx == (TRACK_SPEED_RANGE_NUMBER - 1)) {
+					gain = SOUND_AUDIO_VOLUME_MAX;
+				}
+				else {
+					gain = SOUND_AUDIO_VOLUME_MIN + (((SOUND_AUDIO_VOLUME_MAX - SOUND_AUDIO_VOLUME_MIN) * ((float) stop - (float) track_ctx.speed_kmh)) / ((float) stop - (float) median));
+				}
+
 			}
 			speed_in_range_flag = 1;
 		}
