@@ -27,16 +27,16 @@
 #define ORTS_HUD7_SPEED_DATA_KEYWORD	"Chemin"
 #define ORTS_HUD7_SPEED_UNIT			"km/h"
 
-#define ORTS_CURL_REQUEST_PERIOD_MS		1000
+#define ORTS_CURL_REQUEST_PERIOD_MS		500
 #define ORTS_REQUEST_TIMEOUT_S			1
 
 /*** ORTS local structures ***/
 
 /*******************************************************************/
 typedef enum {
-	ORTS_DATA_INDEX_SPEED_KMH = 0,
-	ORTS_DATA_INDEX_SPEED_LIMIT_KMH,
-	ORTS_DATA_INDEX_LAST
+	ORTS_API_SAMPLE_INDEX_SPEED_KMH = 0,
+	ORTS_API_SAMPLE_INDEX_SPEED_LIMIT_KMH,
+	ORTS_API_SAMPLE_INDEX_LAST
 } ORTS_api_sample_t;
 
 /*******************************************************************/
@@ -45,7 +45,8 @@ typedef struct {
 	char curl_data[ORTS_CURL_BUFFER_SIZE];
 	uint32_t curl_data_index;
 	uint64_t request_next_time;
-	uint8_t data[ORTS_DATA_INDEX_LAST];
+	uint8_t data[ORTS_API_SAMPLE_INDEX_LAST];
+	ORTS_api_sample_t api_sample_index;
 } ORTS_context_t;
 
 /*** ORTS local global variables ***/
@@ -84,7 +85,7 @@ ORTS_status_t _ORTS_update_data(void) {
 	const char * separators = "\"";
 	int32_t sscanf_count = 0;
 	int32_t temp = 0;
-	uint8_t field_index = 0;
+	uint8_t api_sample_index = 0;
 	// Search key word in CURL data.
 	data_ptr = strstr(orts_ctx.curl_data, ORTS_HUD7_SPEED_DATA_KEYWORD);
 	// Check result.
@@ -106,10 +107,10 @@ ORTS_status_t _ORTS_update_data(void) {
 				goto errors;
 			}
 			// Update data.
-			orts_ctx.data[field_index] = (uint8_t) temp;
-			field_index++;
+			orts_ctx.data[api_sample_index] = (uint8_t) temp;
+			api_sample_index++;
 			// Check index.
-			if (field_index >= ORTS_DATA_INDEX_LAST) {
+			if (api_sample_index >= ORTS_API_SAMPLE_INDEX_LAST) {
 				break;
 			}
 		}
@@ -174,20 +175,31 @@ ORTS_status_t ORTS_process(void) {
 			status = _ORTS_update_data();
 			if (status != ORTS_SUCCESS) goto errors;
 			// Send data to LSMCU.
-			lsmcu_status = LSMCU_send(LSMCU_TCH_SPEED_OFFSET + orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH]);
-			LSMCU_stack_exit_error(ORTS_ERROR_DRIVER_LSMCU);
-			lsmcu_status = LSMCU_send(LSMCU_SPEED_LIMIT_OFFSET + (orts_ctx.data[ORTS_DATA_INDEX_SPEED_LIMIT_KMH] / LSAGIU_SPEED_LIMIT_FACTOR));
-			LSMCU_stack_exit_error(ORTS_ERROR_DRIVER_LSMCU);
+			switch (orts_ctx.api_sample_index) {
+			case ORTS_API_SAMPLE_INDEX_SPEED_KMH:
+				lsmcu_status = LSMCU_send(LSMCU_TCH_SPEED_OFFSET + orts_ctx.data[ORTS_API_SAMPLE_INDEX_SPEED_KMH]);
+				LSMCU_stack_exit_error(ORTS_ERROR_DRIVER_LSMCU);
+				break;
+			case ORTS_API_SAMPLE_INDEX_SPEED_LIMIT_KMH:
+				lsmcu_status = LSMCU_send(LSMCU_SPEED_LIMIT_OFFSET + (orts_ctx.data[ORTS_API_SAMPLE_INDEX_SPEED_LIMIT_KMH] / LSAGIU_SPEED_LIMIT_FACTOR));
+				LSMCU_stack_exit_error(ORTS_ERROR_DRIVER_LSMCU);
+				break;
+			default:
+				status = ORTS_ERROR_API_SAMPLE_INDEX;
+				goto errors;
+			}
+			// Increment sample index.
+			orts_ctx.api_sample_index = (orts_ctx.api_sample_index + 1) % ORTS_API_SAMPLE_INDEX_LAST;
 			// Send data to other modules.
-			track_status = TRACK_set_speed(orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH]);
+			track_status = TRACK_set_speed(orts_ctx.data[ORTS_API_SAMPLE_INDEX_SPEED_KMH]);
 			TRACK_stack_exit_error(ORTS_ERROR_DRIVER_TRACK);
-			fpb_status = FPB_set_speed(orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH]);
+			fpb_status = FPB_set_speed(orts_ctx.data[ORTS_API_SAMPLE_INDEX_SPEED_KMH]);
 			FPB_stack_exit_error(ORTS_ERROR_DRIVER_TRACK);
 		}
 	}
 errors:
 #ifdef LOG_ORTS
-	LOG_STATUS(status, ORTS_SUCCESS, "speed=%dkm/h speed_limit=%dkm/h", orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH], orts_ctx.data[ORTS_DATA_INDEX_SPEED_LIMIT_KMH]);
+	LOG_STATUS(status, ORTS_SUCCESS, "speed=%dkm/h speed_limit=%dkm/h", orts_ctx.data[ORTS_API_SAMPLE_INDEX_SPEED_KMH], orts_ctx.data[ORTS_API_SAMPLE_INDEX_SPEED_LIMIT_KMH]);
 #endif
 	return status;
 }
