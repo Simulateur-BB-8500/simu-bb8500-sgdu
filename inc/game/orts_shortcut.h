@@ -24,9 +24,8 @@ static const KEYBOARD_shortcut_t ORTS_SHORTCUT_ZPT_BACK_TOGGLE = 	(KEYBOARD_shor
 static const KEYBOARD_shortcut_t ORTS_SHORTCUT_MPINV_FORWARD = 		(KEYBOARD_shortcut_t) {'Z', VK_NONE};
 static const KEYBOARD_shortcut_t ORTS_SHORTCUT_MPINV_BACKWARD = 	(KEYBOARD_shortcut_t) {'S', VK_NONE};
 // MP.
-static const KEYBOARD_shortcut_t ORTS_SHORTCUT_MP_T_MORE =			(KEYBOARD_shortcut_t) {'D', VK_NONE};
-static const KEYBOARD_shortcut_t ORTS_SHORTCUT_MP_T_LESS =			(KEYBOARD_shortcut_t) {'Q', VK_NONE};
-static const KEYBOARD_shortcut_t ORTS_SHORTCUT_MP_0 =				(KEYBOARD_shortcut_t) {VK_CONTROL, 'Q'};
+static const KEYBOARD_shortcut_t ORTS_SHORTCUT_MP_MORE =			(KEYBOARD_shortcut_t) {'D', VK_NONE};
+static const KEYBOARD_shortcut_t ORTS_SHORTCUT_MP_LESS =			(KEYBOARD_shortcut_t) {'Q', VK_NONE};
 // FPB.
 static const KEYBOARD_shortcut_t ORTS_SHORTCUT_FPB_APPLY =			(KEYBOARD_shortcut_t) {VK_OEM_3, VK_NONE}; // VK_OEM_3 = 'ù' key.
 static const KEYBOARD_shortcut_t ORTS_SHORTCUT_FPB_RELEASE  =		(KEYBOARD_shortcut_t) {'M', VK_NONE};

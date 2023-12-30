@@ -218,10 +218,6 @@ LSMCU_status_t LSMCU_process(void) {
 		mp_status = MP_set_event(MP_EVENT_T_LESS);
 		MP_stack_exit_error(LSMCU_ERROR_DRIVER_MP);
 		break;
-	case LSMCU_OUT_MP_PR:
-		mp_status = MP_set_event(MP_EVENT_PR);
-		MP_stack_exit_error(LSMCU_ERROR_DRIVER_MP);
-		break;
 	case LSMCU_OUT_MP_P:
 		mp_status = MP_set_event(MP_EVENT_P);
 		MP_stack_exit_error(LSMCU_ERROR_DRIVER_MP);
@@ -232,10 +228,6 @@ LSMCU_status_t LSMCU_process(void) {
 		break;
 	case LSMCU_OUT_MP_F_LESS:
 		mp_status = MP_set_event(MP_EVENT_F_LESS);
-		MP_stack_exit_error(LSMCU_ERROR_DRIVER_MP);
-		break;
-	case LSMCU_OUT_MP_FR:
-		mp_status = MP_set_event(MP_EVENT_FR);
 		MP_stack_exit_error(LSMCU_ERROR_DRIVER_MP);
 		break;
 	case LSMCU_OUT_FD_APPLY:
