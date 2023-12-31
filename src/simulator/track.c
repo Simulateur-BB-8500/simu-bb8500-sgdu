@@ -107,6 +107,9 @@ TRACK_status_t TRACK_init(void) {
 		sound_status = SOUND_init(&(track_ctx.speed_range[idx].sound_1), audio_file_name, TRACK_AUDIO_GAIN);
 		SOUND_stack_exit_error(TRACK_ERROR_DRIVER_SOUND);
 	}
+	// Specific start value for last sound.
+	track_ctx.speed_range[TRACK_SPEED_RANGE_NUMBER - 1].start_threshold_kmh = 60;
+	// Init stop sound.
 	sound_status = SOUND_init(&(track_ctx.sound_stop), "track_stop.wav", (TRACK_AUDIO_GAIN / 3.0));
 	SOUND_stack_exit_error(TRACK_ERROR_DRIVER_SOUND);
 errors:
