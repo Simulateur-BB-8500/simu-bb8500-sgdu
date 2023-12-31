@@ -8,6 +8,8 @@
 #ifndef __MP_H__
 #define __MP_H__
 
+#include "stdint.h"
+
 /*** MP structures ***/
 
 /*!******************************************************************
@@ -58,6 +60,25 @@ MP_status_t MP_init(void);
  * \retval		Function execution status.
  *******************************************************************/
 MP_status_t MP_set_event(MP_event_t event);
+
+/*!******************************************************************
+ * \fn MP_status_t MP_set_current_position(int32_t drive_level, int32_t dynamic_brake_level)
+ * \brief Set throttle position.
+ * \param[in]  	drive_level: Current drive level in percent.
+ * \param[in]	dynamic_brake_level: Current dynamic brake level in percent.
+ * \param[out] 	none
+ * \retval		none
+ *******************************************************************/
+void MP_set_current_position(int32_t drive_level, int32_t dynamic_brake_level);
+
+/*!******************************************************************
+ * \fn MP_status_t MP_process(void)
+ * \brief Main process of MP driver.
+ * \param[in]  	none
+ * \param[out] 	none
+ * \retval		Function execution status.
+ *******************************************************************/
+MP_status_t MP_process(void);
 
 /*******************************************************************/
 #define MP_exit_error(error_code) { if (mp_status != MP_SUCCESS) { status = error_code; goto errors; } }

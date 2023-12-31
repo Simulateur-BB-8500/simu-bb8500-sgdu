@@ -232,6 +232,8 @@ int main (void) {
 			FPB_stack_error();
 			fd_status = FD_process();
 			FD_stack_error();
+			mp_status = MP_process();
+			MP_stack_error();
 			pbl2_status = PBL2_process();
 			PBL2_stack_error();
 			track_status = TRACK_process();

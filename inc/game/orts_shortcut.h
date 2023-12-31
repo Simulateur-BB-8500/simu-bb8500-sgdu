@@ -15,7 +15,6 @@
 
 // Press duration to make shortcuts work.
 #define ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT 	100
-#define ORTS_SHORTCUT_PRESS_DURATION_MS_MP 			300
 
 // ZPT.
 static const KEYBOARD_shortcut_t ORTS_SHORTCUT_ZPT_FRONT_TOGGLE = 	(KEYBOARD_shortcut_t) {'P', VK_NONE};
