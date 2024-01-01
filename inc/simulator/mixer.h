@@ -15,7 +15,7 @@
 #define FPB_AUDIO_GAIN			1.0
 #define EMERGENCY_AUDIO_GAIN	0.8
 #define KVB_AUDIO_GAIN			0.3
-#define MP_AUDIO_GAIN			0.2
+#define MP_AUDIO_GAIN			0.3
 #define MPINV_AUDIO_GAIN		0.5
 #define PBL2_AUDIO_GAIN			0.5
 #define TRACK_AUDIO_GAIN		1.0
