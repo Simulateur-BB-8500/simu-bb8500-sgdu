@@ -31,12 +31,12 @@ void TIME_init(void);
 void TIME_print(void);
 
 /*!******************************************************************
- * \fn uint64_t TIME_get_milliseconds(void)
+ * \fn uint32_t TIME_get_milliseconds(void)
  * \brief Get program uptime.
  * \param[in]  	none
  * \param[out] 	none
  * \retval		Uptime in milliseconds.
  *******************************************************************/
-uint64_t TIME_get_milliseconds(void);
+uint32_t TIME_get_milliseconds(void);
 
 #endif /* __TIME_H__ */

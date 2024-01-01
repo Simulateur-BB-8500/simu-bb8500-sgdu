@@ -36,9 +36,7 @@ LIGHT_status_t LIGHT_init(void) {
 	// Init context.
 	light_ctx.status = 0;
 	light_ctx.overall_state = 0;
-#ifdef LOG_LIGHT
-	LOG_STATUS(status, LIGHT_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, LIGHT_SUCCESS);
 	return status;
 }
 
@@ -56,8 +54,9 @@ LIGHT_status_t LIGHT_set_state(LIGHT_type_t type, LIGHT_state_t state) {
 		status = LIGHT_ERROR_STATE;
 		goto errors;
 	}
-	// Print parameters.
+#ifdef LOG_LIGHT
 	LOG("type=%d state=%d", type, state);
+#endif
 	// Update bitfield.
 	light_ctx.status |= (0b1 << type);
 	// Check status.
@@ -80,8 +79,6 @@ LIGHT_status_t LIGHT_set_state(LIGHT_type_t type, LIGHT_state_t state) {
 		light_ctx.overall_state = 0;
 	}
 errors:
-#ifdef LOG_LIGHT
-	LOG_STATUS(status, LIGHT_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, LIGHT_SUCCESS);
 	return status;
 }

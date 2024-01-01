@@ -34,7 +34,7 @@ typedef struct {
 	uint8_t write_idx;
 	uint8_t read_idx;
 	KEYBOARD_state_t state;
-	uint64_t state_switch_time;
+	uint32_t state_switch_time;
 } KEYBOARD_context_t;
 
 /*** KEYBOARD local global variables ***/
@@ -52,9 +52,7 @@ KEYBOARD_status_t KEYBOARD_init(void) {
 	keyboard_ctx.write_idx = 0;
 	keyboard_ctx.state = KEYBOARD_STATE_READY;
 	keyboard_ctx.state_switch_time = 0;
-#ifdef LOG_KEYBOARD
-	LOG_STATUS(status, KEYBOARD_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, KEYBOARD_SUCCESS);
 	return status;
 }
 
@@ -75,11 +73,11 @@ KEYBOARD_status_t KEYBOARD_press(const KEYBOARD_shortcut_t* shortcut) {
 	if ((shortcut -> vk_code_1) != VK_NONE) {
 		keybd_event((shortcut -> vk_code_1), MapVirtualKey((shortcut -> vk_code_1), MAPVK_VK_TO_VSC), 0, 0);
 	}
-	LOG("[0x%02X 0x%02X]", (shortcut -> vk_code_0), (shortcut -> vk_code_1));
-errors:
 #ifdef LOG_KEYBOARD
-	LOG_STATUS(status, KEYBOARD_SUCCESS, "OK");
+	LOG("[0x%02X 0x%02X]", (shortcut -> vk_code_0), (shortcut -> vk_code_1));
 #endif
+errors:
+	LOG_ERROR(status, KEYBOARD_SUCCESS);
 	return status;
 }
 
@@ -100,11 +98,11 @@ KEYBOARD_status_t KEYBOARD_release(const KEYBOARD_shortcut_t* shortcut) {
 	if ((shortcut -> vk_code_1) != VK_NONE) {
 		keybd_event((shortcut -> vk_code_1), MapVirtualKey((shortcut -> vk_code_1), MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
 	}
-	LOG("[0x%02X 0x%02X]", (shortcut -> vk_code_0), (shortcut -> vk_code_1));
-errors:
 #ifdef LOG_KEYBOARD
-	LOG_STATUS(status, KEYBOARD_SUCCESS, "OK");
+	LOG("[0x%02X 0x%02X]", (shortcut -> vk_code_0), (shortcut -> vk_code_1));
 #endif
+errors:
+	LOG_ERROR(status, KEYBOARD_SUCCESS);
 	return status;
 }
 
@@ -130,11 +128,11 @@ KEYBOARD_status_t KEYBOARD_single_press(const KEYBOARD_shortcut_t* shortcut, uin
 	if (keyboard_ctx.write_idx >= KEYBOARD_BUFFER_SIZE) {
 		keyboard_ctx.write_idx = 0;
 	}
-	LOG("[0x%02X 0x%02X]", (shortcut -> vk_code_0), (shortcut -> vk_code_1));
-errors:
 #ifdef LOG_KEYBOARD
-	LOG_STATUS(status, KEYBOARD_SUCCESS, "OK");
+	LOG("[0x%02X 0x%02X]", (shortcut -> vk_code_0), (shortcut -> vk_code_1));
 #endif
+errors:
+	LOG_ERROR(status, KEYBOARD_SUCCESS);
 	return status;
 }
 
@@ -186,8 +184,6 @@ KEYBOARD_status_t KEYBOARD_process(void) {
 		goto errors;
 	}
 errors:
-#ifdef LOG_KEYBOARD
-	LOG_STATUS(status, KEYBOARD_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, KEYBOARD_SUCCESS);
 	return status;
 }

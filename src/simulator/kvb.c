@@ -38,14 +38,8 @@ KVB_status_t KVB_init(void) {
 	// Init sounds.
 	sound_status = SOUND_init(&(kvb_ctx.sound_on), "kvb_turn_on.wav", KVB_AUDIO_GAIN);
 	SOUND_stack_exit_error(KVB_ERROR_DRIVER_SOUND);
-//	sound_status = SOUND_init(&(kvb_ctx.sound_off), "kvb_turn_off.wav", KVB_AUDIO_GAIN);
-//	SOUND_stack_exit_error(KVB_ERROR_DRIVER_SOUND);
-//	sound_status = SOUND_init(&(kvb_ctx.sound_urgency), "kvb_urgency.wav", KVB_AUDIO_GAIN);
-//	SOUND_stack_exit_error(KVB_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_KVB
-	LOG_STATUS(status, KVB_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, KVB_SUCCESS);
 	return status;
 }
 
@@ -57,20 +51,18 @@ KVB_status_t KVB_set_state(KVB_state_t state) {
 	// Check state.
 	switch (state) {
 	case KVB_STATE_ON:
-		// Log action.
+#ifdef LOG_KVB
 		LOG("state=KVB_STATE_ON");
-		// Play and stop sounds.
+#endif
+		// Play sound.
 		sound_status = SOUND_play(&(kvb_ctx.sound_on), 0);
 		SOUND_stack_exit_error(KVB_ERROR_DRIVER_SOUND);
-//		sound_status = SOUND_stop(&(kvb_ctx.sound_off), 0);
-//		SOUND_stack_exit_error(KVB_ERROR_DRIVER_SOUND);
 		break;
 	case KVB_STATE_OFF:
-		// Log action.
+#ifdef LOG_KVB
 		LOG("state=KVB_STATE_OFF");
-		// Play and stop sounds.
-//		sound_status = SOUND_play(&(kvb_ctx.sound_off), 0);
-//		SOUND_stack_exit_error(KVB_ERROR_DRIVER_SOUND);
+#endif
+		// Stop sounds.
 		sound_status = SOUND_stop(&(kvb_ctx.sound_on), 0);
 		SOUND_stack_exit_error(KVB_ERROR_DRIVER_SOUND);
 		break;
@@ -81,11 +73,7 @@ KVB_status_t KVB_set_state(KVB_state_t state) {
 	// Process sounds.
 	sound_status = SOUND_process(&(kvb_ctx.sound_on));
 	SOUND_stack_exit_error(KVB_ERROR_DRIVER_SOUND);
-//	sound_status = SOUND_process(&(kvb_ctx.sound_off));
-//	SOUND_stack_exit_error(KVB_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_KVB
-	LOG_STATUS(status, KVB_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, KVB_SUCCESS);
 	return status;
 }

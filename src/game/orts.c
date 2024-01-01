@@ -70,7 +70,7 @@ typedef struct {
 	CURL* curl;
 	char curl_data[ORTS_CURL_BUFFER_SIZE];
 	uint32_t curl_data_index;
-	uint64_t request_next_time;
+	uint32_t request_next_time;
 	int32_t data[ORTS_DATA_INDEX_LAST];
 	ORTS_tx_data_index_t tx_data_index;
 } ORTS_context_t;
@@ -124,6 +124,7 @@ ORTS_status_t _ORTS_parse_value_unit(char* json_data, char* expected_unit, int32
 	}
 	(*value) = tmp_i32;
 errors:
+	LOG_ERROR(status, ORTS_SUCCESS);
 	return status;
 }
 
@@ -187,6 +188,7 @@ ORTS_status_t _ORTS_parse_api_sample(uint32_t table_index, uint32_t value_index,
 		break;
 	}
 errors:
+	LOG_ERROR(status, ORTS_SUCCESS);
 	return status;
 }
 
@@ -246,6 +248,7 @@ ORTS_status_t _ORTS_parse_api_data(void) {
 	}
 errors:
 	cJSON_Delete(json);
+	LOG_ERROR(status, ORTS_SUCCESS);
 	return status;
 }
 
@@ -267,9 +270,7 @@ ORTS_status_t ORTS_init(void) {
 		goto errors;
 	}
 errors:
-#ifdef LOG_ORTS
-	LOG_STATUS(status, ORTS_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, ORTS_SUCCESS);
 	return status;
 }
 
@@ -330,8 +331,6 @@ ORTS_status_t ORTS_process(void) {
 		}
 	}
 errors:
-#ifdef LOG_ORTS
-	LOG_STATUS(status, ORTS_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, ORTS_SUCCESS);
 	return status;
 }

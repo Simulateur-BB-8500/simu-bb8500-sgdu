@@ -40,9 +40,7 @@ BPGD_status_t BPGD_init(void) {
 	sound_status = SOUND_init(&(bpgd_ctx.sound_turn_on), "pbl2_turn_on.wav", PBL2_AUDIO_GAIN);
 	SOUND_stack_exit_error(BPGD_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_BPGD
-	LOG_STATUS(status, BPGD_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, BPGD_SUCCESS);
 	return status;
 }
 
@@ -56,8 +54,9 @@ BPGD_status_t BPGD_set_state(BPGD_state_t state) {
 	case BPGD_STATE_ON:
 		// Check state change.
 		if (bpgd_ctx.state != BPGD_STATE_ON) {
-			// Log action.
+#ifdef LOG_BPGD
 			LOG("state=BPGD_STATE_ON");
+#endif
 			// Play sound.
 			sound_status = SOUND_play(&(bpgd_ctx.sound_turn_on), 0);
 			SOUND_stack_exit_error(BPGD_ERROR_DRIVER_SOUND);
@@ -70,9 +69,7 @@ BPGD_status_t BPGD_set_state(BPGD_state_t state) {
 	// Update local state.
 	bpgd_ctx.state = state;
 errors:
-#ifdef LOG_BPGD
-	LOG_STATUS(status, BPGD_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, BPGD_SUCCESS);
 	return status;
 }
 
@@ -89,9 +86,7 @@ BPGD_status_t BPGD_process(void) {
 		bpgd_ctx.state = BPGD_STATE_OFF;
 	}
 errors:
-#ifdef LOG_BPGD
-	LOG_STATUS(status, BPGD_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, BPGD_SUCCESS);
 	return status;
 }
 

@@ -52,9 +52,7 @@ WHISTLE_status_t WHISTLE_init(void) {
 	// Init context.
 	whistle_ctx.state = WHISTLE_STATE_NEUTRAL;
 errors:
-#ifdef LOG_WHISTLE
-	LOG_STATUS(status, WHISTLE_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, WHISTLE_SUCCESS);
 	return status;
 }
 
@@ -68,8 +66,9 @@ WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state) {
 	case WHISTLE_STATE_HIGH_TONE:
 		// Check state change.
 		if (whistle_ctx.state != WHISTLE_STATE_HIGH_TONE) {
-			// Log action.
+#ifdef LOG_WHISTLE
 			LOG("state=WHISTLE_STATE_HIGH_TONE");
+#endif
 			// Play sound.
 			sound_status = SOUND_play(&(whistle_ctx.sound_high_tone), 0);
 			SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
@@ -85,8 +84,9 @@ WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state) {
 	case WHISTLE_STATE_NEUTRAL:
 		// Check state change.
 		if (whistle_ctx.state != WHISTLE_STATE_NEUTRAL) {
-			// Log action.
+#ifdef LOG_WHISTLE
 			LOG("state=WHISTLE_STATE_NEUTRAL");
+#endif
 			// Check previous state.
 			if (whistle_ctx.state == WHISTLE_STATE_LOW_TONE) {
 				// End low tone.
@@ -117,8 +117,9 @@ WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state) {
 	case WHISTLE_STATE_LOW_TONE:
 		// Check state change.
 		if (whistle_ctx.state != WHISTLE_STATE_LOW_TONE) {
-			// Log action.
+#ifdef LOG_WHISTLE
 			LOG("state=WHISTLE_STATE_LOW_TONE");
+#endif
 			// Play sound.
 			sound_status = SOUND_play(&(whistle_ctx.sound_low_tone), 0);
 			SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
@@ -138,9 +139,7 @@ WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state) {
 	// Update state.
 	whistle_ctx.state = state;
 errors:
-#ifdef LOG_WHISTLE
-	LOG_STATUS(status, WHISTLE_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, WHISTLE_SUCCESS);
 	return status;
 }
 
@@ -159,8 +158,6 @@ WHISTLE_status_t WHISTLE_process(void) {
 	sound_status = SOUND_process(&(whistle_ctx.sound_high_tone_end));
 	SOUND_stack_exit_error(WHISTLE_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_WHISTLE
-	LOG_STATUS(status, WHISTLE_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, WHISTLE_SUCCESS);
 	return status;
 }

@@ -47,9 +47,7 @@ PBL2_status_t PBL2_init(void) {
 	sound_status = SOUND_init(&(pbl2_ctx.sound_turn_off), "pbl2_turn_off.wav", (PBL2_AUDIO_GAIN / 3.0));
 	SOUND_stack_exit_error(PBL2_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_PBL2
-	LOG_STATUS(status, PBL2_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, PBL2_SUCCESS);
 	return status;
 }
 
@@ -63,8 +61,9 @@ PBL2_status_t PBL2_set_state(PBL2_state_t state) {
 	case PBL2_STATE_ON:
 		// Check state change.
 		if (pbl2_ctx.state != PBL2_STATE_ON) {
-			// Log action.
+#ifdef LOG_PBL2
 			LOG("state=PBL2_STATE_ON");
+#endif
 			// Play and stop sounds.
 			sound_status = SOUND_play(&(pbl2_ctx.sound_turn_on), 0);
 			SOUND_stack_exit_error(PBL2_ERROR_DRIVER_SOUND);
@@ -75,8 +74,9 @@ PBL2_status_t PBL2_set_state(PBL2_state_t state) {
 	case PBL2_STATE_OFF:
 		// Check state change.
 		if (pbl2_ctx.state != PBL2_STATE_OFF) {
-			// Log action.
+#ifdef LOG_PBL2
 			LOG("state=PBL2_STATE_OFF");
+#endif
 			// Play and stop sounds.
 			sound_status = SOUND_play(&(pbl2_ctx.sound_turn_off), 0);
 			SOUND_stack_exit_error(PBL2_ERROR_DRIVER_SOUND);
@@ -91,9 +91,7 @@ PBL2_status_t PBL2_set_state(PBL2_state_t state) {
 	// Update local state.
 	pbl2_ctx.state = state;
 errors:
-#ifdef LOG_PBL2
-	LOG_STATUS(status, PBL2_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, PBL2_SUCCESS);
 	return status;
 }
 
@@ -108,8 +106,6 @@ PBL2_status_t PBL2_process(void) {
 	sound_status = SOUND_process(&(pbl2_ctx.sound_turn_off));
 	SOUND_stack_exit_error(PBL2_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_PBL2
-	LOG_STATUS(status, PBL2_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, PBL2_SUCCESS);
 	return status;
 }

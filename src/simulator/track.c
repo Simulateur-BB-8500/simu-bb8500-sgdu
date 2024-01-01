@@ -113,9 +113,7 @@ TRACK_status_t TRACK_init(void) {
 	sound_status = SOUND_init(&(track_ctx.sound_stop), "track_stop.wav", (TRACK_AUDIO_GAIN / 3.0));
 	SOUND_stack_exit_error(TRACK_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_TRACK
-	LOG_STATUS(status, TRACK_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, TRACK_SUCCESS);
 	return status;
 }
 
@@ -128,9 +126,7 @@ TRACK_status_t TRACK_set_speed(uint8_t speed_kmh) {
 	// Add new sample in history.
 	track_ctx.speed_history_kmh[track_ctx.speed_history_idx] = speed_kmh;
 	track_ctx.speed_history_idx = (track_ctx.speed_history_idx + 1) % TRACK_STOP_SPEED_HISTORY_SIZE;
-#ifdef LOG_TRACK
-	LOG_STATUS(status, TRACK_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, TRACK_SUCCESS);
 	return status;
 }
 
@@ -287,8 +283,6 @@ TRACK_status_t TRACK_process(void) {
 	sound_status = SOUND_process(&(track_ctx.sound_stop));
 	SOUND_stack_exit_error(TRACK_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_TRACK
-	LOG_STATUS(status, TRACK_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, TRACK_SUCCESS);
 	return status;
 }

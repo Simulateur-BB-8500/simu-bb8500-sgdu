@@ -51,9 +51,9 @@ typedef struct {
 	LSAGIU_state_t state;
 	uint8_t lsmcu_connected;
 	uint8_t orts_server_connected;
-	uint64_t interfaces_polling_next_time;
+	uint32_t interfaces_polling_next_time;
 #ifdef LOG_ERROR_STACK
-	uint64_t error_stack_check_next_time;
+	uint32_t error_stack_check_next_time;
 #endif
 } LSAGIU_context_t;
 
@@ -69,11 +69,11 @@ static void _LSAGIU_print_error_stack(void) {
 	// Local variables.
 	ERROR_code_t error_code = ERROR_BASE_NONE;
 	uint32_t count = 0;
-	// Print stack.
-	TIME_print();
-	printf("LSAGIU_print_error_stack() *** [ ");
 	// Check if empty.
 	if (ERROR_stack_is_empty() == 0) {
+		// Print stack.
+		TIME_print();
+		printf("LSAGIU_print_error_stack() *** [ ");
 		do {
 			// Unstack error.
 			error_code = ERROR_stack_read();
@@ -88,12 +88,9 @@ static void _LSAGIU_print_error_stack(void) {
 				count = 0;
 			}
 		} while (error_code != ERROR_BASE_NONE);
+		printf("]\n");
+		fflush(stdout);
 	}
-	else {
-		printf("empty ");
-	}
-	printf("]\n");
-	fflush(stdout);
 }
 #endif
 
@@ -256,7 +253,6 @@ int main (void) {
 			fflush(stdout);
 			break;
 		default:
-			LOG("state=UNKNOWN");
 			goto errors;
 		}
 	}

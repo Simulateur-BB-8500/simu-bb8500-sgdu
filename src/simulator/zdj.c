@@ -40,9 +40,7 @@ ZDJ_status_t ZDJ_init(void) {
 	sound_status = SOUND_init(&(zdj_ctx.sound_lock), "zdj_lock.wav", ZDJ_AUDIO_GAIN);
 	SOUND_stack_exit_error(ZDJ_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_ZDJ
-	LOG_STATUS(status, ZDJ_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, ZDJ_SUCCESS);
 	return status;
 }
 
@@ -54,8 +52,9 @@ ZDJ_status_t ZDJ_set_state(ZDJ_state_t state) {
 	// Check state.
 	switch (state) {
 	case ZDJ_STATE_OPEN:
-		// Log action.
+#ifdef LOG_ZDJ
 		LOG("state=ZDJ_STATE_OPEN");
+#endif
 		// Play and stop sounds.
 		sound_status = SOUND_play(&(zdj_ctx.sound_open), 0);
 		SOUND_stack_exit_error(ZDJ_ERROR_DRIVER_SOUND);
@@ -63,8 +62,9 @@ ZDJ_status_t ZDJ_set_state(ZDJ_state_t state) {
 		SOUND_stack_exit_error(ZDJ_ERROR_DRIVER_SOUND);
 		break;
 	case ZDJ_STATE_LOCK:
-		// Log action.
+#ifdef LOG_ZDJ
 		LOG("state=ZDJ_STATE_LOCK");
+#endif
 		// Play and stop sounds.
 		sound_status = SOUND_play(&(zdj_ctx.sound_lock), 0);
 		SOUND_stack_exit_error(ZDJ_ERROR_DRIVER_SOUND);
@@ -81,8 +81,6 @@ ZDJ_status_t ZDJ_set_state(ZDJ_state_t state) {
 	sound_status = SOUND_process(&(zdj_ctx.sound_lock));
 	SOUND_stack_exit_error(ZDJ_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_ZDJ
-	LOG_STATUS(status, ZDJ_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, ZDJ_SUCCESS);
 	return status;
 }

@@ -55,9 +55,7 @@ FPB_status_t FPB_init(void) {
 	sound_status = SOUND_init(&(fpb_ctx.sound_release), "fpb_release.wav", FPB_AUDIO_GAIN_MIN);
 	SOUND_stack_exit_error(FPB_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_FPB
-	LOG_STATUS(status, FPB_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, FPB_SUCCESS);
 	return status;
 }
 
@@ -72,8 +70,9 @@ FPB_status_t FPB_set_state(FPB_state_t state) {
 	case FPB_STATE_APPLY:
 		// Check state change.
 		if (fpb_ctx.state != FPB_STATE_APPLY) {
-			// Log action.
+#ifdef LOG_FPB
 			LOG("state=FPB_STATE_APPLY");
+#endif
 			// Play and stop sounds.
 			sound_status = SOUND_play(&(fpb_ctx.sound_apply), 0);
 			SOUND_stack_exit_error(FPB_ERROR_DRIVER_SOUND);
@@ -87,8 +86,9 @@ FPB_status_t FPB_set_state(FPB_state_t state) {
 	case FPB_STATE_NEUTRAL:
 		// Check state change.
 		if (fpb_ctx.state != FPB_STATE_NEUTRAL) {
-			// Log action.
+#ifdef LOG_FPB
 			LOG("state=FPB_STATE_NEUTRAL");
+#endif
 			// Stop sound.
 			sound_status = SOUND_stop(&(fpb_ctx.sound_release), FPB_FADE_DURATION_MS);
 			SOUND_stack_exit_error(FPB_ERROR_DRIVER_SOUND);
@@ -108,8 +108,9 @@ FPB_status_t FPB_set_state(FPB_state_t state) {
 	case FPB_STATE_RELEASE:
 		// Check state change.
 		if (fpb_ctx.state != FPB_STATE_RELEASE) {
-			// Log action.
+#ifdef LOG_FPB
 			LOG("state=FPB_STATE_RELEASE");
+#endif
 			// Play and stop sounds.
 			sound_status = SOUND_play(&(fpb_ctx.sound_release), 0);
 			SOUND_stack_exit_error(FPB_ERROR_DRIVER_SOUND);
@@ -127,9 +128,7 @@ FPB_status_t FPB_set_state(FPB_state_t state) {
 	// Update local state.
 	fpb_ctx.state = state;
 errors:
-#ifdef LOG_FPB
-	LOG_STATUS(status, FPB_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, FPB_SUCCESS);
 	return status;
 }
 
@@ -155,9 +154,7 @@ FPB_status_t FPB_set_speed(uint8_t speed_kmh) {
 	sound_status = SOUND_set_gain(&(fpb_ctx.sound_release), audio_gain);
 	SOUND_stack_exit_error(FPB_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_FPB
-	LOG_STATUS(status, FPB_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, FPB_SUCCESS);
 	return status;
 }
 
@@ -172,8 +169,6 @@ FPB_status_t FPB_process(void) {
 	sound_status = SOUND_process(&(fpb_ctx.sound_release));
 	SOUND_stack_exit_error(FPB_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_FPB
-	LOG_STATUS(status, FPB_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, FPB_SUCCESS);
 	return status;
 }

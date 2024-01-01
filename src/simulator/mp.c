@@ -44,7 +44,7 @@ typedef struct {
 	int32_t dynamic_brake_level;
 	int32_t dynamic_brake_level_target;
 	uint8_t synchronize_flag;
-	uint64_t synchronize_next_time;
+	uint32_t synchronize_next_time;
 } MP_context_t;
 
 /*** MP local global variables ***/
@@ -62,6 +62,7 @@ static MP_status_t _MP_more(void) {
 	keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_MP_MORE, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 	KEYBOARD_stack_exit_error(MP_ERROR_DRIVER_KEYBOARD);
 errors:
+	LOG_ERROR(status, MP_SUCCESS);
 	return status;
 }
 
@@ -74,6 +75,7 @@ static MP_status_t _MP_less(void) {
 	keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_MP_LESS, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 	KEYBOARD_stack_exit_error(MP_ERROR_DRIVER_KEYBOARD);
 errors:
+	LOG_ERROR(status, MP_SUCCESS);
 	return status;
 }
 
@@ -83,6 +85,9 @@ static MP_status_t _MP_synchronize(void) {
 	MP_status_t status = MP_SUCCESS;
 	// Synchronize step count.
 	if ((mp_ctx.drive_level != mp_ctx.drive_level_target) || (mp_ctx.dynamic_brake_level != mp_ctx.dynamic_brake_level_target)) {
+#ifdef LOG_MP
+		LOG("drive_level=%d dynamic_brake_level=%d", mp_ctx.drive_level, mp_ctx.dynamic_brake_level);
+#endif
 		// Check if we come from drive or brake.
 		if ((mp_ctx.drive_level > mp_ctx.drive_level_target) || (mp_ctx.dynamic_brake_level < mp_ctx.dynamic_brake_level_target)) {
 			status = _MP_less();
@@ -94,6 +99,7 @@ static MP_status_t _MP_synchronize(void) {
 		}
 	}
 errors:
+	LOG_ERROR(status, MP_SUCCESS);
 	return status;
 }
 
@@ -108,6 +114,7 @@ static MP_status_t _MP_play_variator_sound(void) {
 errors:
 	// Increment index.
 	mp_ctx.sound_variator_index = (mp_ctx.sound_variator_index + 1) % MP_NUMBER_OF_VARIATOR_TRACKS;
+	LOG_ERROR(status, MP_SUCCESS);
 	return status;
 }
 
@@ -138,9 +145,7 @@ MP_status_t MP_init(void) {
 	sound_status = SOUND_init(&(mp_ctx.sound_variator_end), "mp_variator_end.wav", MP_AUDIO_GAIN);
 	SOUND_stack_exit_error(MP_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_MP
-	LOG_STATUS(status, MP_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, MP_SUCCESS);
 	return status;
 }
 
@@ -154,8 +159,9 @@ MP_status_t MP_set_event(MP_event_t event) {
 	// Check event.
 	switch (event) {
 	case MP_EVENT_0:
-		// Log action.
+#ifdef LOG_MP
 		LOG("event=MP_EVENT_0");
+#endif
 		// Play sound.
 		sound_status = SOUND_single_play(&(mp_ctx.sound_variator_end));
 		SOUND_stack_exit_error(MP_ERROR_DRIVER_SOUND);
@@ -165,8 +171,9 @@ MP_status_t MP_set_event(MP_event_t event) {
 		mp_ctx.synchronize_flag = 1;
 		break;
 	case MP_EVENT_T_MORE:
-		// Log action.
+#ifdef LOG_MP
 		LOG("event=MP_EVENT_T_MORE");
+#endif
 		// Play random sound.
 		if ((mp_ctx.drive_level == MP_0_DRIVE_LEVEL) && (mp_ctx.dynamic_brake_level == MP_0_DYNAMIC_BRAKE_LEVEL)) {
 			sound_status = SOUND_single_play(&(mp_ctx.sound_variator_start));
@@ -180,18 +187,23 @@ MP_status_t MP_set_event(MP_event_t event) {
 		if (status != MP_SUCCESS) goto errors;
 		break;
 	case MP_EVENT_T_LESS:
-		// Log action.
+#ifdef LOG_MP
 		LOG("event=MP_EVENT_T_LESS");
-		// Play random sound.
-		status = _MP_play_variator_sound();
-		if (status != MP_SUCCESS) goto errors;
-		// Decrease step count.
-		status = _MP_less();
-		if (status != MP_SUCCESS) goto errors;
+#endif
+		// Check drive level.
+		if (mp_ctx.drive_level > 0) {
+			// Play random sound.
+			status = _MP_play_variator_sound();
+			if (status != MP_SUCCESS) goto errors;
+			// Decrease step count.
+			status = _MP_less();
+			if (status != MP_SUCCESS) goto errors;
+		}
 		break;
 	case MP_EVENT_P:
-		// Log action.
+#ifdef LOG_MP
 		LOG("event=MP_EVENT_P");
+#endif
 		// Play sound.
 		status = _MP_play_variator_sound();
 		if (status != MP_SUCCESS) goto errors;
@@ -201,8 +213,9 @@ MP_status_t MP_set_event(MP_event_t event) {
 		mp_ctx.synchronize_flag = 1;
 		break;
 	case MP_EVENT_F_MORE:
-		// Log action.
+#ifdef LOG_MP
 		LOG("event=MP_EVENT_F_MORE");
+#endif
 		// Play random sound.
 		status = _MP_play_variator_sound();
 		if (status != MP_SUCCESS) goto errors;
@@ -211,23 +224,25 @@ MP_status_t MP_set_event(MP_event_t event) {
 		if (status != MP_SUCCESS) goto errors;
 		break;
 	case MP_EVENT_F_LESS:
-		// Log action.
+#ifdef LOG_MP
 		LOG("event=MP_EVENT_F_LESS");
-		// Play random sound.
-		status = _MP_play_variator_sound();
-		if (status != MP_SUCCESS) goto errors;
-		// Increase step count.
-		status = _MP_more();
-		if (status != MP_SUCCESS) goto errors;
+#endif
+		// Check dynamic brake level.
+		if (mp_ctx.dynamic_brake_level > 0) {
+			// Play random sound.
+			status = _MP_play_variator_sound();
+			if (status != MP_SUCCESS) goto errors;
+			// Increase step count.
+			status = _MP_more();
+			if (status != MP_SUCCESS) goto errors;
+		}
 		break;
 	default:
 		status = MP_ERROR_EVENT;
 		goto errors;
 	}
 errors:
-#ifdef LOG_MP
-	LOG_STATUS(status, MP_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, MP_SUCCESS);
 	return status;
 }
 
@@ -251,5 +266,6 @@ MP_status_t MP_process(void) {
 		if (status != MP_SUCCESS) goto errors;
 	}
 errors:
+	LOG_ERROR(status, MP_SUCCESS);
 	return status;
 }

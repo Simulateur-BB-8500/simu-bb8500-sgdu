@@ -81,9 +81,7 @@ COMPRESSOR_status_t COMPRESSOR_init(void) {
 	sound_status = SOUND_init(&(compressor_ctx.sound_zcx_turn_off), "zcx_turn_off.wav", COMPRESSOR_AUDIO_GAIN);
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_COMPRESSOR
-	LOG_STATUS(status, COMPRESSOR_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, COMPRESSOR_SUCCESS);
 	return status;
 }
 
@@ -99,12 +97,11 @@ COMPRESSOR_status_t COMPRESSOR_set_request(COMPRESSOR_request_t request) {
 	// Register request and increment index.
 	compressor_ctx.request[compressor_ctx.request_write_idx] = request;
 	compressor_ctx.request_write_idx = (compressor_ctx.request_write_idx + 1) % COMPRESSOR_REQUEST_TABLE_SIZE;
-	// Print request.
-	LOG("request=%d", request);
-errors:
 #ifdef LOG_COMPRESSOR
-	LOG_STATUS(status, COMPRESSOR_SUCCESS, "OK");
+	LOG("request=%d", request);
 #endif
+errors:
+	LOG_ERROR(status, COMPRESSOR_SUCCESS);
 	return status;
 }
 
@@ -297,8 +294,6 @@ COMPRESSOR_status_t COMPRESSOR_process(void) {
 	sound_status = SOUND_process(&(compressor_ctx.sound_zcx_turn_off));
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_COMPRESSOR
-	LOG_STATUS(status, COMPRESSOR_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, COMPRESSOR_SUCCESS);
 	return status;
 }

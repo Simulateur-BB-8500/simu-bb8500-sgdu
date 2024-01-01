@@ -67,6 +67,7 @@ SOUND_status_t _SOUND_set_volume(SOUND_context_t* sound_ctx, float new_volume) {
 	// Update object.
 	sound_ctx -> volume = new_volume;
 errors:
+	LOG_ERROR(status, SOUND_SUCCESS);
 	return status;
 }
 
@@ -92,6 +93,7 @@ SOUND_status_t _SOUND_set_fade_parameters(SOUND_context_t* sound_ctx, SOUND_fade
 	(sound_ctx -> fade_effect).start_volume = (sound_ctx -> volume);
 	(sound_ctx -> fade_effect).start_position_ms = (sound_ctx -> position_ms);
 errors:
+	LOG_ERROR(status, SOUND_SUCCESS);
 	return status;
 }
 
@@ -114,6 +116,7 @@ SOUND_status_t _SOUND_play(SOUND_context_t* sound_ctx) {
 	// Update parameters.
 	(sound_ctx -> is_playing) = 1;
 errors:
+	LOG_ERROR(status, SOUND_SUCCESS);
 	return status;
 }
 
@@ -137,6 +140,7 @@ errors:
 	// Update flags.
 	(sound_ctx -> is_playing) = 0;
 	(sound_ctx -> play_request) = 0;
+	LOG_ERROR(status, SOUND_SUCCESS);
 	return status;
 }
 
@@ -154,9 +158,7 @@ SOUND_status_t SOUND_init_fmod_system(void) {
 	fmod_status = FMOD_System_Init(sound_fmod_system, SOUND_FMOD_NUMBER_OF_CHANNELS, FMOD_INIT_NORMAL, NULL);
 	FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
 errors:
-#ifdef LOG_SOUND
-	LOG_STATUS(status, SOUND_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, SOUND_SUCCESS);
 	return status;
 }
 
@@ -195,10 +197,11 @@ SOUND_status_t SOUND_init(SOUND_context_t* sound_ctx, const char* audio_file_nam
 	// Read audio length.
 	fmod_status = FMOD_Sound_GetLength((sound_ctx -> fmod_sound), &(sound_ctx -> length_ms), FMOD_TIMEUNIT_MS);
 	FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
-errors:
 #ifdef LOG_SOUND
-	LOG_STATUS(status, SOUND_SUCCESS, "Audio file %s opened (length=%dms)", audio_file_name, (sound_ctx -> length_ms));
+	LOG("Open audio file %s (length=%dms)", audio_file_name, (sound_ctx -> length_ms));
 #endif
+errors:
+	LOG_ERROR(status, SOUND_SUCCESS);
 	return status;
 }
 
@@ -216,6 +219,7 @@ SOUND_status_t SOUND_single_play(SOUND_context_t* sound_ctx) {
 	fmod_status = FMOD_Channel_SetVolume((sound_ctx -> fmod_channel), (SOUND_AUDIO_VOLUME_MAX * (sound_ctx -> mixer_gain) * (sound_ctx -> gain)));
 	FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
 errors:
+	LOG_ERROR(status, SOUND_SUCCESS);
 	return status;
 }
 
@@ -234,9 +238,7 @@ SOUND_status_t SOUND_play(SOUND_context_t* sound_ctx, uint32_t fade_duration_ms)
 	status = _SOUND_set_fade_parameters(sound_ctx, SOUND_FADE_TYPE_IN, fade_duration_ms);
 	if (status != SOUND_SUCCESS) goto errors;
 errors:
-#ifdef LOG_SOUND
-	LOG_STATUS(status, SOUND_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, SOUND_SUCCESS);
 	return status;
 }
 
@@ -253,9 +255,7 @@ SOUND_status_t SOUND_stop(SOUND_context_t* sound_ctx, uint32_t fade_duration_ms)
 	status = _SOUND_set_fade_parameters(sound_ctx, SOUND_FADE_TYPE_OUT, fade_duration_ms);
 	if (status != SOUND_SUCCESS) goto errors;
 errors:
-#ifdef LOG_SOUND
-	LOG_STATUS(status, SOUND_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, SOUND_SUCCESS);
 	return status;
 }
 
@@ -270,6 +270,7 @@ SOUND_status_t SOUND_set_gain(SOUND_context_t* sound_ctx, float gain) {
 	}
 	(sound_ctx -> gain) = gain;
 errors:
+	LOG_ERROR(status, SOUND_SUCCESS);
 	return status;
 }
 
@@ -292,9 +293,7 @@ SOUND_status_t SOUND_update(SOUND_context_t* sound_ctx) {
 		(sound_ctx -> position_ms) = 0;
 	}
 errors:
-#ifdef LOG_SOUND
-	LOG_STATUS(status, SOUND_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, SOUND_SUCCESS);
 	return status;
 }
 
@@ -347,15 +346,15 @@ SOUND_status_t SOUND_process(SOUND_context_t* sound_ctx) {
 				switch ((sound_ctx -> fade_effect).type) {
 				case SOUND_FADE_TYPE_IN:
 					// Compute new volume.
-	#ifdef SOUND_FADE_EQUATION_LINEAR
+#ifdef SOUND_FADE_EQUATION_LINEAR
 					new_volume = alpha + ((SOUND_AUDIO_VOLUME_MAX - alpha) * ((p - beta)) / (gamma));
-	#endif
-	#ifdef SOUND_FADE_EQUATION_TRIGONOMETRIC
+#endif
+#ifdef SOUND_FADE_EQUATION_TRIGONOMETRIC
 					new_volume = alpha + ((SOUND_AUDIO_VOLUME_MAX - alpha) * sin((M_PI * (p - beta)) / (2 * gamma)));
-	#endif
-	#ifdef SOUND_FADE_EQUATION_ELLIPTIC
+#endif
+#ifdef SOUND_FADE_EQUATION_ELLIPTIC
 					new_volume = alpha + ((SOUND_AUDIO_VOLUME_MAX - alpha) * sqrt(1.0 - pow(((p - beta - gamma) / (gamma)), 2.0)));
-	#endif
+#endif
 					// Add offset to ensure first computed volume is not 0.
 					if (new_volume == 0.0) {
 						new_volume = SOUND_FADE_IN_START_OFFSET;
@@ -363,15 +362,15 @@ SOUND_status_t SOUND_process(SOUND_context_t* sound_ctx) {
 					break;
 				case SOUND_FADE_TYPE_OUT:
 					// Compute new volume.
-	#ifdef SOUND_FADE_EQUATION_LINEAR
+#ifdef SOUND_FADE_EQUATION_LINEAR
 					new_volume = alpha - (((alpha - SOUND_AUDIO_VOLUME_MIN) * (p - beta)) / (gamma));
-	#endif
-	#ifdef SOUND_FADE_EQUATION_TRIGONOMETRIC
+#endif
+#ifdef SOUND_FADE_EQUATION_TRIGONOMETRIC
 					new_volume = SOUND_AUDIO_VOLUME_MIN + ((alpha - SOUND_AUDIO_VOLUME_MIN) * cos((M_PI * (p - beta)) / (2 * gamma)));
-	#endif
-	#ifdef SOUND_FADE_EQUATION_ELLIPTIC
+#endif
+#ifdef SOUND_FADE_EQUATION_ELLIPTIC
 					new_volume = SOUND_AUDIO_VOLUME_MIN + ((alpha - SOUND_AUDIO_VOLUME_MIN) * sqrt(1.0 - pow(((p - beta) / (gamma)), 2.0)));
-	#endif
+#endif
 					break;
 				default:
 					status = SOUND_ERROR_FADE_TYPE;
@@ -394,8 +393,6 @@ SOUND_status_t SOUND_process(SOUND_context_t* sound_ctx) {
 	status = _SOUND_set_volume(sound_ctx, (float) new_volume);
 	if (status != SOUND_SUCCESS) goto errors;
 errors:
-#ifdef LOG_SOUND
-	LOG_STATUS(status, SOUND_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, SOUND_SUCCESS);
 	return status;
 }

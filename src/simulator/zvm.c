@@ -63,6 +63,7 @@ ZVM_status_t _ZVM_sound_on(void) {
 	sound_status = SOUND_stop(&(zvm_ctx.sound_on_1), ZVM_FADE_DURATION_MS);
 	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
 errors:
+	LOG_ERROR(status, ZVM_SUCCESS);
 	return status;
 }
 
@@ -82,6 +83,7 @@ ZVM_status_t _ZVM_sound_off(void) {
 	sound_status = SOUND_stop(&(zvm_ctx.sound_on_1), ZVM_FADE_DURATION_MS);
 	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
 errors:
+	LOG_ERROR(status, ZVM_SUCCESS);
 	return status;
 }
 
@@ -105,9 +107,7 @@ ZVM_status_t ZVM_init(void) {
 	sound_status = SOUND_init(&(zvm_ctx.sound_turn_off), "zvm_turn_off.wav", ZVM_AUDIO_GAIN);
 	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_ZVM
-	LOG_STATUS(status, ZVM_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, ZVM_SUCCESS);
 	return status;
 }
 
@@ -120,19 +120,18 @@ ZVM_status_t ZVM_set_state(ZVM_state_t state) {
 		status = ZVM_ERROR_STATE;
 		goto errors;
 	}
-	// Print state.
+#ifdef LOG_ZVM
 	if (state == ZVM_STATE_ON) {
 		LOG("state=ZVM_STATE_ON");
 	}
 	else {
 		LOG("state=ZVM_STATE_OFF");
 	}
+#endif
 	// Update context.
 	zvm_ctx.state = state;
 errors:
-#ifdef LOG_ZVM
-	LOG_STATUS(status, ZVM_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, ZVM_SUCCESS);
 	return status;
 }
 
@@ -248,8 +247,6 @@ ZVM_status_t ZVM_process(void) {
 	sound_status = SOUND_process(&(zvm_ctx.sound_turn_off));
 	SOUND_stack_exit_error(ZVM_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_ZVM
-	LOG_STATUS(status, ZVM_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, ZVM_SUCCESS);
 	return status;
 }

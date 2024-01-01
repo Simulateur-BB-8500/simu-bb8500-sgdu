@@ -42,9 +42,7 @@ EMERGENCY_status_t EMERGENCY_init(void) {
 	sound_status = SOUND_init(&(emergency_ctx.sound_turn_on), "pbl2_turn_off.wav", EMERGENCY_AUDIO_GAIN);
 	SOUND_stack_exit_error(EMERGENCY_ERROR_DRIVER_SOUND);
 errors:
-#ifdef LOG_EMERGENCY
-	LOG_STATUS(status, EMERGENCY_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, EMERGENCY_SUCCESS);
 	return status;
 }
 
@@ -59,8 +57,9 @@ EMERGENCY_status_t EMERGENCY_set_state(EMERGENCY_state_t state) {
 	case EMERGENCY_STATE_ON:
 		// Check state change.
 		if (emergency_ctx.state != EMERGENCY_STATE_ON) {
-			// Log action.
+#ifdef LOG_EMERGENCY
 			LOG("state=EMERGENCY_STATE_ON");
+#endif
 			// Play sound.
 			sound_status = SOUND_play(&(emergency_ctx.sound_turn_on), 0);
 			SOUND_stack_exit_error(EMERGENCY_ERROR_DRIVER_SOUND);
@@ -74,8 +73,9 @@ EMERGENCY_status_t EMERGENCY_set_state(EMERGENCY_state_t state) {
 	case EMERGENCY_STATE_OFF:
 		// Check state change.
 		if (emergency_ctx.state != EMERGENCY_STATE_OFF) {
-			// Log action.
+#ifdef LOG_EMERGENCY
 			LOG("state=EMERGENCY_STATE_OFF");
+#endif
 			// Press OpenRails shortcut.
 			keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_BPURG, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);
 			KEYBOARD_stack_exit_error(EMERGENCY_ERROR_DRIVER_KEYBOARD);
@@ -88,8 +88,6 @@ EMERGENCY_status_t EMERGENCY_set_state(EMERGENCY_state_t state) {
 	// Update local state.
 	emergency_ctx.state = state;
 errors:
-#ifdef LOG_EMERGENCY
-	LOG_STATUS(status, EMERGENCY_SUCCESS, "OK");
-#endif
+	LOG_ERROR(status, EMERGENCY_SUCCESS);
 	return status;
 }
