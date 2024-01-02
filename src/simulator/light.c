@@ -58,7 +58,12 @@ LIGHT_status_t LIGHT_set_state(LIGHT_type_t type, LIGHT_state_t state) {
 	LOG("type=%d state=%d", type, state);
 #endif
 	// Update bitfield.
-	light_ctx.status |= (0b1 << type);
+	if (state == LIGHT_STATE_OFF) {
+		light_ctx.status &= ~(0b1 << type);
+	}
+	else {
+		light_ctx.status |= (0b1 << type);
+	}
 	// Check status.
 	if ((light_ctx.status != 0) && (light_ctx.overall_state == 0)) {
 		// Send OpenRails shortcuts.
