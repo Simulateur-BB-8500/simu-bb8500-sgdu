@@ -55,7 +55,7 @@ MP_status_t MP_init(void);
 /*!******************************************************************
  * \fn MP_status_t MP_set_event(MP_event_t event)
  * \brief Set throttle event.
- * \param[in]  	none
+ * \param[in]  	event: Event to set.
  * \param[out] 	none
  * \retval		Function execution status.
  *******************************************************************/

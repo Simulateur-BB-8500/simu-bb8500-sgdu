@@ -8,6 +8,7 @@
 #include "lsmcu.h"
 
 #include "bpgd.h"
+#include "bpsa.h"
 #include "compressor.h"
 #include "emergency.h"
 #include "error.h"
@@ -78,6 +79,7 @@ LSMCU_status_t LSMCU_process(void) {
 	// Local variables.
 	LSMCU_status_t status = LSMCU_SUCCESS;
 	BPGD_status_t bpgd_status = BPGD_SUCCESS;
+	BPSA_status_t bpsa_status = BPSA_SUCCESS;
 	COMPRESSOR_status_t compressor_status = COMPRESSOR_SUCCESS;
 	EMERGENCY_status_t emergency_status = EMERGENCY_SUCCESS;
 	FD_status_t fd_status = FD_SUCCESS;
@@ -104,16 +106,16 @@ LSMCU_status_t LSMCU_process(void) {
 	// Decode incoming command.
 	switch (rx_command) {
 	case LSMCU_OUT_ZBA_ON:
-		// TODO
+		// Nothing to do.
 		break;
 	case LSMCU_OUT_ZBA_OFF:
-		// TODO
+		// Nothing to do.
 		break;
 	case LSMCU_OUT_RSEC_ON:
-		// TODO
+		// Nothing to do.
 		break;
 	case LSMCU_OUT_RSEC_OFF:
-		// TODO
+		// Nothing to do.
 		break;
 	case LSMCU_OUT_ZDV_ON:
 		kvb_status = KVB_set_state(KVB_STATE_ON);
@@ -262,10 +264,12 @@ LSMCU_status_t LSMCU_process(void) {
 		// TODO
 		break;
 	case LSMCU_OUT_BPSA_ON:
-		// TODO
+		bpsa_status = BPSA_set_state(BPSA_STATE_ON);
+		BPSA_stack_exit_error(LSMCU_ERROR_DRIVER_BPSA);
 		break;
 	case LSMCU_OUT_BPSA_OFF:
-		// TODO
+		bpsa_status = BPSA_set_state(BPSA_STATE_OFF);
+		BPSA_stack_exit_error(LSMCU_ERROR_DRIVER_BPSA);
 		break;
 	case LSMCU_OUT_ZFG_ON:
 		light_status = LIGHT_set_state(LIGHT_TYPE_ZFG, LIGHT_STATE_ON);

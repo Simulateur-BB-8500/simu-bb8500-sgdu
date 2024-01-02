@@ -19,6 +19,7 @@
 #define LOG_SOUND
 // Simulator.
 #define LOG_BPGD
+#define LOG_BPSA
 #define LOG_COMPRESSOR
 #define LOG_EMERGENCY
 #define LOG_FD

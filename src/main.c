@@ -6,6 +6,7 @@
  */
 
 #include "bpgd.h"
+#include "bpsa.h"
 #include "compressor.h"
 #include "emergency.h"
 #include "error.h"
@@ -105,6 +106,7 @@ int main (void) {
 	fflush(stdout);
 	// Local variables.
 	BPGD_status_t bpgd_status = BPGD_SUCCESS;
+	BPSA_status_t bpsa_status = BPSA_SUCCESS;
 	COMPRESSOR_status_t compressor_status = COMPRESSOR_SUCCESS;
 	EMERGENCY_status_t emergency_status = EMERGENCY_SUCCESS;
 	FD_status_t fd_status = FD_SUCCESS;
@@ -145,6 +147,8 @@ int main (void) {
 			// Init modules.
 			bpgd_status = BPGD_init();
 			BPGD_stack_error();
+			bpsa_status = BPSA_init();
+			BPSA_stack_error();
 			compressor_status = COMPRESSOR_init();
 			COMPRESSOR_stack_error();
 			emergency_status = EMERGENCY_init();

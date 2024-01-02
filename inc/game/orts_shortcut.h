@@ -35,7 +35,7 @@ static const KEYBOARD_shortcut_t ORTS_SHORTCUT_FD_RELEASE =			(KEYBOARD_shortcut
 static const KEYBOARD_shortcut_t ORTS_SHORTCUT_BPURG =				(KEYBOARD_shortcut_t) {VK_BACK, VK_NONE};
 // AUX.
 static const KEYBOARD_shortcut_t ORTS_SHORTCUT_BPEV =				(KEYBOARD_shortcut_t) {'V', VK_NONE};
-static const KEYBOARD_shortcut_t ORTS_SHORTCUT_SABLAGE =			(KEYBOARD_shortcut_t) {VK_SHIFT, 'X'};
+static const KEYBOARD_shortcut_t ORTS_SHORTCUT_BPSA =				(KEYBOARD_shortcut_t) {VK_SHIFT, 'X'};
 // Lights.
 static const KEYBOARD_shortcut_t ORTS_SHORTCUT_LIGHTS_ON =			(KEYBOARD_shortcut_t) {'H', VK_NONE};
 static const KEYBOARD_shortcut_t ORTS_SHORTCUT_LIGHTS_OFF =			(KEYBOARD_shortcut_t) {VK_SHIFT, 'H'};
