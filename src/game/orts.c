@@ -124,7 +124,9 @@ ORTS_status_t _ORTS_parse_value_unit(char* json_data, char* expected_unit, int32
 	}
 	(*value) = tmp_i32;
 errors:
-	LOG_ERROR(status, ORTS_SUCCESS);
+	if (status != ORTS_ERROR_UNIT_NOT_FOUND) {
+		LOG_ERROR(status, ORTS_SUCCESS);
+	}
 	return status;
 }
 
@@ -188,7 +190,9 @@ ORTS_status_t _ORTS_parse_api_sample(uint32_t table_index, uint32_t value_index,
 		break;
 	}
 errors:
-	LOG_ERROR(status, ORTS_SUCCESS);
+	if (status != ORTS_ERROR_UNIT_NOT_FOUND) {
+		LOG_ERROR(status, ORTS_SUCCESS);
+	}
 	return status;
 }
 

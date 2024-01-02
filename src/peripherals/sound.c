@@ -112,9 +112,9 @@ SOUND_status_t _SOUND_play(SOUND_context_t* sound_ctx) {
 		// Play sound.
 		fmod_status = FMOD_System_PlaySound(sound_fmod_system, (sound_ctx -> fmod_sound), NULL, 0, &(sound_ctx -> fmod_channel));
 		FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
+		// Set flag.
+		(sound_ctx -> is_playing) = 1;
 	}
-	// Update parameters.
-	(sound_ctx -> is_playing) = 1;
 errors:
 	LOG_ERROR(status, SOUND_SUCCESS);
 	return status;
@@ -135,11 +135,12 @@ SOUND_status_t _SOUND_stop(SOUND_context_t* sound_ctx) {
 		// Stop sound.
 		fmod_status = FMOD_Channel_Stop(sound_ctx -> fmod_channel);
 		FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
+		// Clear request and flag.
+		(sound_ctx -> play_request) = 0;
+		(sound_ctx -> is_playing) = 0;
 	}
 errors:
 	// Update flags.
-	(sound_ctx -> is_playing) = 0;
-	(sound_ctx -> play_request) = 0;
 	LOG_ERROR(status, SOUND_SUCCESS);
 	return status;
 }

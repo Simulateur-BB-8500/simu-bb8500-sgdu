@@ -61,9 +61,7 @@ EMERGENCY_status_t EMERGENCY_set_state(EMERGENCY_state_t state) {
 			LOG("state=EMERGENCY_STATE_ON");
 #endif
 			// Play sound.
-			sound_status = SOUND_play(&(emergency_ctx.sound_turn_on), 0);
-			SOUND_stack_exit_error(EMERGENCY_ERROR_DRIVER_SOUND);
-			sound_status = SOUND_process(&(emergency_ctx.sound_turn_on));
+			sound_status = SOUND_single_play(&(emergency_ctx.sound_turn_on));
 			SOUND_stack_exit_error(EMERGENCY_ERROR_DRIVER_SOUND);
 			// Press OpenRails shortcut.
 			keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_BPURG, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);

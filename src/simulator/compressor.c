@@ -204,22 +204,25 @@ COMPRESSOR_status_t COMPRESSOR_process(void) {
 			status = COMPRESSOR_ERROR_REQUEST;
 			goto errors;
 		}
+#ifdef LOG_COMPRESSOR
+		LOG("request=%d", compressor_ctx.request[compressor_ctx.request_read_idx]);
+#endif
 		// Clear request and increment index.
 		compressor_ctx.request[compressor_ctx.request_read_idx] = COMPRESSOR_REQUEST_NONE;
 		compressor_ctx.request_read_idx = (compressor_ctx.request_read_idx + 1) % COMPRESSOR_REQUEST_TABLE_SIZE;
 	}
-	// Update all sounds.
-	sound_status = SOUND_update(&(compressor_ctx.sound_zca_regulation_min));
+	// Process all sounds.
+	sound_status = SOUND_process(&(compressor_ctx.sound_zca_regulation_min));
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_update(&(compressor_ctx.sound_zca_regulation_max));
+	sound_status = SOUND_process(&(compressor_ctx.sound_zca_regulation_max));
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_update(&(compressor_ctx.sound_zcd_turn_on));
+	sound_status = SOUND_process(&(compressor_ctx.sound_zcd_turn_on));
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_update(&(compressor_ctx.sound_zcd_on_0));
+	sound_status = SOUND_process(&(compressor_ctx.sound_zcd_on_0));
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_update(&(compressor_ctx.sound_zcd_on_1));
+	sound_status = SOUND_process(&(compressor_ctx.sound_zcd_on_1));
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_update(&(compressor_ctx.sound_zcx_turn_off));
+	sound_status = SOUND_process(&(compressor_ctx.sound_zcx_turn_off));
 	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 	// Perform state machine.
 	switch (compressor_ctx.internal_state) {
@@ -230,6 +233,9 @@ COMPRESSOR_status_t COMPRESSOR_process(void) {
 		// Check ZCA end.
 		if (compressor_ctx.sound_zca_regulation_min.is_playing == 0) {
 			// Automatically come back to OFF state.
+#ifdef LOG_COMPRESSOR
+			LOG("Automatic switch to OFF state");
+#endif
 			compressor_ctx.internal_state = COMPRESSOR_INTERNAL_STATE_TURN_OFF;
 		}
 		break;
@@ -237,6 +243,9 @@ COMPRESSOR_status_t COMPRESSOR_process(void) {
 		// Check ZCA end.
 		if (compressor_ctx.sound_zca_regulation_max.is_playing == 0) {
 			// Automatically come back to OFF state.
+#ifdef LOG_COMPRESSOR
+			LOG("Automatic switch to OFF state");
+#endif
 			compressor_ctx.internal_state = COMPRESSOR_INTERNAL_STATE_TURN_OFF;
 		}
 		break;
@@ -280,19 +289,6 @@ COMPRESSOR_status_t COMPRESSOR_process(void) {
 		status = COMPRESSOR_ERROR_INTERNAL_STATE;
 		goto errors;
 	}
-	// Process all sounds.
-	sound_status = SOUND_process(&(compressor_ctx.sound_zca_regulation_min));
-	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_process(&(compressor_ctx.sound_zca_regulation_max));
-	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_process(&(compressor_ctx.sound_zcd_turn_on));
-	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_process(&(compressor_ctx.sound_zcd_on_0));
-	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_process(&(compressor_ctx.sound_zcd_on_1));
-	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
-	sound_status = SOUND_process(&(compressor_ctx.sound_zcx_turn_off));
-	SOUND_stack_exit_error(COMPRESSOR_ERROR_DRIVER_SOUND);
 errors:
 	LOG_ERROR(status, COMPRESSOR_SUCCESS);
 	return status;
