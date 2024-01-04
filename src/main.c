@@ -182,8 +182,6 @@ int main (void) {
 #endif
 			// Compute next state.
 			lsagiu_ctx.state = LSAGIU_STATE_WAIT_INTERFACES;
-			printf("*******************************************************************\n");
-			fflush(stdout);
 			break;
 		case LSAGIU_STATE_WAIT_INTERFACES:
 			// Check period.
@@ -214,9 +212,7 @@ int main (void) {
 			if ((lsagiu_ctx.lsmcu_connected != 0) && (lsagiu_ctx.orts_server_connected != 0)) {
 				// Update state.
 				lsagiu_ctx.state = LSAGIU_STATE_RUNNING;
-				printf("*******************************************************************\n");
 			}
-			fflush(stdout);
 			break;
 		case LSAGIU_STATE_RUNNING:
 			// Process interfaces.
