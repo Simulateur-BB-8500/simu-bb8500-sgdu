@@ -20,6 +20,7 @@ typedef enum {
 	BPGD_ERROR_STATE,
 	// Low level drivers errors.
 	BPGD_ERROR_DRIVER_SOUND,
+	BPGD_ERROR_DRIVER_KEYBOARD,
 	// Last index.
 	BPGD_ERROR_LAST
 } BPGD_status_t;

@@ -52,6 +52,7 @@ FPB_status_t FPB_init(void) {
 	SOUND_status_t sound_status = SOUND_SUCCESS;
 	// Init state.
 	fpb_ctx.state = FPB_STATE_LAST;
+	fpb_ctx.keyboard_time = 0;
 	// Init sounds.
 	sound_status = SOUND_init(&(fpb_ctx.sound_apply), "fpb_apply.wav", FPB_AUDIO_GAIN_MIN);
 	SOUND_stack_exit_error(FPB_ERROR_DRIVER_SOUND);
