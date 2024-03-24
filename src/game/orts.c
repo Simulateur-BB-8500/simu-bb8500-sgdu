@@ -90,7 +90,6 @@ static ORTS_context_t orts_ctx;
 /*******************************************************************/
 #define CURL_stack_exit_error(error_code) { CURL_stack_error(); CURL_exit_error(error_code); }
 
-
 /*******************************************************************/
 size_t _ORTS_write_api_data(char* ptr, size_t size, size_t nmemb, void* user_data) {
 	// Local variables.
