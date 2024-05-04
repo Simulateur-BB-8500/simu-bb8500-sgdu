@@ -14,7 +14,6 @@
 #include "orts_shortcut.h"
 #include "sound.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "time.h"
 
 /*** MPINV local structures ***/
@@ -61,7 +60,7 @@ MPINV_status_t MPINV_set_position(MPINV_position_t position) {
 			// Check state change.
 			if (mpinv_ctx.position != MPINV_POSITION_FORWARD) {
 #ifdef LOG_MPINV
-				LOG("position=MPINV_POSITION_FORWARD");
+				LOG_trace(LOG_COLOR_WHITE, "position=MPINV_POSITION_FORWARD");
 #endif
 				// Play sound.
 				sound_status = SOUND_play(&(mpinv_ctx.sound_forward_backward), 0);
@@ -79,7 +78,7 @@ MPINV_status_t MPINV_set_position(MPINV_position_t position) {
 		// Check state change.
 		if (mpinv_ctx.position != MPINV_POSITION_NEUTRAL) {
 #ifdef LOG_MPINV
-			LOG("position=MPINV_POSITION_NEUTRAL");
+			LOG_trace(LOG_COLOR_WHITE, "position=MPINV_POSITION_NEUTRAL");
 #endif
 			// Play sound.
 			sound_status = SOUND_play(&(mpinv_ctx.sound_neutral), 0);
@@ -106,7 +105,7 @@ MPINV_status_t MPINV_set_position(MPINV_position_t position) {
 		// Check state change.
 		if (mpinv_ctx.position != MPINV_POSITION_BACKWARD) {
 #ifdef LOG_MPINV
-			LOG("position=MPINV_POSITION_BACKWARD");
+			LOG_trace(LOG_COLOR_WHITE, "position=MPINV_POSITION_BACKWARD");
 #endif
 			// Play and stop sound.
 			sound_status = SOUND_play(&(mpinv_ctx.sound_forward_backward), 0);

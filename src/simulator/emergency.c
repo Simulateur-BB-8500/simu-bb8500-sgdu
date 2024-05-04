@@ -14,7 +14,6 @@
 #include "orts_shortcut.h"
 #include "sound.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "time.h"
 
 /*** EMERGENCY local structures ***/
@@ -58,7 +57,7 @@ EMERGENCY_status_t EMERGENCY_set_state(EMERGENCY_state_t state) {
 		// Check state change.
 		if (emergency_ctx.state != EMERGENCY_STATE_ON) {
 #ifdef LOG_EMERGENCY
-			LOG("state=EMERGENCY_STATE_ON");
+			LOG_trace(LOG_COLOR_WHITE, "state=EMERGENCY_STATE_ON");
 #endif
 			// Play sound.
 			sound_status = SOUND_single_play(&(emergency_ctx.sound_turn_on));
@@ -72,7 +71,7 @@ EMERGENCY_status_t EMERGENCY_set_state(EMERGENCY_state_t state) {
 		// Check state change.
 		if (emergency_ctx.state != EMERGENCY_STATE_OFF) {
 #ifdef LOG_EMERGENCY
-			LOG("state=EMERGENCY_STATE_OFF");
+			LOG_trace(LOG_COLOR_WHITE, "state=EMERGENCY_STATE_OFF");
 #endif
 			// Press OpenRails shortcut.
 			keyboard_status = KEYBOARD_single_press(&ORTS_SHORTCUT_BPURG, ORTS_SHORTCUT_PRESS_DURATION_MS_DEFAULT);

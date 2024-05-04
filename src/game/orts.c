@@ -9,6 +9,7 @@
 
 #include "cJSON.h"
 #include "curl/curl.h"
+#include "curl/curlver.h"
 #include "error.h"
 #include "fpb.h"
 #include "log.h"
@@ -91,7 +92,7 @@ static ORTS_context_t orts_ctx;
 #define CURL_stack_exit_error(error_code) { CURL_stack_error(); CURL_exit_error(error_code); }
 
 /*******************************************************************/
-size_t _ORTS_write_api_data(char* ptr, size_t size, size_t nmemb, void* user_data) {
+static size_t _ORTS_write_api_data(char* ptr, size_t size, size_t nmemb, void* user_data) {
 	// Local variables.
 	uint32_t idx = 0;
 	// Copy data into local buffer.
@@ -103,7 +104,7 @@ size_t _ORTS_write_api_data(char* ptr, size_t size, size_t nmemb, void* user_dat
 }
 
 /*******************************************************************/
-ORTS_status_t _ORTS_parse_value_unit(char* json_data, char* expected_unit, int32_t* value) {
+static ORTS_status_t _ORTS_parse_value_unit(char* json_data, char* expected_unit, int32_t* value) {
 	// Local variables.
 	ORTS_status_t status = ORTS_SUCCESS;
 	int32_t sscanf_count = 0;
@@ -130,7 +131,7 @@ errors:
 }
 
 /*******************************************************************/
-ORTS_status_t _ORTS_parse_api_sample(uint32_t table_index, uint32_t value_index, char* json_data) {
+static ORTS_status_t _ORTS_parse_api_sample(uint32_t table_index, uint32_t value_index, char* json_data) {
 	// Local variables.
 	ORTS_status_t status = ORTS_SUCCESS;
 	int32_t value = 0;
@@ -196,7 +197,7 @@ errors:
 }
 
 /*******************************************************************/
-ORTS_status_t _ORTS_parse_api_data(void) {
+static ORTS_status_t _ORTS_parse_api_data(void) {
 	// Local variables.
 	ORTS_status_t status = ORTS_SUCCESS;
 	cJSON* json = NULL;
@@ -256,6 +257,40 @@ errors:
 }
 
 /*** ORTS functions ***/
+
+/*******************************************************************/
+ORTS_status_t ORTS_get_curl_version(uint8_t* major, uint8_t* minor, uint8_t* patch) {
+	// Local variables.
+	ORTS_status_t status = ORTS_SUCCESS;
+	// Check parameters.
+	if ((major == NULL) || (minor == NULL) || (patch == NULL)) {
+		status = ORTS_ERROR_NULL_PARAMETER;
+		goto errors;
+	}
+	// Update fields.
+	(*major) = LIBCURL_VERSION_MAJOR;
+	(*minor) = LIBCURL_VERSION_MINOR;
+	(*patch) = LIBCURL_VERSION_PATCH;
+errors:
+	return status;
+}
+
+/*******************************************************************/
+ORTS_status_t ORTS_get_cjson_version(uint8_t* major, uint8_t* minor, uint8_t* patch) {
+	// Local variables.
+	ORTS_status_t status = ORTS_SUCCESS;
+	// Check parameters.
+	if ((major == NULL) || (minor == NULL) || (patch == NULL)) {
+		status = ORTS_ERROR_NULL_PARAMETER;
+		goto errors;
+	}
+	// Update fields.
+	(*major) = CJSON_VERSION_MAJOR;
+	(*minor) = CJSON_VERSION_MINOR;
+	(*patch) = CJSON_VERSION_PATCH;
+errors:
+	return status;
+}
 
 /*******************************************************************/
 ORTS_status_t ORTS_init(void) {
@@ -329,7 +364,7 @@ ORTS_status_t ORTS_process(void) {
 			FPB_stack_exit_error(ORTS_ERROR_DRIVER_TRACK);
 			MP_set_current_position(orts_ctx.data[ORTS_DATA_INDEX_DRIVE_PERCENT], orts_ctx.data[ORTS_DATA_INDEX_DYNAMIC_BRAKE_PERCENT]);
 #ifdef LOG_ORTS
-			LOG("speed=%dkm/h speed_limit=%dkm/h drive=%d brake=%d", orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH], orts_ctx.data[ORTS_DATA_INDEX_SPEED_LIMIT_KMH], orts_ctx.data[ORTS_DATA_INDEX_DRIVE_PERCENT], orts_ctx.data[ORTS_DATA_INDEX_DYNAMIC_BRAKE_PERCENT]);
+			LOG_trace(LOG_COLOR_WHITE, "speed=%dkm/h speed_limit=%dkm/h drive=%d brake=%d", orts_ctx.data[ORTS_DATA_INDEX_SPEED_KMH], orts_ctx.data[ORTS_DATA_INDEX_SPEED_LIMIT_KMH], orts_ctx.data[ORTS_DATA_INDEX_DRIVE_PERCENT], orts_ctx.data[ORTS_DATA_INDEX_DYNAMIC_BRAKE_PERCENT]);
 #endif
 		}
 	}

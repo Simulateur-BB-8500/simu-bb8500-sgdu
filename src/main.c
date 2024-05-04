@@ -23,9 +23,9 @@
 #include "pbl2.h"
 #include "sound.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "time.h"
 #include "track.h"
+#include "version.h"
 #include "whistle.h"
 #include "zdj.h"
 #include "zpt.h"
@@ -64,33 +64,66 @@ static LSAGIU_context_t lsagiu_ctx;
 
 /*** MAIN local functions ***/
 
+/*******************************************************************/
+static void _LSAGIU_print_versions(void) {
+	// Local variables.
+	uint16_t product = 0;
+	uint8_t major = 0;
+	uint8_t minor = 0;
+	uint8_t patch = 0;
+	LOG_color_t log_color = LOG_COLOR_WHITE;
+	// Print program version.
+	log_color = (GIT_DIRTY_FLAG != 0) ? LOG_COLOR_YELLOW : LOG_COLOR_GREEN;
+	LOG_print(LOG_COLOR_WHITE, "Program version:\n");
+	LOG_print(LOG_COLOR_WHITE, "ls-agiu: ");
+	LOG_print(log_color, "SW%d.%d.%d", GIT_MAJOR_VERSION, GIT_MINOR_VERSION, GIT_COMMIT_INDEX);
+	if (GIT_DIRTY_FLAG != 0) {
+		LOG_print(log_color, "-d ");
+		LOG_print(LOG_COLOR_RED, "(DIRTY)");
+	}
+	LOG_print(LOG_COLOR_WHITE, "\n\n");
+	// Print libraries version.
+	LOG_print(LOG_COLOR_WHITE, "Libraries version:\n");
+	LOG_print(LOG_COLOR_WHITE, "fmod: ");
+	SOUND_get_fmod_version(&product, &major, &minor);
+	LOG_print(LOG_COLOR_GREEN, "v%d.%d.%d\n", product, major, minor);
+	LOG_print(LOG_COLOR_WHITE, "curl: ");
+	ORTS_get_curl_version(&major, &minor, &patch);
+	LOG_print(LOG_COLOR_GREEN, "v%d.%d.%d\n", major, minor, patch);
+	LOG_print(LOG_COLOR_WHITE, "cjson: ");
+	ORTS_get_cjson_version(&major, &minor, &patch);
+	LOG_print(LOG_COLOR_GREEN, "v%d.%d.%d\n\n", major, minor, patch);
+}
+
 #ifdef LOG_ERROR_STACK
 /*******************************************************************/
 static void _LSAGIU_print_error_stack(void) {
 	// Local variables.
 	ERROR_code_t error_code = ERROR_BASE_NONE;
 	uint32_t count = 0;
-	// Check if empty.
-	if (ERROR_stack_is_empty() == 0) {
-		// Print stack.
-		TIME_print();
-		printf("LSAGIU_print_error_stack() *** [ ");
-		do {
-			// Unstack error.
-			error_code = ERROR_stack_read();
-			printf("0x%08X ", error_code);
-			// Manage screen width.
-			count++;
-			if (count >= 10) {
-				// Change line.
-				printf("]\n");
-				TIME_print();
-				printf("                               [ ");
-				count = 0;
-			}
-		} while (error_code != ERROR_BASE_NONE);
-		printf("]\n");
-		fflush(stdout);
+	// Check period.
+	if (TIME_get_milliseconds() >= lsagiu_ctx.error_stack_check_next_time) {
+		// Update next time.
+		lsagiu_ctx.error_stack_check_next_time = TIME_get_milliseconds() + LSAGIU_ERROR_STACK_CHECK_PERIOD_MS;
+		// Check if empty.
+		if (ERROR_stack_is_empty() == 0) {
+			// Print stack.
+			LOG_trace(LOG_COLOR_WHITE, "");
+			LOG_print(LOG_COLOR_WHITE, "[ ");
+			do {
+				// Unstack error.
+				error_code = ERROR_stack_read();
+				LOG_print(LOG_COLOR_YELLOW, "0x%08X ", error_code);
+				// Manage screen width.
+				count++;
+				if (count >= 10) {
+					// Change line.
+					LOG_print(LOG_COLOR_WHITE, "]\n[ ");
+					count = 0;
+				}
+			} while (error_code != ERROR_BASE_NONE);
+			LOG_print(LOG_COLOR_WHITE, "]\n");
+		}
 	}
 }
 #endif
@@ -98,12 +131,11 @@ static void _LSAGIU_print_error_stack(void) {
 /*** MAIN function ***/
 
 /*******************************************************************/
-int main (void) {
+int main(void) {
 	// Start print.
-	printf("********************************************************************\n");
-	printf("*** Locomotive Simulator Audio and Game Interface Unit (LS-AGIU) ***\n");
-	printf("********************************************************************\n\n");
-	fflush(stdout);
+	LOG_print(LOG_COLOR_WHITE, "********************************************************************\n");
+	LOG_print(LOG_COLOR_WHITE, "*** Locomotive Simulator Audio and Game Interface Unit (LS-AGIU) ***\n");
+	LOG_print(LOG_COLOR_WHITE, "********************************************************************\n\n");
 	// Local variables.
 	BPGD_status_t bpgd_status = BPGD_SUCCESS;
 	BPSA_status_t bpsa_status = BPSA_SUCCESS;
@@ -125,6 +157,8 @@ int main (void) {
 	ZDJ_status_t zdj_status = ZDJ_SUCCESS;
 	ZPT_status_t zpt_status = ZPT_SUCCESS;
 	ZVM_status_t zvm_status = ZVM_SUCCESS;
+	// Print versions.
+	_LSAGIU_print_versions();
 	// Init context.
 	lsagiu_ctx.state = LSAGIU_STATE_INIT;
 	lsagiu_ctx.lsmcu_connected = 0;
@@ -133,6 +167,7 @@ int main (void) {
 #ifdef LOG_ERROR_STACK
 	lsagiu_ctx.error_stack_check_next_time = 0;
 #endif
+	LOG_trace(LOG_COLOR_GREEN, "state = LSAGIU_STATE_INIT");
 	// Main loop.
 	while (1) {
 		// Perform state machine.
@@ -182,6 +217,7 @@ int main (void) {
 #endif
 			// Compute next state.
 			lsagiu_ctx.state = LSAGIU_STATE_WAIT_INTERFACES;
+			LOG_trace(LOG_COLOR_YELLOW, "state = LSAGIU_STATE_WAIT_INTERFACES");
 			break;
 		case LSAGIU_STATE_WAIT_INTERFACES:
 			// Check period.
@@ -212,6 +248,7 @@ int main (void) {
 			if ((lsagiu_ctx.lsmcu_connected != 0) && (lsagiu_ctx.orts_server_connected != 0)) {
 				// Update state.
 				lsagiu_ctx.state = LSAGIU_STATE_RUNNING;
+				LOG_trace(LOG_COLOR_GREEN, "state = LSAGIU_STATE_RUNNING");
 			}
 			break;
 		case LSAGIU_STATE_RUNNING:
@@ -243,21 +280,14 @@ int main (void) {
 			keyboard_status = KEYBOARD_process();
 			KEYBOARD_stack_error();
 #ifdef LOG_ERROR_STACK
-			// Check error stack period.
-			if (TIME_get_milliseconds() >= lsagiu_ctx.error_stack_check_next_time) {
-				// Update next time.
-				lsagiu_ctx.error_stack_check_next_time = TIME_get_milliseconds() + LSAGIU_ERROR_STACK_CHECK_PERIOD_MS;
-				_LSAGIU_print_error_stack();
-			}
+			_LSAGIU_print_error_stack();
 #endif
-			fflush(stdout);
 			break;
 		default:
 			goto errors;
 		}
 	}
 errors:
-	printf("*******************************************************************\n");
-	fflush(stdout);
+	LOG_print(LOG_COLOR_WHITE, "*******************************************************************\n");
 	return 0;
 }

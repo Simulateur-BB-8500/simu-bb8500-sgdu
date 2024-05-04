@@ -12,7 +12,6 @@
 #include "mixer.h"
 #include "sound.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "time.h"
 
 /*** KVB local structures ***/
@@ -52,7 +51,7 @@ KVB_status_t KVB_set_state(KVB_state_t state) {
 	switch (state) {
 	case KVB_STATE_ON:
 #ifdef LOG_KVB
-		LOG("state=KVB_STATE_ON");
+		LOG_trace(LOG_COLOR_WHITE, "state=KVB_STATE_ON");
 #endif
 		// Play sound.
 		sound_status = SOUND_play(&(kvb_ctx.sound_on), 0);
@@ -60,7 +59,7 @@ KVB_status_t KVB_set_state(KVB_state_t state) {
 		break;
 	case KVB_STATE_OFF:
 #ifdef LOG_KVB
-		LOG("state=KVB_STATE_OFF");
+		LOG_trace(LOG_COLOR_WHITE, "state=KVB_STATE_OFF");
 #endif
 		// Stop sounds.
 		sound_status = SOUND_stop(&(kvb_ctx.sound_on), 0);

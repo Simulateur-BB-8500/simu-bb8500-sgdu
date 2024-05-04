@@ -12,7 +12,6 @@
 #include "mixer.h"
 #include "sound.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "time.h"
 
 /*** ZDJ local structures ***/
@@ -53,7 +52,7 @@ ZDJ_status_t ZDJ_set_state(ZDJ_state_t state) {
 	switch (state) {
 	case ZDJ_STATE_OPEN:
 #ifdef LOG_ZDJ
-		LOG("state=ZDJ_STATE_OPEN");
+		LOG_trace(LOG_COLOR_WHITE, "state=ZDJ_STATE_OPEN");
 #endif
 		// Play and stop sounds.
 		sound_status = SOUND_play(&(zdj_ctx.sound_open), 0);
@@ -63,7 +62,7 @@ ZDJ_status_t ZDJ_set_state(ZDJ_state_t state) {
 		break;
 	case ZDJ_STATE_LOCK:
 #ifdef LOG_ZDJ
-		LOG("state=ZDJ_STATE_LOCK");
+		LOG_trace(LOG_COLOR_WHITE, "state=ZDJ_STATE_LOCK");
 #endif
 		// Play and stop sounds.
 		sound_status = SOUND_play(&(zdj_ctx.sound_lock), 0);

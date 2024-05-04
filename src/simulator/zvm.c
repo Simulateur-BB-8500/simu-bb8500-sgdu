@@ -12,7 +12,6 @@
 #include "mixer.h"
 #include "sound.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "time.h"
 
 /*** ZVM local macros ***/
@@ -122,10 +121,10 @@ ZVM_status_t ZVM_set_state(ZVM_state_t state) {
 	}
 #ifdef LOG_ZVM
 	if (state == ZVM_STATE_ON) {
-		LOG("state=ZVM_STATE_ON");
+		LOG_trace(LOG_COLOR_WHITE, "state=ZVM_STATE_ON");
 	}
 	else {
-		LOG("state=ZVM_STATE_OFF");
+		LOG_trace(LOG_COLOR_WHITE, "state=ZVM_STATE_OFF");
 	}
 #endif
 	// Update context.

@@ -79,6 +79,17 @@ typedef struct {
 /*** SOUND functions ***/
 
 /*!******************************************************************
+ * \fn SOUND_status_t SOUND_get_fmod_version(uint16_t* product, uint8_t* major, uint8_t* minor)
+ * \brief Get sound driver version.
+ * \param[in]  	none
+ * \param[out] 	product: FMOD product version.
+ * \param[out] 	major: FMOD major version.
+ * \param[out] 	minor: FMOD minor version.
+ * \retval		Function execution status.
+ *******************************************************************/
+SOUND_status_t SOUND_get_fmod_version(uint16_t* product, uint8_t* major, uint8_t* minor);
+
+/*!******************************************************************
  * \fn SOUND_status_t SOUND_init_fmod_system(void)
  * \brief Init sound driver.
  * \param[in]  	none

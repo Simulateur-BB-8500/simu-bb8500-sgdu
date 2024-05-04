@@ -14,7 +14,6 @@
 #include "orts_shortcut.h"
 #include "sound.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "time.h"
 
 /*** ZPT local structures ***/
@@ -74,7 +73,7 @@ ZPT_status_t ZPT_set_position(ZPT_pantograph_t pantograph, ZPT_state_t state) {
 		// Check state change.
 		if ((zpt_ctx.rear_state != ZPT_STATE_UP) && (state == ZPT_STATE_UP)) {
 #ifdef LOG_ZPT
-			LOG("pantograph=ZPT_PANTOGRAPH_REAR state=ZPT_STATE_UP");
+			LOG_trace(LOG_COLOR_WHITE, "pantograph=ZPT_PANTOGRAPH_REAR state=ZPT_STATE_UP");
 #endif
 			// Play and stop sounds.
 			sound_status = SOUND_play(&(zpt_ctx.sound_rear_up), 0);
@@ -87,7 +86,7 @@ ZPT_status_t ZPT_set_position(ZPT_pantograph_t pantograph, ZPT_state_t state) {
 		}
 		if ((zpt_ctx.rear_state != ZPT_STATE_DOWN) && (state == ZPT_STATE_DOWN)) {
 #ifdef LOG_ZPT
-			LOG("pantograph=ZPT_PANTOGRAPH_REAR state=ZPT_STATE_DOWN");
+			LOG_trace(LOG_COLOR_WHITE, "pantograph=ZPT_PANTOGRAPH_REAR state=ZPT_STATE_DOWN");
 #endif
 			// Play and stop sounds.
 			sound_status = SOUND_play(&(zpt_ctx.sound_rear_down), 0);
@@ -105,7 +104,7 @@ ZPT_status_t ZPT_set_position(ZPT_pantograph_t pantograph, ZPT_state_t state) {
 		// Check state change.
 		if ((zpt_ctx.front_state != ZPT_STATE_UP) && (state == ZPT_STATE_UP)) {
 #ifdef LOG_ZPT
-			LOG("pantograph=ZPT_PANTOGRAPH_FRONT state=ZPT_STATE_UP");
+			LOG_trace(LOG_COLOR_WHITE, "pantograph=ZPT_PANTOGRAPH_FRONT state=ZPT_STATE_UP");
 #endif
 			// Play and stop sounds.
 			sound_status = SOUND_play(&(zpt_ctx.sound_front_up), 0);
@@ -118,7 +117,7 @@ ZPT_status_t ZPT_set_position(ZPT_pantograph_t pantograph, ZPT_state_t state) {
 		}
 		if ((zpt_ctx.front_state != ZPT_STATE_DOWN) && (state == ZPT_STATE_DOWN)) {
 #ifdef LOG_ZPT
-			LOG("pantograph=ZPT_PANTOGRAPH_FRONT state=ZPT_STATE_DOWN");
+			LOG_trace(LOG_COLOR_WHITE, "pantograph=ZPT_PANTOGRAPH_FRONT state=ZPT_STATE_DOWN");
 #endif
 			// Play and stop sounds.
 			sound_status = SOUND_play(&(zpt_ctx.sound_front_down), 0);

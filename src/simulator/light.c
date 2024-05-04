@@ -12,7 +12,6 @@
 #include "log.h"
 #include "orts_shortcut.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "time.h"
 
 /*** LIGHTS local structures ***/
@@ -55,7 +54,7 @@ LIGHT_status_t LIGHT_set_state(LIGHT_type_t type, LIGHT_state_t state) {
 		goto errors;
 	}
 #ifdef LOG_LIGHT
-	LOG("type=%d state=%d", type, state);
+	LOG_trace(LOG_COLOR_WHITE, "type=%d state=%d", type, state);
 #endif
 	// Update bitfield.
 	if (state == LIGHT_STATE_OFF) {

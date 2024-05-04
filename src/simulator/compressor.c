@@ -12,7 +12,6 @@
 #include "mixer.h"
 #include "sound.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "time.h"
 
 /*** COMPRESSOR local macros ***/
@@ -98,7 +97,7 @@ COMPRESSOR_status_t COMPRESSOR_set_request(COMPRESSOR_request_t request) {
 	compressor_ctx.request[compressor_ctx.request_write_idx] = request;
 	compressor_ctx.request_write_idx = (compressor_ctx.request_write_idx + 1) % COMPRESSOR_REQUEST_TABLE_SIZE;
 #ifdef LOG_COMPRESSOR
-	LOG("request=%d", request);
+	LOG_trace(LOG_COLOR_WHITE, "request=%d", request);
 #endif
 errors:
 	LOG_ERROR(status, COMPRESSOR_SUCCESS);
@@ -205,7 +204,7 @@ COMPRESSOR_status_t COMPRESSOR_process(void) {
 			goto errors;
 		}
 #ifdef LOG_COMPRESSOR
-		LOG("request=%d", compressor_ctx.request[compressor_ctx.request_read_idx]);
+		LOG_trace(LOG_COLOR_WHITE, "request=%d", compressor_ctx.request[compressor_ctx.request_read_idx]);
 #endif
 		// Clear request and increment index.
 		compressor_ctx.request[compressor_ctx.request_read_idx] = COMPRESSOR_REQUEST_NONE;
@@ -234,7 +233,7 @@ COMPRESSOR_status_t COMPRESSOR_process(void) {
 		if (compressor_ctx.sound_zca_regulation_min.is_playing == 0) {
 			// Automatically come back to OFF state.
 #ifdef LOG_COMPRESSOR
-			LOG("Automatic switch to OFF state");
+			LOG_trace(LOG_COLOR_WHITE, "Automatic switch to OFF state");
 #endif
 			compressor_ctx.internal_state = COMPRESSOR_INTERNAL_STATE_TURN_OFF;
 		}
@@ -244,7 +243,7 @@ COMPRESSOR_status_t COMPRESSOR_process(void) {
 		if (compressor_ctx.sound_zca_regulation_max.is_playing == 0) {
 			// Automatically come back to OFF state.
 #ifdef LOG_COMPRESSOR
-			LOG("Automatic switch to OFF state");
+			LOG_trace(LOG_COLOR_WHITE, "Automatic switch to OFF state");
 #endif
 			compressor_ctx.internal_state = COMPRESSOR_INTERNAL_STATE_TURN_OFF;
 		}

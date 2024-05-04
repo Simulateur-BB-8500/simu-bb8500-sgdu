@@ -7,8 +7,8 @@
 
 #include "time.h"
 
+#include "stddef.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "windows.h"
 
 /*** TIME local structures ***/
@@ -34,11 +34,16 @@ void TIME_init(void) {
 
 
 /*******************************************************************/
-void TIME_print(void) {
+void TIME_get_system_time(TIME_system_t* system_time) {
 	// Read current time.
 	GetLocalTime(&(time_ctx.system_time));
-	// Print time.
-	printf("%02d:%02d:%02d:%03d ", time_ctx.system_time.wHour, time_ctx.system_time.wMinute, time_ctx.system_time.wSecond, time_ctx.system_time.wMilliseconds);
+	// Update input structure.
+	if (system_time != NULL) {
+		(system_time -> hours) = time_ctx.system_time.wHour;
+		(system_time -> minutes) = time_ctx.system_time.wMinute;
+		(system_time -> seconds) = time_ctx.system_time.wSecond;
+		(system_time -> milliseconds) = time_ctx.system_time.wMilliseconds;
+	}
 }
 
 /*******************************************************************/

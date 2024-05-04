@@ -124,7 +124,7 @@ SERIAL_status_t SERIAL_write(SERIAL_port_t* serial_port, uint8_t tx_byte) {
 	windows_status = WriteFile((serial_port -> handle), &tx_byte, 1, NULL, NULL);
 	WINDOWS_stack_exit_error(SERIAL_ERROR_DRIVER_WINDOWS);
 #ifdef LOG_SERIAL
-	LOG("tx_byte=%d", tx_byte);
+	LOG_trace(LOG_COLOR_WHITE, "tx_byte=%d", tx_byte);
 #endif
 errors:
 	LOG_ERROR(status, SERIAL_SUCCESS);
@@ -151,7 +151,7 @@ SERIAL_status_t SERIAL_read(SERIAL_port_t* serial_port, uint8_t* rx_byte) {
 	windows_status = ReadFile((serial_port -> handle), rx_byte, 1, &number_of_read_bytes, NULL);
 	WINDOWS_stack_exit_error(SERIAL_ERROR_DRIVER_WINDOWS);
 #ifdef LOG_SERIAL
-	LOG("rx_byte=%d", (*rx_byte));
+	LOG_trace(LOG_COLOR_WHITE, "rx_byte=%d", (*rx_byte));
 #endif
 errors:
 	LOG_ERROR(status, SERIAL_SUCCESS);

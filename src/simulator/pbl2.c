@@ -12,7 +12,6 @@
 #include "mixer.h"
 #include "sound.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "time.h"
 
 /*** PBL2 local macros ***/
@@ -62,7 +61,7 @@ PBL2_status_t PBL2_set_state(PBL2_state_t state) {
 		// Check state change.
 		if (pbl2_ctx.state != PBL2_STATE_ON) {
 #ifdef LOG_PBL2
-			LOG("state=PBL2_STATE_ON");
+			LOG_trace(LOG_COLOR_WHITE, "state=PBL2_STATE_ON");
 #endif
 			// Play and stop sounds.
 			sound_status = SOUND_play(&(pbl2_ctx.sound_turn_on), 0);
@@ -75,7 +74,7 @@ PBL2_status_t PBL2_set_state(PBL2_state_t state) {
 		// Check state change.
 		if (pbl2_ctx.state != PBL2_STATE_OFF) {
 #ifdef LOG_PBL2
-			LOG("state=PBL2_STATE_OFF");
+			LOG_trace(LOG_COLOR_WHITE, "state=PBL2_STATE_OFF");
 #endif
 			// Play and stop sounds.
 			sound_status = SOUND_play(&(pbl2_ctx.sound_turn_off), 0);

@@ -14,7 +14,6 @@
 #include "orts_shortcut.h"
 #include "sound.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "time.h"
 
 /*** FD local macros ***/
@@ -65,7 +64,7 @@ FD_status_t FD_set_state(FD_state_t state) {
 		// Check state change.
 		if (fd_ctx.state != FD_STATE_APPLY) {
 #ifdef LOG_FD
-			LOG("state=FD_STATE_APPLY");
+			LOG_trace(LOG_COLOR_WHITE, "state=FD_STATE_APPLY");
 #endif
 			// Play and stop sounds.
 			sound_status = SOUND_play(&(fd_ctx.sound_apply), 0);
@@ -81,7 +80,7 @@ FD_status_t FD_set_state(FD_state_t state) {
 		// Check state change.
 		if (fd_ctx.state != FD_STATE_NEUTRAL) {
 #ifdef LOG_FD
-			LOG("state=FD_STATE_NEUTRAL");
+			LOG_trace(LOG_COLOR_WHITE, "state=FD_STATE_NEUTRAL");
 #endif
 			// Stop sounds.
 			sound_status = SOUND_stop(&(fd_ctx.sound_apply), FD_FADE_DURATION_MS);
@@ -105,7 +104,7 @@ FD_status_t FD_set_state(FD_state_t state) {
 		// Check state change.
 		if (fd_ctx.state != FD_STATE_RELEASE) {
 #ifdef LOG_FD
-			LOG("state=FD_STATE_RELEASE");
+			LOG_trace(LOG_COLOR_WHITE, "state=FD_STATE_RELEASE");
 #endif
 			// Play and stop sounds.
 			sound_status = SOUND_play(&(fd_ctx.sound_release), 0);

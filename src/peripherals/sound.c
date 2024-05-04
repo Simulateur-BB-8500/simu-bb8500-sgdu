@@ -14,7 +14,6 @@
 #include "math.h"
 #include "stddef.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "string.h"
 #include "time.h"
 
@@ -148,6 +147,23 @@ errors:
 /*** SOUND functions ***/
 
 /*******************************************************************/
+SOUND_status_t SOUND_get_fmod_version(uint16_t* product, uint8_t* major, uint8_t* minor) {
+	// Local variables.
+	SOUND_status_t status = SOUND_SUCCESS;
+	// Check parameters.
+	if ((product == NULL) || (major == NULL) || (minor == NULL)) {
+		status = SOUND_ERROR_NULL_PARAMETER;
+		goto errors;
+	}
+	// Update fields.
+	(*product) = (FMOD_VERSION >> 16) & 0xFFFF;
+	(*major) =   (FMOD_VERSION >> 8)  & 0xFF;
+	(*minor) =   (FMOD_VERSION >> 0)  & 0xFF;
+errors:
+	return status;
+}
+
+/*******************************************************************/
 SOUND_status_t SOUND_init_fmod_system(void) {
 	// Local variables.
 	SOUND_status_t status = SOUND_SUCCESS;
@@ -199,7 +215,7 @@ SOUND_status_t SOUND_init(SOUND_context_t* sound_ctx, const char* audio_file_nam
 	fmod_status = FMOD_Sound_GetLength((sound_ctx -> fmod_sound), &(sound_ctx -> length_ms), FMOD_TIMEUNIT_MS);
 	FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
 #ifdef LOG_SOUND
-	LOG("Open audio file %s (length=%dms)", audio_file_name, (sound_ctx -> length_ms));
+	LOG_trace(LOG_COLOR_WHITE, "Open audio file %s (length=%dms)", audio_file_name, (sound_ctx -> length_ms));
 #endif
 errors:
 	LOG_ERROR(status, SOUND_SUCCESS);

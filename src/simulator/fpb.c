@@ -14,7 +14,6 @@
 #include "orts_shortcut.h"
 #include "sound.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "time.h"
 
 /*** FPB local macros ***/
@@ -74,7 +73,7 @@ FPB_status_t FPB_set_state(FPB_state_t state) {
 		// Check state change.
 		if (fpb_ctx.state != FPB_STATE_APPLY) {
 #ifdef LOG_FPB
-			LOG("state=FPB_STATE_APPLY");
+			LOG_trace(LOG_COLOR_WHITE, "state=FPB_STATE_APPLY");
 #endif
 			// Play and stop sounds.
 			sound_status = SOUND_play(&(fpb_ctx.sound_apply), 0);
@@ -87,7 +86,7 @@ FPB_status_t FPB_set_state(FPB_state_t state) {
 		// Check state change.
 		if (fpb_ctx.state != FPB_STATE_NEUTRAL) {
 #ifdef LOG_FPB
-			LOG("state=FPB_STATE_NEUTRAL");
+			LOG_trace(LOG_COLOR_WHITE, "state=FPB_STATE_NEUTRAL");
 #endif
 			// Stop sound.
 			sound_status = SOUND_stop(&(fpb_ctx.sound_release), FPB_FADE_DURATION_MS);
@@ -98,7 +97,7 @@ FPB_status_t FPB_set_state(FPB_state_t state) {
 		// Check state change.
 		if (fpb_ctx.state != FPB_STATE_RELEASE) {
 #ifdef LOG_FPB
-			LOG("state=FPB_STATE_RELEASE");
+			LOG_trace(LOG_COLOR_WHITE, "state=FPB_STATE_RELEASE");
 #endif
 			// Play and stop sounds.
 			sound_status = SOUND_play(&(fpb_ctx.sound_release), 0);

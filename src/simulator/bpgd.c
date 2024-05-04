@@ -13,7 +13,6 @@
 #include "orts_shortcut.h"
 #include "sound.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "time.h"
 
 /*** BPGD local macros ***/
@@ -62,7 +61,7 @@ BPGD_status_t BPGD_set_state(BPGD_state_t state) {
 		// Check state change.
 		if (bpgd_ctx.state != BPGD_STATE_ON) {
 #ifdef LOG_BPGD
-			LOG("state=BPGD_STATE_ON");
+			LOG_trace(LOG_COLOR_WHITE, "state=BPGD_STATE_ON");
 #endif
 			// Play sound.
 			sound_status = SOUND_play(&(bpgd_ctx.sound_turn_on), 0);

@@ -13,7 +13,6 @@
 #include "orts_shortcut.h"
 #include "sound.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "time.h"
 
 /*** WHISTLE local structures ***/
@@ -67,7 +66,7 @@ WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state) {
 		// Check state change.
 		if (whistle_ctx.state != WHISTLE_STATE_HIGH_TONE) {
 #ifdef LOG_WHISTLE
-			LOG("state=WHISTLE_STATE_HIGH_TONE");
+			LOG_trace(LOG_COLOR_WHITE, "state=WHISTLE_STATE_HIGH_TONE");
 #endif
 			// Play sound.
 			sound_status = SOUND_play(&(whistle_ctx.sound_high_tone), 0);
@@ -85,7 +84,7 @@ WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state) {
 		// Check state change.
 		if (whistle_ctx.state != WHISTLE_STATE_NEUTRAL) {
 #ifdef LOG_WHISTLE
-			LOG("state=WHISTLE_STATE_NEUTRAL");
+			LOG_trace(LOG_COLOR_WHITE, "state=WHISTLE_STATE_NEUTRAL");
 #endif
 			// Check previous state.
 			if (whistle_ctx.state == WHISTLE_STATE_LOW_TONE) {
@@ -118,7 +117,7 @@ WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state) {
 		// Check state change.
 		if (whistle_ctx.state != WHISTLE_STATE_LOW_TONE) {
 #ifdef LOG_WHISTLE
-			LOG("state=WHISTLE_STATE_LOW_TONE");
+			LOG_trace(LOG_COLOR_WHITE, "state=WHISTLE_STATE_LOW_TONE");
 #endif
 			// Play sound.
 			sound_status = SOUND_play(&(whistle_ctx.sound_low_tone), 0);

@@ -36,6 +36,28 @@ typedef enum {
 /*** ORTS functions ***/
 
 /*!******************************************************************
+ * \fn ORTS_status_t ORTS_get_curl_version(uint8_t* major, uint8_t* minor, uint8_t* patch)
+ * \brief Get HTTP request driver version.
+ * \param[in]  	none
+ * \param[out] 	product: CURL product version.
+ * \param[out] 	major: CURL major version.
+ * \param[out] 	minor: CURL minor version.
+ * \retval		Function execution status.
+ *******************************************************************/
+ORTS_status_t ORTS_get_curl_version(uint8_t* major, uint8_t* minor, uint8_t* patch);
+
+/*!******************************************************************
+ * \fn ORTS_status_t ORTS_get_cjson_version(uint8_t* major, uint8_t* minor, uint8_t* patch)
+ * \brief Get JSON parser version.
+ * \param[in]  	none
+ * \param[out] 	product: CURL product version.
+ * \param[out] 	major: CURL major version.
+ * \param[out] 	minor: CURL minor version.
+ * \retval		Function execution status.
+ *******************************************************************/
+ORTS_status_t ORTS_get_cjson_version(uint8_t* major, uint8_t* minor, uint8_t* patch);
+
+/*!******************************************************************
  * \fn ORTS_status_t ORTS_init(void)
  * \brief Init ORTS server.
  * \param[in]  	none

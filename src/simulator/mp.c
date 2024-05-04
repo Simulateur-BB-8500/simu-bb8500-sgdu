@@ -16,7 +16,6 @@
 #include "sound.h"
 #include "stdlib.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "time.h"
 
 /*** MP local macros ***/
@@ -86,7 +85,7 @@ static MP_status_t _MP_synchronize(void) {
 	// Synchronize step count.
 	if ((mp_ctx.drive_level != mp_ctx.drive_level_target) || (mp_ctx.dynamic_brake_level != mp_ctx.dynamic_brake_level_target)) {
 #ifdef LOG_MP
-		LOG("drive_level=%d dynamic_brake_level=%d", mp_ctx.drive_level, mp_ctx.dynamic_brake_level);
+		LOG_trace(LOG_COLOR_WHITE, "drive_level=%d dynamic_brake_level=%d", mp_ctx.drive_level, mp_ctx.dynamic_brake_level);
 #endif
 		// Check if we come from drive or brake.
 		if ((mp_ctx.drive_level > mp_ctx.drive_level_target) || (mp_ctx.dynamic_brake_level < mp_ctx.dynamic_brake_level_target)) {
@@ -160,7 +159,7 @@ MP_status_t MP_set_event(MP_event_t event) {
 	switch (event) {
 	case MP_EVENT_0:
 #ifdef LOG_MP
-		LOG("event=MP_EVENT_0");
+		LOG_trace(LOG_COLOR_WHITE, "event=MP_EVENT_0");
 #endif
 		// Play sound.
 		sound_status = SOUND_single_play(&(mp_ctx.sound_variator_end));
@@ -172,7 +171,7 @@ MP_status_t MP_set_event(MP_event_t event) {
 		break;
 	case MP_EVENT_T_MORE:
 #ifdef LOG_MP
-		LOG("event=MP_EVENT_T_MORE");
+		LOG_trace(LOG_COLOR_WHITE, "event=MP_EVENT_T_MORE");
 #endif
 		// Play random sound.
 		if ((mp_ctx.drive_level == MP_0_DRIVE_LEVEL) && (mp_ctx.dynamic_brake_level == MP_0_DYNAMIC_BRAKE_LEVEL)) {
@@ -188,7 +187,7 @@ MP_status_t MP_set_event(MP_event_t event) {
 		break;
 	case MP_EVENT_T_LESS:
 #ifdef LOG_MP
-		LOG("event=MP_EVENT_T_LESS");
+		LOG_trace(LOG_COLOR_WHITE, "event=MP_EVENT_T_LESS");
 #endif
 		// Check drive level.
 		if (mp_ctx.drive_level > 0) {
@@ -202,7 +201,7 @@ MP_status_t MP_set_event(MP_event_t event) {
 		break;
 	case MP_EVENT_P:
 #ifdef LOG_MP
-		LOG("event=MP_EVENT_P");
+		LOG_trace(LOG_COLOR_WHITE, "event=MP_EVENT_P");
 #endif
 		// Play sound.
 		status = _MP_play_variator_sound();
@@ -214,7 +213,7 @@ MP_status_t MP_set_event(MP_event_t event) {
 		break;
 	case MP_EVENT_F_MORE:
 #ifdef LOG_MP
-		LOG("event=MP_EVENT_F_MORE");
+		LOG_trace(LOG_COLOR_WHITE, "event=MP_EVENT_F_MORE");
 #endif
 		// Play random sound.
 		status = _MP_play_variator_sound();
@@ -225,7 +224,7 @@ MP_status_t MP_set_event(MP_event_t event) {
 		break;
 	case MP_EVENT_F_LESS:
 #ifdef LOG_MP
-		LOG("event=MP_EVENT_F_LESS");
+		LOG_trace(LOG_COLOR_WHITE, "event=MP_EVENT_F_LESS");
 #endif
 		// Check dynamic brake level.
 		if (mp_ctx.dynamic_brake_level > 0) {

@@ -13,7 +13,6 @@
 #include "orts_shortcut.h"
 #include "stdlib.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "time.h"
 
 /*** BPSA local structures ***/
@@ -54,7 +53,7 @@ BPSA_status_t BPSA_set_state(BPSA_state_t state) {
 		KEYBOARD_stack_exit_error(BPSA_ERROR_DRIVER_KEYBOARD);
 	}
 #ifdef LOG_BPSA
-	LOG("state=%d", state);
+	LOG_trace(LOG_COLOR_WHITE, "state=%d", state);
 #endif
 	bpsa_ctx.state = state;
 errors:

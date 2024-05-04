@@ -23,7 +23,6 @@
 #include "pbl2.h"
 #include "serial.h"
 #include "stdint.h"
-#include "stdio.h"
 #include "tch.h"
 #include "time.h"
 #include "whistle.h"
@@ -51,7 +50,7 @@ LSMCU_status_t LSMCU_init(char* port) {
 	serial_status = SERIAL_open(&lsmcu_serial_port, port);
 	SERIAL_stack_exit_error(LSMCU_ERROR_DRIVER_SERIAL);
 #ifdef LOG_LSMCU
-	LOG("Port %s opened", port);
+	LOG_trace(LOG_COLOR_WHITE, "Port %s opened", port);
 #endif
 errors:
 	LOG_ERROR(status, LSMCU_SUCCESS);
@@ -64,7 +63,7 @@ LSMCU_status_t LSMCU_send(uint8_t tx_command) {
 	LSMCU_status_t status = LSMCU_SUCCESS;
 	SERIAL_status_t serial_status = SERIAL_SUCCESS;
 #ifdef LOG_LSMCU
-	LOG("tx_command=%d", tx_command);
+	LOG_trace(LOG_COLOR_WHITE, "tx_command=%d", tx_command);
 #endif
 	// Write on serial port.
 	serial_status = SERIAL_write(&lsmcu_serial_port, tx_command);
@@ -100,7 +99,7 @@ LSMCU_status_t LSMCU_process(void) {
 	SERIAL_stack_exit_error(LSMCU_ERROR_DRIVER_SERIAL);
 #ifdef LOG_LSMCU
 	if (rx_command != LSMCU_OUT_NOP) {
-		LOG("rx_command=0x%02X", rx_command);
+		LOG_trace(LOG_COLOR_WHITE, "rx_command=0x%02X", rx_command);
 	}
 #endif
 	// Decode incoming command.
