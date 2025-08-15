@@ -21,7 +21,7 @@
 
 #define SOUND_FMOD_NUMBER_OF_CHANNELS			32
 #define SOUND_AUDIO_FILE_NAME_MAXIMUM_LENGTH	100
-#define SOUND_AUDIO_FILES_FOLDER_PATH			"C:/Users/User/Documents/git/ls-agiu/audio/"
+#define SOUND_AUDIO_FILES_FOLDER_PATH			"C:/Users/User/Documents/git/simu-bb8500-sgdu/audio/"
 
 #define SOUND_FADE_IN_START_OFFSET				0.01
 //#define SOUND_FADE_EQUATION_LINEAR

@@ -13,9 +13,9 @@
 #include "error.h"
 #include "fpb.h"
 #include "log.h"
-#include "lsagiu.h"
-#include "lsmcu.h"
 #include "mp.h"
+#include "scu.h"
+#include "sgdu.h"
 #include "stdint.h"
 #include "string.h"
 #include "time.h"
@@ -316,7 +316,7 @@ errors:
 ORTS_status_t ORTS_process(void) {
 	// Local variables.
 	ORTS_status_t status = ORTS_SUCCESS;
-	LSMCU_status_t lsmcu_status = LSMCU_SUCCESS;
+	SCU_status_t scu_status = SCU_SUCCESS;
 	FPB_status_t fpb_status = FPB_SUCCESS;
 	TRACK_status_t track_status = TRACK_SUCCESS;
 	CURLcode curl_status;
@@ -342,15 +342,15 @@ ORTS_status_t ORTS_process(void) {
 			// Update data.
 			status = _ORTS_parse_api_data();
 			if (status != ORTS_SUCCESS) goto errors;
-			// Send data to LSMCU.
+			// Send data to SCU.
 			switch (orts_ctx.tx_data_index) {
 			case ORTS_TX_DATA_INDEX_SPEED_KMH:
-				lsmcu_status = LSMCU_send(LSMCU_TCH_SPEED_OFFSET + orts_ctx.data[ORTS_TX_DATA_INDEX_SPEED_KMH]);
-				LSMCU_stack_exit_error(ORTS_ERROR_DRIVER_LSMCU);
+				scu_status = SCU_send(SCU_TCH_SPEED_OFFSET + orts_ctx.data[ORTS_TX_DATA_INDEX_SPEED_KMH]);
+				SCU_stack_exit_error(ORTS_ERROR_DRIVER_SCU);
 				break;
 			case ORTS_TX_DATA_INDEX_SPEED_LIMIT_KMH:
-				lsmcu_status = LSMCU_send(LSMCU_SPEED_LIMIT_OFFSET + (orts_ctx.data[ORTS_TX_DATA_INDEX_SPEED_LIMIT_KMH] / LSAGIU_SPEED_LIMIT_FACTOR));
-				LSMCU_stack_exit_error(ORTS_ERROR_DRIVER_LSMCU);
+				scu_status = SCU_send(SCU_SPEED_LIMIT_OFFSET + (orts_ctx.data[ORTS_TX_DATA_INDEX_SPEED_LIMIT_KMH] / SGDU_SPEED_LIMIT_FACTOR));
+				SCU_stack_exit_error(ORTS_ERROR_DRIVER_SCU);
 				break;
 			default:
 				status = ORTS_ERROR_API_SAMPLE_INDEX;

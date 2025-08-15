@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.cdt.launch.applicationLaunchType">
-    <stringAttribute key="bad_container_name" value="\ls-agiu\s"/>
+    <stringAttribute key="bad_container_name" value="\simu-bb8500-sgdu\s"/>
     <intAttribute key="org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR" value="2"/>
     <stringAttribute key="org.eclipse.cdt.launch.COREFILE_PATH" value=""/>
-    <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="bin/ls-agiu.exe"/>
-    <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="ls-agiu"/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="bin/simu-bb8500-sgdu.exe"/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="simu-bb8500-sgdu"/>
     <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="false"/>
     <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value="cdt.managedbuild.config.gnu.mingw.exe.release.345188536"/>
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-        <listEntry value="/ls-agiu"/>
+        <listEntry value="/simu-bb8500-sgdu"/>
     </listAttribute>
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
         <listEntry value="4"/>

@@ -26,7 +26,7 @@
 #define LOG_FPB
 #define LOG_KVB
 #define LOG_LIGHT
-#define LOG_LSMCU
+#define LOG_SCU
 #define LOG_MP
 #define LOG_MPINV
 #define LOG_PBL2
