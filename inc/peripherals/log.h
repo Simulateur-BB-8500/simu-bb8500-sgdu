@@ -11,7 +11,6 @@
 /*** LOG macros ***/
 
 //#define LOG_ENABLE
-
 #ifdef LOG_ENABLE
 // Peripherals.
 #define LOG_KEYBOARD
@@ -48,27 +47,27 @@
  * \brief Log message print colors list.
  *******************************************************************/
 typedef enum {
-	LOG_COLOR_RED = 0,
-	LOG_COLOR_GREEN,
-	LOG_COLOR_BLUE,
-	LOG_COLOR_YELLOW,
-	LOG_COLOR_WHITE,
-	LOG_COLOR_LAST
+    LOG_COLOR_RED = 0,
+    LOG_COLOR_GREEN,
+    LOG_COLOR_BLUE,
+    LOG_COLOR_YELLOW,
+    LOG_COLOR_WHITE,
+    LOG_COLOR_LAST
 } LOG_color_t;
 
 /*** LOG functions ***/
 
 /*******************************************************************/
 #define LOG_trace(color, ...) { \
-	LOG_print_system_time(); \
-	LOG_print(LOG_COLOR_BLUE, "%s() ", __FUNCTION__); \
-	LOG_print(color, __VA_ARGS__); \
-	LOG_print(color, "\n"); \
+    LOG_print_system_time(); \
+    LOG_print(LOG_COLOR_BLUE, "%s() ", __FUNCTION__); \
+    LOG_print(color, __VA_ARGS__); \
+    LOG_print(color, "\n"); \
 }
 
 /*******************************************************************/
 #ifdef LOG_ENABLE
-#define LOG_ERROR(status, success) 	{ if (status != success) { LOG_trace(LOG_COLOR_RED, "ERROR 0x%04X", status); } }
+#define LOG_ERROR(status, success)  { if (status != success) { LOG_trace(LOG_COLOR_RED, "ERROR 0x%04X", status); } }
 #else
 #define LOG_ERROR(status, success)
 #endif
@@ -76,18 +75,18 @@ typedef enum {
 /*!******************************************************************
  * \fn void LOG_print(LOG_color_t color, const char*, format, ...)
  * \brief Print a message on console.
- * \param[in]  	color: Message color.
- * \param[out] 	none
- * \retval		none
+ * \param[in]   color: Message color.
+ * \param[out]  none
+ * \retval      none
  *******************************************************************/
 void LOG_print(LOG_color_t color, const char* format, ...);
 
 /*!******************************************************************
  * \fn void LOG_print_system_time(void)
  * \brief Print system time.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		none
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      none
  *******************************************************************/
 void LOG_print_system_time(void);
 

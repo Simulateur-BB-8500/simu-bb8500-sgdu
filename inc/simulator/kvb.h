@@ -13,13 +13,13 @@
  * \brief KVB driver error codes.
  *******************************************************************/
 typedef enum {
-	// Drivers errors.
-	KVB_SUCCESS = 0,
-	KVB_ERROR_STATE,
-	// Low level drivers errors.
-	KVB_ERROR_DRIVER_SOUND,
-	// Last index.
-	KVB_ERROR_LAST
+    // Drivers errors.
+    KVB_SUCCESS = 0,
+    KVB_ERROR_STATE,
+    // Low level drivers errors.
+    KVB_ERROR_DRIVER_SOUND,
+    // Last index.
+    KVB_ERROR_LAST
 } KVB_status_t;
 
 /*!******************************************************************
@@ -27,9 +27,9 @@ typedef enum {
  * \brief KVB states.
  *******************************************************************/
 typedef enum {
-	KVB_STATE_ON,
-	KVB_STATE_OFF,
-	KVB_STATE_LAST
+    KVB_STATE_ON,
+    KVB_STATE_OFF,
+    KVB_STATE_LAST
 } KVB_state_t;
 
 /*** KVB functions ***/
@@ -37,18 +37,18 @@ typedef enum {
 /*!******************************************************************
  * \fn KVB_status_t KVB_init(void)
  * \brief Init KVB driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 KVB_status_t KVB_init(void);
 
 /*!******************************************************************
  * \fn KVB_status_t KVB_set_state(KVB_state_t state)
  * \brief Set KVB state.
- * \param[in]  	state: New state to set.
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   state: New state to set.
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 KVB_status_t KVB_set_state(KVB_state_t state);
 

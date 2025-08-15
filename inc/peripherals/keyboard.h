@@ -12,18 +12,18 @@
 
 /*** KEYBOARD macros ***/
 
-#define VK_NONE	0x00
+#define VK_NONE 0x00
 
 /*** KEYBOARD structures ***/
 
 typedef enum {
-	// Driver errors.
-	KEYBOARD_SUCCESS = 0,
-	KEYBOARD_ERROR_NULL_PARAMETER,
-	KEYBOARD_ERROR_PRESS_DURATION,
-	KEYBOARD_ERROR_STATE,
-	// Last index.
-	KEYBOARD_ERROR_LAST
+    // Driver errors.
+    KEYBOARD_SUCCESS = 0,
+    KEYBOARD_ERROR_NULL_PARAMETER,
+    KEYBOARD_ERROR_PRESS_DURATION,
+    KEYBOARD_ERROR_STATE,
+    // Last index.
+    KEYBOARD_ERROR_LAST
 } KEYBOARD_status_t;
 
 /*!******************************************************************
@@ -31,8 +31,8 @@ typedef enum {
  * \brief Keyboard shortcut keys structure.
  *******************************************************************/
 typedef struct {
-	uint8_t vk_code_0;
-	uint8_t vk_code_1;
+    uint8_t vk_code_0;
+    uint8_t vk_code_1;
 } KEYBOARD_shortcut_t;
 
 /*** KEYBOARD functions ***/
@@ -40,46 +40,46 @@ typedef struct {
 /*!******************************************************************
  * \fn void KEYBOARD_init(void)
  * \brief Init keyboard peripheral.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 KEYBOARD_status_t KEYBOARD_init(void);
 
 /*!******************************************************************
  * \fn void KEYBOARD_press(const KEYBOARD_shortcut_t* shortcut)
  * \brief Press a keyboard shortcut.
- * \param[in]  	shortcut: Keys to press.
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   shortcut: Keys to press.
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 KEYBOARD_status_t KEYBOARD_press(const KEYBOARD_shortcut_t* shortcut);
 
 /*!******************************************************************
  * \fn void KEYBOARD_release(const KEYBOARD_shortcut_t* shortcut)
  * \brief Release a keyboard shortcut.
- * \param[in]  	shortcut: Keys to release.
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   shortcut: Keys to release.
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 KEYBOARD_status_t KEYBOARD_release(const KEYBOARD_shortcut_t* shortcut);
 
 /*!******************************************************************
  * \fn void KEYBOARD_single_press(const KEYBOARD_shortcut_t* shortcut, uint32_t press_duration_ms)
  * \brief Perform a single keyboard shortcut press.
- * \param[in]  	shortcut: Keys to press.
- * \param[in]	press_duration_ms: Press duration in milliseconds.
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   shortcut: Keys to press.
+ * \param[in]   press_duration_ms: Press duration in milliseconds.
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 KEYBOARD_status_t KEYBOARD_single_press(const KEYBOARD_shortcut_t* shortcut, uint32_t press_duration_ms);
 
 /*!******************************************************************
  * \fn void KEYBOARD_process(void)
  * \brief Main task of keyboard driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 KEYBOARD_status_t KEYBOARD_process(void);
 

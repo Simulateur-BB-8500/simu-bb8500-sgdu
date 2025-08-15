@@ -15,14 +15,14 @@
  * \brief LIGHT driver error codes.
  *******************************************************************/
 typedef enum {
-	// Drivers errors.
-	LIGHT_SUCCESS = 0,
-	LIGHT_ERROR_TYPE,
-	LIGHT_ERROR_STATE,
-	// Low level drivers errors.
-	LIGHT_ERROR_DRIVER_KEYBOARD,
-	// Last index.
-	LIGHT_ERROR_LAST
+    // Drivers errors.
+    LIGHT_SUCCESS = 0,
+    LIGHT_ERROR_TYPE,
+    LIGHT_ERROR_STATE,
+    // Low level drivers errors.
+    LIGHT_ERROR_DRIVER_KEYBOARD,
+    // Last index.
+    LIGHT_ERROR_LAST
 } LIGHT_status_t;
 
 /*!******************************************************************
@@ -30,12 +30,12 @@ typedef enum {
  * \brief LIGHT types list.
  *******************************************************************/
 typedef enum {
-	LIGHT_TYPE_ZFG = 0,
-	LIGHT_TYPE_ZFD,
-	LIGHT_TYPE_ZPR,
-	LIGHT_TYPE_ZLFRG,
-	LIGHT_TYPE_ZLFRD,
-	LIGHT_TYPE_LAST
+    LIGHT_TYPE_ZFG = 0,
+    LIGHT_TYPE_ZFD,
+    LIGHT_TYPE_ZPR,
+    LIGHT_TYPE_ZLFRG,
+    LIGHT_TYPE_ZLFRD,
+    LIGHT_TYPE_LAST
 } LIGHT_type_t;
 
 /*!******************************************************************
@@ -43,9 +43,9 @@ typedef enum {
  * \brief Motor fan states.
  *******************************************************************/
 typedef enum {
-	LIGHT_STATE_OFF = 0,
-	LIGHT_STATE_ON,
-	LIGHT_STATE_LAST
+    LIGHT_STATE_OFF = 0,
+    LIGHT_STATE_ON,
+    LIGHT_STATE_LAST
 } LIGHT_state_t;
 
 /*** LIGHT functions ***/
@@ -53,19 +53,19 @@ typedef enum {
 /*!******************************************************************
  * \fn LIGHT_status_t LIGHT_init(void)
  * \brief Init LIGHT driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 LIGHT_status_t LIGHT_init(void);
 
 /*!******************************************************************
  * \fn LIGHT_status_t LIGHT_set_state(LIGHT_type_t type, LIGHT_state_t state)
  * \brief Set light state.
- * \param[in]	light: Light to control.
- * \param[in]  	state: New state to set.
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   light: Light to control.
+ * \param[in]   state: New state to set.
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 LIGHT_status_t LIGHT_set_state(LIGHT_type_t type, LIGHT_state_t state);
 

@@ -15,15 +15,15 @@
  * \brief ZPT driver error codes.
  *******************************************************************/
 typedef enum {
-	// Drivers errors.
-	ZPT_SUCCESS = 0,
-	ZPT_ERROR_PANTOGRAPH,
-	ZPT_ERROR_STATE,
-	// Low level drivers errors.
-	ZPT_ERROR_DRIVER_KEYBOARD,
-	ZPT_ERROR_DRIVER_SOUND,
-	// Last index.
-	ZPT_ERROR_LAST
+    // Drivers errors.
+    ZPT_SUCCESS = 0,
+    ZPT_ERROR_PANTOGRAPH,
+    ZPT_ERROR_STATE,
+    // Low level drivers errors.
+    ZPT_ERROR_DRIVER_KEYBOARD,
+    ZPT_ERROR_DRIVER_SOUND,
+    // Last index.
+    ZPT_ERROR_LAST
 } ZPT_status_t;
 
 /*!******************************************************************
@@ -31,9 +31,9 @@ typedef enum {
  * \brief Pantograph types.
  *******************************************************************/
 typedef enum {
-	ZPT_PANTOGRAPH_REAR = 0,
-	ZPT_PANTOGRAPH_FRONT,
-	ZPT_PANTOGRAPH_LAST
+    ZPT_PANTOGRAPH_REAR = 0,
+    ZPT_PANTOGRAPH_FRONT,
+    ZPT_PANTOGRAPH_LAST
 } ZPT_pantograph_t;
 
 /*!******************************************************************
@@ -41,9 +41,9 @@ typedef enum {
  * \brief Pantograph states.
  *******************************************************************/
 typedef enum {
-	ZPT_STATE_DOWN = 0,
-	ZPT_STATE_UP,
-	ZPT_STATE_LAST
+    ZPT_STATE_DOWN = 0,
+    ZPT_STATE_UP,
+    ZPT_STATE_LAST
 } ZPT_state_t;
 
 /*** ZPT functions ***/
@@ -51,19 +51,19 @@ typedef enum {
 /*!******************************************************************
  * \fn ZPT_status_t ZPT_init(void)
  * \brief Init ZPT driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 ZPT_status_t ZPT_init(void);
 
 /*!******************************************************************
  * \fn ZPT_status_t ZPT_set_position(ZPT_pantograph_t pantograph, ZPT_state_t state)
  * \brief Set pantograph position.
- * \param[in]  	pantograph: Pantograph to control.
- * \param[in]	state: New state to set.
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   pantograph: Pantograph to control.
+ * \param[in]   state: New state to set.
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 ZPT_status_t ZPT_set_position(ZPT_pantograph_t pantograph, ZPT_state_t state);
 

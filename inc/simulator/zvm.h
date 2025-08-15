@@ -15,14 +15,14 @@
  * \brief ZVM driver error codes.
  *******************************************************************/
 typedef enum {
-	// Drivers errors.
-	ZVM_SUCCESS = 0,
-	ZVM_ERROR_STATE,
-	ZVM_ERROR_INTERNAL_STATE,
-	// Low level drivers errors.
-	ZVM_ERROR_DRIVER_SOUND,
-	// Last index.
-	ZVM_ERROR_LAST
+    // Drivers errors.
+    ZVM_SUCCESS = 0,
+    ZVM_ERROR_STATE,
+    ZVM_ERROR_INTERNAL_STATE,
+    // Low level drivers errors.
+    ZVM_ERROR_DRIVER_SOUND,
+    // Last index.
+    ZVM_ERROR_LAST
 } ZVM_status_t;
 
 /*!******************************************************************
@@ -30,9 +30,9 @@ typedef enum {
  * \brief Motor fan states.
  *******************************************************************/
 typedef enum {
-	ZVM_STATE_OFF = 0,
-	ZVM_STATE_ON,
-	ZVM_STATE_LAST
+    ZVM_STATE_OFF = 0,
+    ZVM_STATE_ON,
+    ZVM_STATE_LAST
 } ZVM_state_t;
 
 /*** ZVM functions ***/
@@ -40,27 +40,27 @@ typedef enum {
 /*!******************************************************************
  * \fn ZVM_status_t ZVM_init(void)
  * \brief Init ZVM driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 ZVM_status_t ZVM_init(void);
 
 /*!******************************************************************
  * \fn ZVM_status_t ZVM_set_state(ZVM_state_t state)
  * \brief Set motor fans state.
- * \param[in]  	state: New state to set.
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   state: New state to set.
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 ZVM_status_t ZVM_set_state(ZVM_state_t state);
 
 /*!******************************************************************
  * \fn ZVM_status_t ZVM_process(void)
  * \brief Process ZVM driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 ZVM_status_t ZVM_process(void);
 

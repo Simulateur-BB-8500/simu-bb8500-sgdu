@@ -17,13 +17,13 @@
  * \brief BPSA driver error codes.
  *******************************************************************/
 typedef enum {
-	// Drivers errors.
-	BPSA_SUCCESS = 0,
-	BPSA_ERROR_STATE,
-	// Low level drivers errors.
-	BPSA_ERROR_DRIVER_KEYBOARD,
-	// Last index.
-	BPSA_ERROR_LAST
+    // Drivers errors.
+    BPSA_SUCCESS = 0,
+    BPSA_ERROR_STATE,
+    // Low level drivers errors.
+    BPSA_ERROR_DRIVER_KEYBOARD,
+    // Last index.
+    BPSA_ERROR_LAST
 } BPSA_status_t;
 
 /*!******************************************************************
@@ -31,9 +31,9 @@ typedef enum {
  * \brief BPSA events list.
  *******************************************************************/
 typedef enum {
-	BPSA_STATE_OFF = 0,
-	BPSA_STATE_ON,
-	BPSA_STATE_LAST
+    BPSA_STATE_OFF = 0,
+    BPSA_STATE_ON,
+    BPSA_STATE_LAST
 } BPSA_state_t;
 
 /*** BPSA functions ***/
@@ -41,18 +41,18 @@ typedef enum {
 /*!******************************************************************
  * \fn BPSA_status_t BPSA_init(void)
  * \brief Init BPSA driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 BPSA_status_t BPSA_init(void);
 
 /*!******************************************************************
  * \fn BPSA_status_t BPSA_set_state(BPSA_state_t state)
  * \brief Set throttle event.
- * \param[in]  	state: New state to set.
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   state: New state to set.
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 BPSA_status_t BPSA_set_state(BPSA_state_t state);
 

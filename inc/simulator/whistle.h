@@ -15,13 +15,13 @@
  * \brief WHISTLE driver error codes.
  *******************************************************************/
 typedef enum {
-	// Drivers errors.
-	WHISTLE_SUCCESS = 0,
-	WHISTLE_ERROR_STATE,
-	// Low level drivers errors.
-	WHISTLE_ERROR_DRIVER_SOUND,
-	// Last index.
-	WHISTLE_ERROR_LAST
+    // Drivers errors.
+    WHISTLE_SUCCESS = 0,
+    WHISTLE_ERROR_STATE,
+    // Low level drivers errors.
+    WHISTLE_ERROR_DRIVER_SOUND,
+    // Last index.
+    WHISTLE_ERROR_LAST
 } WHISTLE_status_t;
 
 /*!******************************************************************
@@ -29,10 +29,10 @@ typedef enum {
  * \brief Whistle states.
  *******************************************************************/
 typedef enum {
-	WHISTLE_STATE_HIGH_TONE,
-	WHISTLE_STATE_NEUTRAL,
-	WHISTLE_STATE_LOW_TONE,
-	WHISTLE_STATE_LAST
+    WHISTLE_STATE_HIGH_TONE,
+    WHISTLE_STATE_NEUTRAL,
+    WHISTLE_STATE_LOW_TONE,
+    WHISTLE_STATE_LAST
 } WHISTLE_state_t;
 
 /*** WHISTLE functions ***/
@@ -40,27 +40,27 @@ typedef enum {
 /*!******************************************************************
  * \fn WHISTLE_status_t WHISTLE_init(void)
  * \brief Init whistle driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 WHISTLE_status_t WHISTLE_init(void);
 
 /*!******************************************************************
  * \fn WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state)
  * \brief Set whistle state.
- * \param[in]  	state: New state to set.
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   state: New state to set.
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 WHISTLE_status_t WHISTLE_set_state(WHISTLE_state_t state);
 
 /*!******************************************************************
  * \fn WHISTLE_status_t WHISTLE_process(void)
  * \brief Main process of WHISTLE driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 WHISTLE_status_t WHISTLE_process(void);
 

@@ -17,20 +17,20 @@
  * \brief ORTS driver error codes.
  *******************************************************************/
 typedef enum {
-	// Driver errors.
-	ORTS_SUCCESS = 0,
-	ORTS_ERROR_NULL_PARAMETER,
-	ORTS_ERROR_CURL_INIT,
-	ORTS_ERROR_UNIT_NOT_FOUND,
-	ORTS_ERROR_DATA_PARSING,
-	ORTS_ERROR_API_SAMPLE_INDEX,
-	// Low level drivers errors.
-	ORTS_ERROR_DRIVER_CURL,
-	ORTS_ERROR_DRIVER_SCU,
-	ORTS_ERROR_DRIVER_FPB,
-	ORTS_ERROR_DRIVER_TRACK,
-	// Last index.
-	ORTS_ERROR_LAST
+    // Driver errors.
+    ORTS_SUCCESS = 0,
+    ORTS_ERROR_NULL_PARAMETER,
+    ORTS_ERROR_CURL_INIT,
+    ORTS_ERROR_UNIT_NOT_FOUND,
+    ORTS_ERROR_DATA_PARSING,
+    ORTS_ERROR_API_SAMPLE_INDEX,
+    // Low level drivers errors.
+    ORTS_ERROR_DRIVER_CURL,
+    ORTS_ERROR_DRIVER_SCU,
+    ORTS_ERROR_DRIVER_FPB,
+    ORTS_ERROR_DRIVER_TRACK,
+    // Last index.
+    ORTS_ERROR_LAST
 } ORTS_status_t;
 
 /*** ORTS functions ***/
@@ -38,40 +38,40 @@ typedef enum {
 /*!******************************************************************
  * \fn ORTS_status_t ORTS_get_curl_version(uint8_t* major, uint8_t* minor, uint8_t* patch)
  * \brief Get HTTP request driver version.
- * \param[in]  	none
- * \param[out] 	product: CURL product version.
- * \param[out] 	major: CURL major version.
- * \param[out] 	minor: CURL minor version.
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  product: CURL product version.
+ * \param[out]  major: CURL major version.
+ * \param[out]  minor: CURL minor version.
+ * \retval      Function execution status.
  *******************************************************************/
 ORTS_status_t ORTS_get_curl_version(uint8_t* major, uint8_t* minor, uint8_t* patch);
 
 /*!******************************************************************
  * \fn ORTS_status_t ORTS_get_cjson_version(uint8_t* major, uint8_t* minor, uint8_t* patch)
  * \brief Get JSON parser version.
- * \param[in]  	none
- * \param[out] 	product: CURL product version.
- * \param[out] 	major: CURL major version.
- * \param[out] 	minor: CURL minor version.
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  product: CURL product version.
+ * \param[out]  major: CURL major version.
+ * \param[out]  minor: CURL minor version.
+ * \retval      Function execution status.
  *******************************************************************/
 ORTS_status_t ORTS_get_cjson_version(uint8_t* major, uint8_t* minor, uint8_t* patch);
 
 /*!******************************************************************
  * \fn ORTS_status_t ORTS_init(void)
  * \brief Init ORTS server.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 ORTS_status_t ORTS_init(void);
 
 /*!******************************************************************
  * \fn ORTS_status_t ORTS_process(void)
  * \brief Process ORTS server.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 ORTS_status_t ORTS_process(void);
 

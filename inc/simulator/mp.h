@@ -17,14 +17,14 @@
  * \brief MP driver error codes.
  *******************************************************************/
 typedef enum {
-	// Drivers errors.
-	MP_SUCCESS = 0,
-	MP_ERROR_EVENT,
-	// Low level drivers errors.
-	MP_ERROR_DRIVER_KEYBOARD,
-	MP_ERROR_DRIVER_SOUND,
-	// Last index.
-	MP_ERROR_LAST
+    // Drivers errors.
+    MP_SUCCESS = 0,
+    MP_ERROR_EVENT,
+    // Low level drivers errors.
+    MP_ERROR_DRIVER_KEYBOARD,
+    MP_ERROR_DRIVER_SOUND,
+    // Last index.
+    MP_ERROR_LAST
 } MP_status_t;
 
 /*!******************************************************************
@@ -32,13 +32,13 @@ typedef enum {
  * \brief MP events list.
  *******************************************************************/
 typedef enum {
-	MP_EVENT_0 = 0,
-	MP_EVENT_T_MORE,
-	MP_EVENT_T_LESS,
-	MP_EVENT_P,
-	MP_EVENT_F_MORE,
-	MP_EVENT_F_LESS,
-	MP_EVENT_LAST
+    MP_EVENT_0 = 0,
+    MP_EVENT_T_MORE,
+    MP_EVENT_T_LESS,
+    MP_EVENT_P,
+    MP_EVENT_F_MORE,
+    MP_EVENT_F_LESS,
+    MP_EVENT_LAST
 } MP_event_t;
 
 /*** MP functions ***/
@@ -46,37 +46,37 @@ typedef enum {
 /*!******************************************************************
  * \fn MP_status_t MP_init(void)
  * \brief Init MP driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 MP_status_t MP_init(void);
 
 /*!******************************************************************
  * \fn MP_status_t MP_set_event(MP_event_t event)
  * \brief Set throttle event.
- * \param[in]  	event: Event to set.
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   event: Event to set.
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 MP_status_t MP_set_event(MP_event_t event);
 
 /*!******************************************************************
  * \fn MP_status_t MP_set_current_position(int32_t drive_level, int32_t dynamic_brake_level)
  * \brief Set throttle position.
- * \param[in]  	drive_level: Current drive level in percent.
- * \param[in]	dynamic_brake_level: Current dynamic brake level in percent.
- * \param[out] 	none
- * \retval		none
+ * \param[in]   drive_level: Current drive level in percent.
+ * \param[in]   dynamic_brake_level: Current dynamic brake level in percent.
+ * \param[out]  none
+ * \retval      none
  *******************************************************************/
 void MP_set_current_position(int32_t drive_level, int32_t dynamic_brake_level);
 
 /*!******************************************************************
  * \fn MP_status_t MP_process(void)
  * \brief Main process of MP driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 MP_status_t MP_process(void);
 

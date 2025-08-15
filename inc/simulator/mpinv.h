@@ -15,14 +15,14 @@
  * \brief MPINV driver error codes.
  *******************************************************************/
 typedef enum {
-	// Drivers errors.
-	MPINV_SUCCESS = 0,
-	MPINV_ERROR_POSITION,
-	// Low level drivers errors.
-	MPINV_ERROR_DRIVER_KEYBOARD,
-	MPINV_ERROR_DRIVER_SOUND,
-	// Last index.
-	MPINV_ERROR_LAST
+    // Drivers errors.
+    MPINV_SUCCESS = 0,
+    MPINV_ERROR_POSITION,
+    // Low level drivers errors.
+    MPINV_ERROR_DRIVER_KEYBOARD,
+    MPINV_ERROR_DRIVER_SOUND,
+    // Last index.
+    MPINV_ERROR_LAST
 } MPINV_status_t;
 
 /*!******************************************************************
@@ -30,10 +30,10 @@ typedef enum {
  * \brief MPINV gear position.
  *******************************************************************/
 typedef enum {
-	MPINV_POSITION_BACKWARD = 0,
-	MPINV_POSITION_NEUTRAL,
-	MPINV_POSITION_FORWARD,
-	MPINV_POSITION_LAST
+    MPINV_POSITION_BACKWARD = 0,
+    MPINV_POSITION_NEUTRAL,
+    MPINV_POSITION_FORWARD,
+    MPINV_POSITION_LAST
 } MPINV_position_t;
 
 /*** MPINV functions ***/
@@ -41,18 +41,18 @@ typedef enum {
 /*!******************************************************************
  * \fn MPINV_status_t MPINV_init(void)
  * \brief Init MPINV driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 MPINV_status_t MPINV_init(void);
 
 /*!******************************************************************
  * \fn MPINV_status_t MPINV_set_position(MPINV_position_t position)
  * \brief Set MPINV position.
- * \param[in]  	position: New position to set.
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   position: New position to set.
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 MPINV_status_t MPINV_set_position(MPINV_position_t position);
 

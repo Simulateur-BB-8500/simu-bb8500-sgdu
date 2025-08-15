@@ -17,39 +17,39 @@
  * \brief TRACK driver error codes.
  *******************************************************************/
 typedef enum {
-	// Drivers errors.
-	TRACK_SUCCESS = 0,
-	TRACK_ERROR_INTERNAL_STATE,
-	// Low level drivers errors.
-	TRACK_ERROR_DRIVER_SOUND,
-	// Last index.
-	TRACK_ERROR_LAST
+    // Drivers errors.
+    TRACK_SUCCESS = 0,
+    TRACK_ERROR_INTERNAL_STATE,
+    // Low level drivers errors.
+    TRACK_ERROR_DRIVER_SOUND,
+    // Last index.
+    TRACK_ERROR_LAST
 } TRACK_status_t;
 
 /*!******************************************************************
  * \fn TRACK_status_t TRACK_init(void)
  * \brief Init TRACK driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 TRACK_status_t TRACK_init(void);
 
 /*!******************************************************************
  * \fn TRACK_status_t TRACK_set_state(TRACK_state_t state)
  * \brief Set current speed.
- * \param[in]  	speed_kmh: Current speed in km/h.
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   speed_kmh: Current speed in km/h.
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 TRACK_status_t TRACK_set_speed(uint8_t speed_kmh);
 
 /*!******************************************************************
  * \fn TRACK_status_t TRACK_process(void)
  * \brief Process TRACK driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 TRACK_status_t TRACK_process(void);
 

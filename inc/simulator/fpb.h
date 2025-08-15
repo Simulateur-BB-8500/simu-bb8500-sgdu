@@ -17,14 +17,14 @@
  * \brief FPB driver error codes.
  *******************************************************************/
 typedef enum {
-	// Drivers errors.
-	FPB_SUCCESS = 0,
-	FPB_ERROR_STATE,
-	// Low level drivers errors.
-	FPB_ERROR_DRIVER_KEYBOARD,
-	FPB_ERROR_DRIVER_SOUND,
-	// Last index.
-	FPB_ERROR_LAST
+    // Drivers errors.
+    FPB_SUCCESS = 0,
+    FPB_ERROR_STATE,
+    // Low level drivers errors.
+    FPB_ERROR_DRIVER_KEYBOARD,
+    FPB_ERROR_DRIVER_SOUND,
+    // Last index.
+    FPB_ERROR_LAST
 } FPB_status_t;
 
 /*!******************************************************************
@@ -32,10 +32,10 @@ typedef enum {
  * \brief Train brake states.
  *******************************************************************/
 typedef enum {
-	FPB_STATE_APPLY = 0,
-	FPB_STATE_NEUTRAL,
-	FPB_STATE_RELEASE,
-	FPB_STATE_LAST
+    FPB_STATE_APPLY = 0,
+    FPB_STATE_NEUTRAL,
+    FPB_STATE_RELEASE,
+    FPB_STATE_LAST
 } FPB_state_t;
 
 /*** FPB functions ***/
@@ -43,36 +43,36 @@ typedef enum {
 /*!******************************************************************
  * \fn FPB_status_t FPB_init(void)
  * \brief Init FPB driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 FPB_status_t FPB_init(void);
 
 /*!******************************************************************
  * \fn FPB_status_t FPB_set_state(FPB_state_t state)
  * \brief Set train brake state.
- * \param[in]  	state: New state to set.
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   state: New state to set.
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 FPB_status_t FPB_set_state(FPB_state_t state);
 
 /*!******************************************************************
  * \fn FPB_status_t FPB_set_state(FPB_state_t state)
  * \brief Set current speed.
- * \param[in]  	speed_kmh: Current speed in km/h.
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   speed_kmh: Current speed in km/h.
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 FPB_status_t FPB_set_speed(uint8_t speed_kmh);
 
 /*!******************************************************************
  * \fn FPB_status_t FPB_process(void)
  * \brief Main process of FPB driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 FPB_status_t FPB_process(void);
 

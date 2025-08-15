@@ -15,14 +15,14 @@
  * \brief PBL2 driver error codes.
  *******************************************************************/
 typedef enum {
-	// Drivers errors.
-	PBL2_SUCCESS = 0,
-	PBL2_ERROR_STATE,
-	// Low level drivers errors.
-	PBL2_ERROR_DRIVER_KEYBOARD,
-	PBL2_ERROR_DRIVER_SOUND,
-	// Last index.
-	PBL2_ERROR_LAST
+    // Drivers errors.
+    PBL2_SUCCESS = 0,
+    PBL2_ERROR_STATE,
+    // Low level drivers errors.
+    PBL2_ERROR_DRIVER_KEYBOARD,
+    PBL2_ERROR_DRIVER_SOUND,
+    // Last index.
+    PBL2_ERROR_LAST
 } PBL2_status_t;
 
 /*!******************************************************************
@@ -30,9 +30,9 @@ typedef enum {
  * \brief Train brake states.
  *******************************************************************/
 typedef enum {
-	PBL2_STATE_ON = 0,
-	PBL2_STATE_OFF,
-	PBL2_STATE_LAST
+    PBL2_STATE_ON = 0,
+    PBL2_STATE_OFF,
+    PBL2_STATE_LAST
 } PBL2_state_t;
 
 /*** PBL2 functions ***/
@@ -40,27 +40,27 @@ typedef enum {
 /*!******************************************************************
  * \fn PBL2_status_t PBL2_init(void)
  * \brief Init PBL2 driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 PBL2_status_t PBL2_init(void);
 
 /*!******************************************************************
  * \fn PBL2_status_t PBL2_set_state(PBL2_state_t state)
  * \brief Set train brake state.
- * \param[in]  	state: New state to set.
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   state: New state to set.
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 PBL2_status_t PBL2_set_state(PBL2_state_t state);
 
 /*!******************************************************************
  * \fn PBL2_status_t PBL2_process(void)
  * \brief Main process of PBL2 driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 PBL2_status_t PBL2_process(void);
 

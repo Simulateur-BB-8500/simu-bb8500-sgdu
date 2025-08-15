@@ -15,14 +15,14 @@
  * \brief FD driver error codes.
  *******************************************************************/
 typedef enum {
-	// Drivers errors.
-	FD_SUCCESS = 0,
-	FD_ERROR_STATE,
-	// Low level drivers errors.
-	FD_ERROR_DRIVER_KEYBOARD,
-	FD_ERROR_DRIVER_SOUND,
-	// Last index.
-	FD_ERROR_LAST
+    // Drivers errors.
+    FD_SUCCESS = 0,
+    FD_ERROR_STATE,
+    // Low level drivers errors.
+    FD_ERROR_DRIVER_KEYBOARD,
+    FD_ERROR_DRIVER_SOUND,
+    // Last index.
+    FD_ERROR_LAST
 } FD_status_t;
 
 /*!******************************************************************
@@ -30,10 +30,10 @@ typedef enum {
  * \brief Locomotive brake states.
  *******************************************************************/
 typedef enum {
-	FD_STATE_APPLY = 0,
-	FD_STATE_NEUTRAL,
-	FD_STATE_RELEASE,
-	FD_STATE_LAST
+    FD_STATE_APPLY = 0,
+    FD_STATE_NEUTRAL,
+    FD_STATE_RELEASE,
+    FD_STATE_LAST
 } FD_state_t;
 
 /*** FD functions ***/
@@ -41,27 +41,27 @@ typedef enum {
 /*!******************************************************************
  * \fn FD_status_t FD_init(void)
  * \brief Init FD driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 FD_status_t FD_init(void);
 
 /*!******************************************************************
  * \fn FD_status_t FD_set_state(FD_state_t state)
  * \brief Set locomotive brake state.
- * \param[in]  	state: New state to set.
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   state: New state to set.
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 FD_status_t FD_set_state(FD_state_t state);
 
 /*!******************************************************************
  * \fn FD_status_t FD_process(void)
  * \brief Main process of FD driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 FD_status_t FD_process(void);
 

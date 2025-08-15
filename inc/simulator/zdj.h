@@ -15,13 +15,13 @@
  * \brief ZDJ driver error codes.
  *******************************************************************/
 typedef enum {
-	// Drivers errors.
-	ZDJ_SUCCESS = 0,
-	ZDJ_ERROR_STATE,
-	// Low level drivers errors.
-	ZDJ_ERROR_DRIVER_SOUND,
-	// Last index.
-	ZDJ_ERROR_LAST
+    // Drivers errors.
+    ZDJ_SUCCESS = 0,
+    ZDJ_ERROR_STATE,
+    // Low level drivers errors.
+    ZDJ_ERROR_DRIVER_SOUND,
+    // Last index.
+    ZDJ_ERROR_LAST
 } ZDJ_status_t;
 
 /*!******************************************************************
@@ -29,9 +29,9 @@ typedef enum {
  * \brief Whistle states.
  *******************************************************************/
 typedef enum {
-	ZDJ_STATE_OPEN,
-	ZDJ_STATE_LOCK,
-	ZDJ_STATE_LAST
+    ZDJ_STATE_OPEN,
+    ZDJ_STATE_LOCK,
+    ZDJ_STATE_LAST
 } ZDJ_state_t;
 
 /*** ZDJ functions ***/
@@ -39,18 +39,18 @@ typedef enum {
 /*!******************************************************************
  * \fn ZDJ_status_t ZDJ_init(void)
  * \brief Init ZDJ driver.
- * \param[in]  	none
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   none
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 ZDJ_status_t ZDJ_init(void);
 
 /*!******************************************************************
  * \fn ZDJ_status_t ZDJ_set_state(ZDJ_state_t state)
  * \brief Set ZDJ state.
- * \param[in]  	state: New state to set.
- * \param[out] 	none
- * \retval		Function execution status.
+ * \param[in]   state: New state to set.
+ * \param[out]  none
+ * \retval      Function execution status.
  *******************************************************************/
 ZDJ_status_t ZDJ_set_state(ZDJ_state_t state);
 
