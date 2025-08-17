@@ -8,8 +8,8 @@
 #ifndef __SERIAL_H__
 #define __SERIAL_H__
 
-#include "windows.h"
 #include "stdint.h"
+#include "windows.h"
 
 /*** SERIAL structures ***/
 

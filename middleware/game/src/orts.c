@@ -15,7 +15,7 @@
 #include "log.h"
 #include "mp.h"
 #include "scu.h"
-#include "sgdu.h"
+#include "scu_commands.h"
 #include "stdint.h"
 #include "string.h"
 #include "time.h"
@@ -349,7 +349,7 @@ ORTS_status_t ORTS_process(void) {
                 SCU_stack_exit_error(ORTS_ERROR_DRIVER_SCU);
                 break;
             case ORTS_TX_DATA_INDEX_SPEED_LIMIT_KMH:
-                scu_status = SCU_send(SCU_SPEED_LIMIT_OFFSET + (orts_ctx.data[ORTS_TX_DATA_INDEX_SPEED_LIMIT_KMH] / SGDU_SPEED_LIMIT_FACTOR));
+                scu_status = SCU_send(SCU_SPEED_LIMIT_OFFSET + (orts_ctx.data[ORTS_TX_DATA_INDEX_SPEED_LIMIT_KMH] / SCU_SPEED_LIMIT_FACTOR));
                 SCU_stack_exit_error(ORTS_ERROR_DRIVER_SCU);
                 break;
             default:

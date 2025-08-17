@@ -1,3 +1,6 @@
 [submodule "lib/cJSON"]
     path = lib/cJSON
     url = https://github.com/DaveGamble/cJSON.git
+[submodule "simu-bb8500-v1-commands"]
+    path = middleware/interface/simu-bb8500-v1-commands
+    url = https://github.com/Simulateur-BB-8500/simu-bb8500-v1-commands.git

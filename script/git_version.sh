@@ -7,8 +7,8 @@ sscanf() {
 }
 
 # Files location.
-main_file="../src/main.c"
-version_file="../inc/version.h"
+main_file="../application/src/main.c"
+version_file="../application/inc/version.h"
 
 # Touch files to force makefile operation.
 touch $main_file
