@@ -8,7 +8,6 @@
 #ifndef __SCU_H__
 #define __SCU_H__
 
-#include "scu_commands.h"
 #include "stdint.h"
 
 /*** SCU structures ***/
@@ -55,13 +54,13 @@ typedef enum {
 SCU_status_t SCU_init(char* port);
 
 /*!******************************************************************
- * \fn SCU_status_t SCU_send(SCU_input_command_t tx_command)
+ * \fn SCU_status_t SCU_send(uint8_t tx_command)
  * \brief Send a command to SCU board.
  * \param[in]   tx_command: Command to send.
  * \param[out]  none
  * \retval      Function execution status.
  *******************************************************************/
-SCU_status_t SCU_send(SCU_input_command_t tx_command);
+SCU_status_t SCU_send(uint8_t tx_command);
 
 /*!******************************************************************
  * \fn SCU_status_t SCU_process(void)

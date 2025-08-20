@@ -58,7 +58,7 @@ errors:
 }
 
 /*******************************************************************/
-SCU_status_t SCU_send(SCU_input_command_t tx_command) {
+SCU_status_t SCU_send(uint8_t tx_command) {
     // Local variables.
     SCU_status_t status = SCU_SUCCESS;
     SERIAL_status_t serial_status = SERIAL_SUCCESS;
@@ -66,7 +66,7 @@ SCU_status_t SCU_send(SCU_input_command_t tx_command) {
     LOG_trace(LOG_COLOR_WHITE, "tx_command=%d", (uint8_t) tx_command);
 #endif
     // Write on serial port.
-    serial_status = SERIAL_write(&scu_serial_port, (uint8_t) tx_command);
+    serial_status = SERIAL_write(&scu_serial_port, tx_command);
     SERIAL_stack_exit_error(SCU_ERROR_DRIVER_SERIAL);
 errors:
     LOG_ERROR(status, SCU_SUCCESS);
