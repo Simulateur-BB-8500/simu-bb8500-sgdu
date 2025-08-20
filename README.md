@@ -32,7 +32,7 @@ The **SCU is the master of the interface**: each transfer is always initiated by
 
 ## Environment
 
-This software is developed under **Eclipse IDE** version 2020-09 (4.17.0) and **GNU MCU** plugin. The `script` folder contains the Eclipse run configuration file.
+This software is developed under **Eclipse IDE** version 2020-09 (4.17.0) and **MinGW** toolchain. The `script` folder contains the Eclipse run configuration file.
 
 > [!WARNING]
 > To compile any version under `sw2.0`, the `git_version.sh` script must be patched when `sscanf` function is called: the `SW` prefix must be replaced by `sw` since Git tags have been renamed in this way.
