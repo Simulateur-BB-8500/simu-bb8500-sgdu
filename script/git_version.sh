@@ -10,6 +10,9 @@ sscanf() {
 main_file="../application/src/main.c"
 version_file="../application/inc/version.h"
 
+# Create include folder.
+mkdir -p ../application/inc
+
 # Touch files to force makefile operation.
 touch $main_file
 touch $version_file
