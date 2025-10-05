@@ -73,7 +73,9 @@ KEYBOARD_status_t KEYBOARD_press(const KEYBOARD_shortcut_t* shortcut) {
     if ((shortcut->vk_code_1) != VK_NONE) {
         keybd_event((shortcut->vk_code_1), MapVirtualKey((shortcut->vk_code_1), MAPVK_VK_TO_VSC), 0, 0);
     }
-    LOG_trace(LOG_COLOR_WHITE, "[0x%02X 0x%02X]", (shortcut -> vk_code_0), (shortcut -> vk_code_1));
+#ifdef LOG_KEYBOARD
+    LOG_trace(LOG_COLOR_WHITE, "[0x%02X 0x%02X]", (shortcut->vk_code_0), (shortcut->vk_code_1));
+#endif
 errors:
     LOG_ERROR(status, KEYBOARD_SUCCESS);
     return status;
@@ -96,7 +98,9 @@ KEYBOARD_status_t KEYBOARD_release(const KEYBOARD_shortcut_t* shortcut) {
     if ((shortcut->vk_code_1) != VK_NONE) {
         keybd_event((shortcut->vk_code_1), MapVirtualKey((shortcut->vk_code_1), MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
     }
-    LOG_trace(LOG_COLOR_WHITE, "[0x%02X 0x%02X]", (shortcut -> vk_code_0), (shortcut -> vk_code_1));
+#ifdef LOG_KEYBOARD
+    LOG_trace(LOG_COLOR_WHITE, "[0x%02X 0x%02X]", (shortcut->vk_code_0), (shortcut->vk_code_1));
+#endif
 errors:
     LOG_ERROR(status, KEYBOARD_SUCCESS);
     return status;
@@ -125,7 +129,7 @@ KEYBOARD_status_t KEYBOARD_single_press(const KEYBOARD_shortcut_t* shortcut, uin
         keyboard_ctx.write_idx = 0;
     }
 #ifdef LOG_KEYBOARD
-    LOG_trace(LOG_COLOR_WHITE, "[0x%02X 0x%02X]", (shortcut -> vk_code_0), (shortcut -> vk_code_1));
+    LOG_trace(LOG_COLOR_WHITE, "[0x%02X 0x%02X]", (shortcut->vk_code_0), (shortcut->vk_code_1));
 #endif
 errors:
     LOG_ERROR(status, KEYBOARD_SUCCESS);

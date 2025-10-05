@@ -215,7 +215,7 @@ SOUND_status_t SOUND_init(SOUND_context_t* sound_ctx, const char* audio_file_nam
     fmod_status = FMOD_Sound_GetLength((sound_ctx->fmod_sound), &(sound_ctx->length_ms), FMOD_TIMEUNIT_MS);
     FMOD_stack_exit_error(SOUND_ERROR_DRIVER_FMOD);
 #ifdef LOG_SOUND
-    LOG_trace(LOG_COLOR_WHITE, "Open audio file %s (length=%dms)", audio_file_name, (sound_ctx -> length_ms));
+    LOG_trace(LOG_COLOR_WHITE, "Open audio file %s (length=%dms)", audio_file_name, (sound_ctx->length_ms));
 #endif
 errors:
     LOG_ERROR(status, SOUND_SUCCESS);
