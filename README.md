@@ -15,7 +15,7 @@ Unlike hardware related codes which have dedicated repositories for each simulat
 | Simulator version | SGDU version |
 |:---:|:---:|
 | V0 | - |
-| V1 | >= [sw0.0](https://github.com/Simulateur-BB-8500/simu-bb8500-sgdu/releases/tag/sw0.0) |
+| V1 | [sw0.0](https://github.com/Simulateur-BB-8500/simu-bb8500-sgdu/releases/tag/sw0.0) to [sw2.2](https://github.com/Simulateur-BB-8500/simu-bb8500-sgdu/releases/tag/sw2.2) |
 | V2 | - |
 
 ## SCU interface
