@@ -27,7 +27,7 @@ typedef enum {
  * \brief KVB states.
  *******************************************************************/
 typedef enum {
-    KVB_STATE_ON,
+    KVB_STATE_ON = 0,
     KVB_STATE_OFF,
     KVB_STATE_LAST
 } KVB_state_t;

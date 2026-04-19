@@ -29,7 +29,7 @@ typedef enum {
  * \brief Whistle states.
  *******************************************************************/
 typedef enum {
-    WHISTLE_STATE_HIGH_TONE,
+    WHISTLE_STATE_HIGH_TONE = 0,
     WHISTLE_STATE_NEUTRAL,
     WHISTLE_STATE_LOW_TONE,
     WHISTLE_STATE_LAST

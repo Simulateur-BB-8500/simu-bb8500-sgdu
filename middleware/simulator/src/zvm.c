@@ -23,7 +23,7 @@
 
 /*******************************************************************/
 typedef enum {
-    ZVM_INTERNAL_STATE_TURN_OFF,
+    ZVM_INTERNAL_STATE_TURN_OFF = 0,
     ZVM_INTERNAL_STATE_TURN_ON,
     ZVM_INTERNAL_STATE_ON_0,
     ZVM_INTERNAL_STATE_ON_1,

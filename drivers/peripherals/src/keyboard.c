@@ -22,7 +22,7 @@
 
 /*******************************************************************/
 typedef enum {
-    KEYBOARD_STATE_READY,
+    KEYBOARD_STATE_READY = 0,
     KEYBOARD_STATE_KEY_PRESSED,
     KEYBOARD_STATE_IDLE
 } KEYBOARD_state_t;

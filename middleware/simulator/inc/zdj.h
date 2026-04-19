@@ -29,7 +29,7 @@ typedef enum {
  * \brief Whistle states.
  *******************************************************************/
 typedef enum {
-    ZDJ_STATE_OPEN,
+    ZDJ_STATE_OPEN = 0,
     ZDJ_STATE_LOCK,
     ZDJ_STATE_LAST
 } ZDJ_state_t;

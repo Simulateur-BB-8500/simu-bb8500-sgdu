@@ -19,7 +19,7 @@
  *******************************************************************/
 typedef enum {
     // Driver errors.
-    SERIAL_SUCCESS,
+    SERIAL_SUCCESS = 0,
     SERIAL_ERROR_NULL_PARAMETER,
     SERIAL_ERROR_INVALID_HANDLE,
     // Low level drivers errors.
